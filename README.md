@@ -1,7 +1,7 @@
 duDatepicker
 =========
 
-This is the enhanced date picker extracted from DCalendar plugin.
+This is the enhanced date picker extracted from [DCalendar plugin](https://github.com/dmuy/DCalendar).
 
 ![alt text](https://lh3.googleusercontent.com/MOGr_y4LAC7fpRX67xqhWPmFNob45ELyq49TCw4tm6XKh6-sYzKf-aljItRLFO2zzMQZbgB6ykYJTGPLYQ7-xpIt82IaUCPKtpCCT3JOeaJ-o-LfsYNvgPW_TyAULtEGp7cvqKQ5e2e8GVVZitFp3ISwVzSmv7-n9FZYJe4J_7YkY2yQU84ixmn7E3O4j5oyagbxmK7NegjEANJCHBxcD_8tBR25IhE1ywZtnyiHZ7bV25t0lwTJ7IzXLV4fTqB0MniDXlq8G1gvpNibQMR468eSdoJglrnUjjwfbD9sdiT7TH6rZV3RxDcwLQaoFxjp0iyPz8pjgkDP4zgRhlc4f1ql7aD3r0fizB8-13MwwVoA823BjVbC2seR4HU6eRlwcZPas8OSHjjq-UI8wPyaOLKpN5jI85qRdCzdJy8VY03l1YxhQCbfgwLhtEsuHePXTTP5unvp7WClcJIy2thiLky-rfmPGDu0LNJm314gJuIr5DInvTDwTzecrrUDG8fajmMXJDGssQ4Ro85VHv97kkuWrZnn2YvNKPjZDghI0jy664L3dZa3DwjH48eWik2O3ld9-rbzGYpurWJ2LPnjTDP-Gf5TwvzcYxeBlw_8z1YhAmNB1sHo=w337-h482-no "Date picker")
 ![alt text](https://lh3.googleusercontent.com/66Xxg3DC1n9Nzqj6LaqhlQJ24WY_rM-HH-yLgbRB7gimB2vu08o5cN_YdBZYGwaALIfkLnxT2yDM7XEHcBZdE_SOz4CEgS9P1WwD-Ze5Ocg99vv6XkXj51V6H2u12txe-7LPrV0MYX_yQAGadXkjVrS9orccCAE3zRov3j1Y5wA5LzPw9md1adRebiohk-QNg8lxGgqN3gyqqAeK4oif8dWCPF-_X_W1rLiKKlCUfYyCpviohMulkKPKv1mnm0GbuwSdB2-TWQHii9S8N6Y0Mmo3Zy_B4EvBF7h0l1hu02RPyXMLLgf28W74wP0PS4zAHFmjBfhRBUJHdzBqT32ajEx79dtEVcqxkB2LtBLxZru6OjlM4kT5_t1vQVx6bRwQXyHCbK_fqfFC_bLob7__lZYUKhua2ZdKaXCeZ2O1EIJrBbrRPkOWaygePwjMZG2V4flk2_Z1nzNREJ2JWvHhn5uNoJgujrzTt__W7pGc_Ehl7VmMioTQwtVxcIvCMFdwzWgr0bAuxSR0Km1o_DFddEbWrF_hebiwe7YDpQS3F_019wpisBr3NLwoDr2H5PAZlpMco1o37jx22CelmE_5XhcZQ85AsLDkmx6nbFshbotTy6mGDamr=w337-h482-no "with Clear button")
@@ -109,6 +109,7 @@ Predefined themes are: `red`,`blue` *(default)*, `green`, `purple`, `indigo` and
 If you don't specify the theme to use or specify a theme which isn't there, the default theme will be used.
 
 ## Options
+Below is the default configuration of the date picker.
 ```javascript
 {
   format: 'mm/dd/yyyy', // Determines the date format
