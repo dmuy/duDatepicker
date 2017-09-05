@@ -33,28 +33,28 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			this.config = options;
 			this.viewMode = 'calendar';
 			this.datepicker = {
-				container: $('<div class="dcalendarpicker hidden"></div>'),
-				wrapper: $('<div class="dcp__wrapper"></div>'),
+				container: $('<div class="dcalendarpicker dp__hidden"></div>'),
+				wrapper: $('<div class="dudp__wrapper"></div>'),
 				header: {
-					wrapper: $('<section class="dcp__calendar-header"></section>'),
-					selectedYear: $('<span class="dcp__sel-year"></span>'),
+					wrapper: $('<section class="dudp__calendar-header"></section>'),
+					selectedYear: $('<span class="dudp__sel-year"></span>'),
 					selectedDate: $('<span class="dcp_sel-date"></span>')
 				},
 				calendarHolder: {
-					wrapper: $('<section class="dcp__cal-container"></section>'),
-					btnPrev: $('<span class="dcp__btn-cal-prev">&lsaquo;</span>'),
-					btnNext: $('<span class="dcp__btn-cal-next">&rsaquo;</span>'),
+					wrapper: $('<section class="dudp__cal-container"></section>'),
+					btnPrev: $('<span class="dudp__btn-cal-prev">&lsaquo;</span>'),
+					btnNext: $('<span class="dudp__btn-cal-next">&rsaquo;</span>'),
 					calendarViews: {
-						wrapper: $('<div class="dcp__calendar-views"></div>'),
+						wrapper: $('<div class="dudp__calendar-views"></div>'),
 						calendars: []
 					},
-					yearsView: $('<div class="dcp__years-view hidden"></div>'),
-					monthsView: $('<div class="dcp__months-view hidden"></div>'),
+					yearsView: $('<div class="dudp__years-view dp__hidden"></div>'),
+					monthsView: $('<div class="dudp__months-view dp__hidden"></div>'),
 					buttons: {
-						wrapper: $('<div class="dcp__buttons"></div>'),
-						btnClear: $('<span class="dcp__button clear">Clear</span>'),
-						btnCancel: $('<span class="dcp__button cancel">Cancel</span>'),
-						btnOk: $('<span class="dcp__button ok">Ok</span>')
+						wrapper: $('<div class="dudp__buttons"></div>'),
+						btnClear: $('<span class="dudp__button clear">Clear</span>'),
+						btnCancel: $('<span class="dudp__button cancel">Cancel</span>'),
+						btnOk: $('<span class="dudp__button ok">Ok</span>')
 					}
 				}
 			};
@@ -93,9 +93,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			// Setup months view
 			var _month = 0;
 			for (var r = 1; r < 4; r++) {
-				var monthRow = $('<div class="dcp__month-row"></div>');
+				var monthRow = $('<div class="dudp__month-row"></div>');
 				for (var i = 0; i < 4; i++) {
-					var monthElem = $('<span class="dcp__month"></span>');
+					var monthElem = $('<span class="dudp__month"></span>');
 
 					if (_month === that.selected.month) monthElem.addClass('selected');
 
@@ -168,7 +168,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 			// Switch view to months view
 			calendarHolder.calendarViews.wrapper
-				.on('click', '.dcp__cal-month-year', function (e) { if (that.viewMode !== 'months') that.switchView('months'); });
+				.on('click', '.dudp__cal-month-year', function (e) { if (that.viewMode !== 'months') that.switchView('months'); });
 
 		    if (that.config.clearBtn)
 			    buttons.btnClear.click(function () {
@@ -205,9 +205,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 				weeks = [];
 
 			for(var week = 1; week <= 6; week++) {
-				var daysOfWeek = [$('<span class="dcp__date"></span>'), $('<span class="dcp__date"></span>'), $('<span class="dcp__date"></span>'), 
-						$('<span class="dcp__date"></span>'), $('<span class="dcp__date"></span>'), $('<span class="dcp__date"></span>'),
-						$('<span class="dcp__date"></span>')];
+				var daysOfWeek = [$('<span class="dudp__date"></span>'), $('<span class="dudp__date"></span>'), $('<span class="dudp__date"></span>'), 
+						$('<span class="dudp__date"></span>'), $('<span class="dudp__date"></span>'), $('<span class="dudp__date"></span>'),
+						$('<span class="dudp__date"></span>')];
 
 				while(day <= totalDays) {
 					date.setDate(day);
@@ -246,7 +246,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 						    daysOfWeek[a].data('date', prevMonthDays).data('month', month - 1).data('year', year);
 						    prevMonth.setDate(prevMonthDays);
-						    daysOfWeek[a].text((prevMonthDays--)).addClass('dcp__pm');
+						    daysOfWeek[a].text((prevMonthDays--)).addClass('dudp__pm');
 
 							if (that.disabledDate(prevMonth)) daysOfWeek[a].addClass('disabled');
 
@@ -262,7 +262,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 						    daysOfWeek[a].data('date', nmStartDay).data('month', month + 1).data('year', year);
 						    nextMonth.setDate(nmStartDay);
-						    daysOfWeek[a].text((nmStartDay++)).addClass('dcp__nm');
+						    daysOfWeek[a].text((nmStartDay++)).addClass('dudp__nm');
 
 							if (that.disabledDate(nextMonth)) daysOfWeek[a].addClass('disabled');
 
@@ -275,7 +275,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			}
 			var calDates = [];
 			$.each(weeks, function (idx, dow) {
-				var calWeek = $('<div class="dcp__cal-week"></div>');
+				var calWeek = $('<div class="dudp__cal-week"></div>');
 
 				for(var i = 0; i < dow.length; i++) {
 					var dateElem = dow[i];
@@ -287,12 +287,12 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 						if (that.disabledDate(_selected)) return;
 
-						_this.parents('.dcp__calendar-views').find('.dcp__date').each(function (idx, delem) {
+						_this.parents('.dudp__calendar-views').find('.dudp__date').each(function (idx, delem) {
 							var _deYear = $(delem).data('year'), _deMonth = $(delem).data('month'), _deDate = $(delem).data('date');
 
 							$(delem)[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'addClass' : 'removeClass']('selected');
 						});
-						_this.parents('.dcp__cal-container').find('.dcp__month').each(function (idx, melem) {
+						_this.parents('.dudp__cal-container').find('.dudp__month').each(function (idx, melem) {
 							var _meMonth = $(melem).data('month');
 
 							$(melem)[_meMonth === _month ? 'addClass' : 'removeClass']('selected');
@@ -318,7 +318,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 				_years = [];
 
 			for (var y = _minYear; y <= _maxYear; y++) {
-				var yearElem = $('<span class="dcp__year"></span>');
+				var yearElem = $('<span class="dudp__year"></span>');
 
 				if (y === that.viewYear) yearElem.addClass('selected');
 
@@ -349,20 +349,20 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			viewsHolder.calendars.length = 0;
 
 			var inView = {
-				wrapper: $('<div class="dcp__calendar"></div>'),
-				header: $('<div class="dcp__cal-month-year"></div>'),
-				weekDays: $('<div class="dcp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-				datesHolder: $('<div class="dcp__dates-holder"></div>')
+				wrapper: $('<div class="dudp__calendar"></div>'),
+				header: $('<div class="dudp__cal-month-year"></div>'),
+				weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+				datesHolder: $('<div class="dudp__dates-holder"></div>')
 			},prev = {
-				wrapper: $('<div class="dcp__calendar"></div>'),
-				header: $('<div class="dcp__cal-month-year"></div>'),
-				weekDays: $('<div class="dcp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-				datesHolder: $('<div class="dcp__dates-holder"></div>')
+				wrapper: $('<div class="dudp__calendar"></div>'),
+				header: $('<div class="dudp__cal-month-year"></div>'),
+				weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+				datesHolder: $('<div class="dudp__dates-holder"></div>')
 			},next = {
-				wrapper: $('<div class="dcp__calendar"></div>'),
-				header: $('<div class="dcp__cal-month-year"></div>'),
-				weekDays: $('<div class="dcp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-				datesHolder: $('<div class="dcp__dates-holder"></div>')
+				wrapper: $('<div class="dudp__calendar"></div>'),
+				header: $('<div class="dudp__cal-month-year"></div>'),
+				weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+				datesHolder: $('<div class="dudp__dates-holder"></div>')
 			};
 
 			prev.header.text(that.formatDate(new Date(_year, _month - 1, 1), MONTH_HEAD_FORMAT)).appendTo(prev.wrapper);
@@ -405,9 +405,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			that.animating = true;
 
 			//Start animation
-			var animateClass = 'dcp__animate-' + (direction === 'next' ? 'left' : 'right');
+			var animateClass = 'dp__animate-' + (direction === 'next' ? 'left' : 'right');
 
-			viewsHolder.wrapper.find('.dcp__calendar').addClass(animateClass);
+			viewsHolder.wrapper.find('.dudp__calendar').addClass(animateClass);
 
 			//Setup new next month
 			if (direction === 'next') {
@@ -420,10 +420,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 				var nextDates = that.getDates(_year, _month),
 					newNext = {
-						wrapper: $('<div class="dcp__calendar"></div>'),
-						header: $('<div class="dcp__cal-month-year"></div>'),
-						weekDays: $('<div class="dcp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-						datesHolder: $('<div class="dcp__dates-holder"></div>')
+						wrapper: $('<div class="dudp__calendar"></div>'),
+						header: $('<div class="dudp__cal-month-year"></div>'),
+						weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+						datesHolder: $('<div class="dudp__dates-holder"></div>')
 					};
 
 					newNext.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newNext.wrapper);
@@ -432,7 +432,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 					setTimeout(function(){
 						viewsHolder.wrapper.append(newNext.wrapper);
-						viewsHolder.wrapper.find('.dcp__calendar').removeClass(animateClass);
+						viewsHolder.wrapper.find('.dudp__calendar').removeClass(animateClass);
 
 						viewsHolder.calendars[0].wrapper.remove();
 						viewsHolder.calendars.shift();
@@ -451,10 +451,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 				var prevDates = that.getDates(_year, _month),
 					newPrev = {
-						wrapper: $('<div class="dcp__calendar"></div>'),
-						header: $('<div class="dcp__cal-month-year"></div>'),
-						weekDays: $('<div class="dcp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-						datesHolder: $('<div class="dcp__dates-holder"></div>')
+						wrapper: $('<div class="dudp__calendar"></div>'),
+						header: $('<div class="dudp__cal-month-year"></div>'),
+						weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+						datesHolder: $('<div class="dudp__dates-holder"></div>')
 					};
 
 					newPrev.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newPrev.wrapper);
@@ -463,7 +463,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 					setTimeout(function(){
 						viewsHolder.wrapper.prepend(newPrev.wrapper);
-						viewsHolder.wrapper.find('.dcp__calendar').removeClass(animateClass);
+						viewsHolder.wrapper.find('.dudp__calendar').removeClass(animateClass);
 
 						viewsHolder.calendars[2].wrapper.remove();
 						viewsHolder.calendars.pop();
@@ -485,46 +485,46 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			that.viewMode = view;
 			switch (view) {
 				case 'calendar': 
-					calViews.addClass('animate-out').removeClass('hidden');
-					picker.calendarHolder.btnPrev.removeClass('hidden');
-					picker.calendarHolder.btnNext.removeClass('hidden');
+					calViews.addClass('dp__animate-out').removeClass('dp__hidden');
+					picker.calendarHolder.btnPrev.removeClass('dp__hidden');
+					picker.calendarHolder.btnNext.removeClass('dp__hidden');
 
-					setTimeout(function() { calViews.removeClass('animate-out'); }, 10);
-					monthsView.addClass('animate-out');
-					yearsView.addClass('hidden');
+					setTimeout(function() { calViews.removeClass('dp__animate-out'); }, 10);
+					monthsView.addClass('dp__animate-out');
+					yearsView.addClass('dp__hidden');
 
 					setTimeout(function() {
-						monthsView.addClass('hidden').removeClass('animate-out');
+						monthsView.addClass('dp__hidden').removeClass('dp__animate-out');
 					}, _animDuration);
 				break;
 				case 'months':
-					picker.calendarHolder.btnPrev.addClass('hidden');
-					picker.calendarHolder.btnNext.addClass('hidden');
-					calViews.addClass('animate-out');
-					monthsView.addClass('animate-out').removeClass('hidden');
+					picker.calendarHolder.btnPrev.addClass('dp__hidden');
+					picker.calendarHolder.btnNext.addClass('dp__hidden');
+					calViews.addClass('dp__animate-out');
+					monthsView.addClass('dp__animate-out').removeClass('dp__hidden');
 
-					setTimeout(function() { monthsView.removeClass('animate-out'); }, 10);
+					setTimeout(function() { monthsView.removeClass('dp__animate-out'); }, 10);
 					setTimeout(function() {
-						calViews.addClass('hidden').removeClass('animate-out');
+						calViews.addClass('dp__hidden').removeClass('dp__animate-out');
 					}, _animDuration);
 				break;
 				case 'years':
 					yearsView.html(that.getYears());
 
-					var _selYear = yearsView.find('.dcp__year.selected');
+					var _selYear = yearsView.find('.dudp__year.selected');
 
 					yearsView.scrollTop(_selYear[0].offsetTop - 120);
 
-					picker.calendarHolder.btnPrev.addClass('hidden');
-					picker.calendarHolder.btnNext.addClass('hidden');
+					picker.calendarHolder.btnPrev.addClass('dp__hidden');
+					picker.calendarHolder.btnNext.addClass('dp__hidden');
 
-					monthsView.addClass('animate-out');
-					calViews.addClass('animate-out');
-					yearsView.removeClass('hidden');
+					monthsView.addClass('dp__animate-out');
+					calViews.addClass('dp__animate-out');
+					yearsView.removeClass('dp__hidden');
 
 					setTimeout(function() {
-						calViews.addClass('hidden').removeClass('animate-out');
-						monthsView.addClass('hidden').removeClass('animate-out');
+						calViews.addClass('dp__hidden').removeClass('dp__animate-out');
+						monthsView.addClass('dp__hidden').removeClass('dp__animate-out');
 					}, _animDuration);
 				break;
 			}
@@ -538,7 +538,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			that.viewYear = that.selected.year;
 			that.viewMonth = that.selected.month;
 
-			that.datepicker.calendarHolder.monthsView.find('.dcp__month').each(function (idx, melem) {
+			that.datepicker.calendarHolder.monthsView.find('.dudp__month').each(function (idx, melem) {
 				var _meMonth = $(melem).data('month');
 
 				$(melem)[_meMonth === that.selected.month ? 'addClass' : 'removeClass']('selected');
@@ -699,11 +699,11 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 			$('body').attr('datepicker-display', 'on');
 
-			that.datepicker.wrapper.addClass('animate');
-			that.datepicker.container.removeClass('hidden').addClass('animate');
+			that.datepicker.wrapper.addClass('dp__animate');
+			that.datepicker.container.removeClass('dp__hidden').addClass('dp__animate');
 			setTimeout(function() {
-				that.datepicker.container.removeClass('animate');
-				that.datepicker.wrapper.removeClass('animate');
+				that.datepicker.container.removeClass('dp__animate');
+				that.datepicker.wrapper.removeClass('dp__animate');
 
 				that.visible = true;
 				that.input.blur();
@@ -714,11 +714,11 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 		hide: function () {
 			var that = this;
 
-			that.datepicker.container.addClass('animate');
-			that.datepicker.wrapper.addClass('animate');
+			that.datepicker.container.addClass('dp__animate');
+			that.datepicker.wrapper.addClass('dp__animate');
 			setTimeout(function() {
-				that.datepicker.container.addClass('hidden').removeClass('animate');
-				that.datepicker.wrapper.removeClass('animate');
+				that.datepicker.container.addClass('dp__hidden').removeClass('dp__animate');
+				that.datepicker.wrapper.removeClass('dp__animate');
 
 				// Reset view to calendar
 				that.switchView('calendar');
@@ -753,12 +753,12 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 	}
 
 	$.fn.duDatepicker.defaults = {
-		format: 'mm/dd/yyyy',
-		theme: 'blue',
-		readOnly: true,
-		clearBtn: false,
-		cancelBtn: false,
-		overlayClose: true
+		format: 'mm/dd/yyyy',	// Determines the date format
+		theme: 'blue',			// Determines the color theme of the date picker
+		readOnly: true,			// Determines if input element is readonly (key input is disabled)
+		clearBtn: false,		// Determines if Clear button is displayed
+		cancelBtn: false,		// Determines if Cancel button is displayed
+		overlayClose: true		// Determines if clicking the overlay will close the date picker
 	};
 
 	// $.fn.duDatepicker.Constructor = DUDatePicker;
