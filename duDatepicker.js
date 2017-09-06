@@ -388,90 +388,52 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 		/* Moves the calendar to specified direction (previous or next) */
 		move: function (direction) {
-			var that = this, picker = that.datepicker, viewsHolder = picker.calendarHolder.calendarViews, _animDuration = 250;
-
 			if (direction !== 'next' && direction !== 'prev') return;
 
-			if (that.animating) return;
+			if (this.animating) return;
 
-			if (direction === 'next') {
-				if (that.viewMonth + 1 > 11) that.viewYear += 1;
-				that.viewMonth = that.viewMonth + 1 > 11 ? 0 : that.viewMonth + 1;
-			} else {
-				if (that.viewMonth - 1 < 0) that.viewYear -= 1;
-				that.viewMonth = that.viewMonth - 1 < 0 ? 11 : that.viewMonth - 1;
-			}
+			var that = this, picker = that.datepicker, viewsHolder = picker.calendarHolder.calendarViews,
+				_animDuration = 250, _isNext = direction === 'next';
+
+			if (_isNext ? that.viewMonth + 1 > 11 : that.viewMonth - 1 < 0) that.viewYear += (_isNext ? 1 : -1);
+			that.viewMonth = _isNext ? (that.viewMonth + 1 > 11 ? 0 : that.viewMonth + 1) : (that.viewMonth - 1 < 0 ? 11 : that.viewMonth - 1);
 
 			that.animating = true;
 
 			//Start animation
-			var animateClass = 'dp__animate-' + (direction === 'next' ? 'left' : 'right');
+			var animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right');
 
 			viewsHolder.wrapper.find('.dudp__calendar').addClass(animateClass);
 
-			//Setup new next month
-			if (direction === 'next') {
-				var _year = that.viewYear, _month = that.viewMonth + 1;
+			//Setup new (previos or next) month calendar
+			var _year = that.viewYear, _month = _isNext ? that.viewMonth + 1 : that.viewMonth - 1;
 
-				if (_month > 11) {
-					_month = 0;
-					_year += 1;
-				}
-
-				var nextDates = that.getDates(_year, _month),
-					newNext = {
-						wrapper: $('<div class="dudp__calendar"></div>'),
-						header: $('<div class="dudp__cal-month-year"></div>'),
-						weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-						datesHolder: $('<div class="dudp__dates-holder"></div>')
-					};
-
-					newNext.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newNext.wrapper);
-					newNext.wrapper.append(newNext.weekDays);
-					newNext.datesHolder.html(nextDates).appendTo(newNext.wrapper);
-
-					setTimeout(function(){
-						viewsHolder.wrapper.append(newNext.wrapper);
-						viewsHolder.wrapper.find('.dudp__calendar').removeClass(animateClass);
-
-						viewsHolder.calendars[0].wrapper.remove();
-						viewsHolder.calendars.shift();
-						viewsHolder.calendars.push(newNext);
-
-						that.animating = false;
-					}, _animDuration);
-
-			} else {
-				var _year = that.viewYear, _month = that.viewMonth - 1;
-
-				if (_month < 0) {
-					_month = 11;
-					_year -= 1;
-				}
-
-				var prevDates = that.getDates(_year, _month),
-					newPrev = {
-						wrapper: $('<div class="dudp__calendar"></div>'),
-						header: $('<div class="dudp__cal-month-year"></div>'),
-						weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
-						datesHolder: $('<div class="dudp__dates-holder"></div>')
-					};
-
-					newPrev.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newPrev.wrapper);
-					newPrev.wrapper.append(newPrev.weekDays);
-					newPrev.datesHolder.html(prevDates).appendTo(newPrev.wrapper);
-
-					setTimeout(function(){
-						viewsHolder.wrapper.prepend(newPrev.wrapper);
-						viewsHolder.wrapper.find('.dudp__calendar').removeClass(animateClass);
-
-						viewsHolder.calendars[2].wrapper.remove();
-						viewsHolder.calendars.pop();
-						viewsHolder.calendars.unshift(newPrev);
-
-						that.animating = false;
-					}, _animDuration);
+			if (_isNext ? _month > 11 : _month < 0) {
+				_month = _isNext ? 0 : 11;
+				_year += _isNext ? 1 : -1;
 			}
+			var newCalDates = that.getDates(_year, _month),
+				newCalEl = {
+					wrapper: $('<div class="dudp__calendar"></div>'),
+					header: $('<div class="dudp__cal-month-year"></div>'),
+					weekDays: $('<div class="dudp__weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'),
+					datesHolder: $('<div class="dudp__dates-holder"></div>')
+				};
+
+			newCalEl.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newCalEl.wrapper);
+			newCalEl.wrapper.append(newCalEl.weekDays);
+			newCalEl.datesHolder.html(newCalDates).appendTo(newCalEl.wrapper);
+
+			setTimeout(function(){
+				viewsHolder.wrapper[_isNext ? 'append' : 'prepend'](newCalEl.wrapper);
+				viewsHolder.wrapper.find('.dudp__calendar').removeClass(animateClass);
+
+				viewsHolder.calendars[_isNext ? 0 : 2].wrapper.remove();
+				viewsHolder.calendars[_isNext ? 'shift' : 'pop']();
+				viewsHolder.calendars[_isNext ? 'push' : 'unshift'](newCalEl);
+
+				that.animating = false;
+			}, _animDuration);
 		},
 
 		/* Switches view of picker (calendar, months, years) */
