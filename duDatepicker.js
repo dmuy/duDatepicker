@@ -1,9 +1,9 @@
 /* -- DO NOT REMOVE --
- * jQuery DUDatePicker v1.0 plugin
- * 
+ * jQuery duDatePicker v1.0 plugin
+ * https://github.com/dmuy/duDatepicker
+ *
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
- *
  * Date: Monday, Sept 4 2017
  *
  * @requires jQuery
@@ -150,6 +150,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			that.input.click(function () { that.show(); })
 				.on('keydown', function (e) { return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly); })
 				.keydown(function (e) { if (e.keyCode === 13) that.show(); });
+
+			if (that.config.readOnly) that.input.prop('readonly', true);
 
 			// Switch to years view
 			header.selectedYear.click(function (e) { if (that.viewMode !== 'years') that.switchView('years'); });
