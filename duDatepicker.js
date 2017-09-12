@@ -148,10 +148,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 			/* ------------------------ Setup actions ------------------------ */
 			that.input.click(function () { that.show(); })
-				.on('keydown', function (e) { return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly); })
-				.keydown(function (e) { if (e.keyCode === 13) that.show(); });
-
-			if (that.config.readOnly) that.input.prop('readonly', true);
+				.on('keydown', function (e) {
+					if (e.keyCode === 13) that.show();
+					return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly); })
+				.prop('readonly', that.config.readOnly);
 
 			// Switch to years view
 			header.selectedYear.click(function (e) { if (that.viewMode !== 'years') that.switchView('years'); });

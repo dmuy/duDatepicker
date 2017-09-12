@@ -135,7 +135,7 @@
 .dudp__calendar .dudp__weekdays span {
 	display: inline-block;
 	flex: 0 1 auto;
-	width: 32px;
+	width: 36px;
 	text-align: center;
 	color: rgb(50,50,50);
 	font-size: 11px;
