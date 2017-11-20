@@ -623,7 +623,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 
 		/* Determines if date is disabled */
 		disabledDate: function (date) {
-			var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null, today = new Date();
+			var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null,
+                now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 			if (that.minDate) min = that.minDate === "today" ? today : new Date(that.minDate);
 			if (that.maxDate) max = that.maxDate === "today" ? today : new Date(that.maxDate);
