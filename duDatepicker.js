@@ -147,7 +147,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			}
 
 			/* ------------------------ Setup actions ------------------------ */
-			that.input.click(function () { that.show(); })
+			that.input.on('click', function () { that.show(); })
 				.on('keydown', function (e) {
 					if (e.keyCode === 13) that.show();
 					return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly); })
@@ -692,6 +692,16 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 				that.visible = false;
 				that.input.focus();
 			}, 300);
+		},
+
+		/* Destroys the date picker plugin */
+		destroy: function () {
+			var that = this;
+
+			that.input.removeData(DCAL_DATA)
+				.unbind('keydown').unbind('click')
+				.removeProp('readonly');
+			that.datepicker.container.remove();
 		}
 	};
 
