@@ -65,10 +65,20 @@ Just specify `data-mindate` and/or `data-maxdate` attributes on your `input` ele
 <input type="text" id="datepicker" data-maxdate="today"/>       //Dates enabled ranges from earlier dates until current date.
 <input type="text" id="datepicker" data-maxdate="10/30/2016"/>  //Dates enabled ranges from previous dates of October 10, 2016 until October 10, 2016
 ```
-You can also specify the mininum and maximum date to create a specific date range acceptable:
+You can also specify both the mininum and maximum date to create a specific date range acceptable:
 ```html
 <input type="text" id="datepicker" data-mindate="1/1/2016" data-maxdate="2/1/2016"/>  //Dates enabled ranges from January 1 to February 1, 2016
 ```
+### Using configuration
+During initialization, you can also specify the min and max date.
+```javascript
+<script>
+  $(document).ready(function(){
+    $('#datepicker').duDatepicker({ minDate: 'today', maxDate: '10/30/2016' });
+  });
+</script>
+```
+If you specify the `minDate` and/or `maxDate` and place the `data-mindate` and/or `data-maxdate` on the input element, the value of the attribute will take precedence. For example if you specify `minDate: 'today'` in the config and placed a `data-mindate="01/20/2018"`, the min date (for the input with `data-mindate` attribute) will be `01/20/2018`.
 
 ## Range From and To
 For situations where you have two inputs representing a date range (from & to), you can restrict the minimum and maximum date based on the values of the input elements - the maximum allowed date for date from (input element) is the value of date to (input element), and the minimum allowed date for date to is the value of the date from input.
@@ -79,6 +89,15 @@ Example:
 ```html
 <input type="text" id="datefrom" data-rangeto="#dateto"/>   //Maximum enabled date is <= value of #dateto
 <input type="text" id="dateto" data-rangefrom="#datefrom" data-maxdate="today"/>  //Minimum enabled date is >= value of #datefrom
+```
+Or
+```javascript
+<script>
+  $(document).ready(function(){
+    $('#datefrom').duDatepicker({ rangeTo: '#dateto'});
+    $('#dateto').duDatepicker({ rangeFrom: '#datefrom'});
+  });
+</script>
 ```
 
 
