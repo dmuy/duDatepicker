@@ -64,10 +64,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 			this.viewMonth = this.selected.month;
 			this.viewYear = this.selected.year;
 
-			this.minDate = this.input.data('mindate');
-			this.maxDate = this.input.data('maxdate');
-			this.rangeFromEl = this.input.data('rangefrom');
-			this.rangeToEl = this.input.data('rangeto');
+			this.minDate = this.input.data('mindate') || this.config.minDate;
+			this.maxDate = this.input.data('maxdate') || this.config.maxDate;
+			this.rangeFromEl = this.input.data('rangefrom') || this.config.rangeFrom;
+			this.rangeToEl = this.input.data('rangeto') || this.config.rangeTo;
 
 			that.setupPicker();
 			that.setSelection();
