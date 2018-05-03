@@ -549,6 +549,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DUDatePicker: This plugin 
 				firstM = format.indexOf('m'), firstD = format.indexOf('d'), firstY = format.indexOf('y'),
 				month = '', day = '', year = '';
 
+			if (date === '') return { m: null, d: null, y: null, date: new Date('') };
+
 			// Get month on given date string using the format (default or specified)
 			if(isFullMonth) {
 				var monthIdx = -1;
