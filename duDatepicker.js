@@ -10,7 +10,7 @@
  * -- DO NOT REMOVE --
  */
 if (typeof jQuery === 'undefined') {
-    throw new Error('DUDatePicker: This plugin requires jQuery');
+    throw new Error('duDatePicker: This plugin requires jQuery');
 }
 
 +function ($) {
@@ -23,7 +23,7 @@ if (typeof jQuery === 'undefined') {
         SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        WEEK_DAYS_HTML = "<span>" + SHORT_DAYS.join("</span><span>") + "</span>",
+        WEEK_DAYS_HTML = "<span>" + SHORT_DAYS.map(function(x){ return x.substr(0, 2) }).join("</span><span>") + "</span>",
         EX_KEYS = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123],
         DCAL_DATA = '_duDatepicker',
         SELECTED_FORMAT = 'D, mmm d', MONTH_HEAD_FORMAT = 'mmmm yyyy',
