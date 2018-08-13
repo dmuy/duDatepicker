@@ -88,6 +88,24 @@ During initialization, you can also specify the min and max date.
 ```
 If you specify the `minDate` and/or `maxDate` and place the `data-mindate` and/or `data-maxdate` on the input element, the value of the attribute will take precedence. For example if you specify `minDate: 'today'` in the config and placed a `data-mindate="01/20/2018"`, the min date (for the input with `data-mindate` attribute) will be `01/20/2018`.
 
+## Disabling specific dates and/or days
+To disable specific date(s) or date range(s) use the `disabledDates` configuration:
+```javascript
+// specific dates
+$('#datepicker').duDatepicker({ disabledDates: ['10/30/2016', '11/12/2016'] }); // disables the specific dates on the picker
+// date ranges
+$('#datepicker').duDatepicker({ disabledDates: ['10/01/2016-10/15/2016', '11/01/2016-11/15/2016'] }); // disables dates from 10/01/2016 up to 10/15/2016 and 11/01/2016 up to 11/15/2016 on the picker
+// mixed
+$('#datepicker').duDatepicker({ disabledDates: ['10/30/2016', '11/01/2016-11/15/2016'] });
+```
+***Note: The date(s) should be written in the same format as the datepicker format (specified by the `format` configuration).***
+
+
+To disable specific days of the week use the `disabledDays` configuration:
+```javascript
+$('#datepicker').duDatepicker({ disabledDays: ['Monday', 'Tue', 'We'] }); // disables all mondays, tuesdays and wednesdays on the picker
+```
+
 ## Range From and To
 For situations where you have two inputs representing a date range (from & to), you can restrict the minimum and maximum date based on the values of the input elements - the maximum allowed date for date from (input element) is the value of date to (input element), and the minimum allowed date for date to is the value of the date from input.
 
@@ -145,5 +163,7 @@ Below is the default configuration of the date picker.
   clearBtn: false,      // Determines if Clear button is displayed
   cancelBtn: false,     // Determines if Cancel button is displayed
   overlayClose: true    // Determines if clicking the overlay will close the date picker
+  disabledDates: [],    // Array of dates to be disabled (format should be the same as the specified format)
+  disabledDays: []      // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
 }
 ```
