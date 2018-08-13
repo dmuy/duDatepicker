@@ -1,23 +1,18 @@
 /* -- DO NOT REMOVE --
- * jQuery duDatePicker v1.0 plugin
+ * jQuery duDatePicker v1.1 plugin
  * https://github.com/dmuy/duDatepicker
  *
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
- * Date: Monday, Sept 4 2017
  *
  * @requires jQuery
  * -- DO NOT REMOVE --
  */
-if (typeof jQuery === 'undefined') {
-    throw new Error('duDatePicker: This plugin requires jQuery');
-}
+if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin requires jQuery');
 
 +function ($) {
 
-    Date.prototype.getDaysCount = function () {
-        return new Date(this.getFullYear(), this.getMonth() + 1, 0).getDate();
-    };
+    Date.prototype.getDaysCount = function () { return new Date(this.getFullYear(), this.getMonth() + 1, 0).getDate() }
 
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -25,8 +20,7 @@ if (typeof jQuery === 'undefined') {
         SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         WEEK_DAYS_HTML = "<span>" + SHORT_DAYS.map(function(x){ return x.substr(0, 2) }).join("</span><span>") + "</span>",
         EX_KEYS = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123],
-        DCAL_DATA = '_duDatepicker',
-        SELECTED_FORMAT = 'D, mmm d', MONTH_HEAD_FORMAT = 'mmmm yyyy',
+        DCAL_DATA = '_duDatepicker', SELECTED_FORMAT = 'D, mmm d', MONTH_HEAD_FORMAT = 'mmmm yyyy',
 
         DUDatePicker = function (elem, options) {
             var that = this;
@@ -65,7 +59,7 @@ if (typeof jQuery === 'undefined') {
 
             //current selected date, default is today if no value given
             this.date = this.input.val() === '' ? new Date() : this.parseDate(this.input.val()).date;
-            this.selected = {year: that.date.getFullYear(), month: that.date.getMonth(), date: that.date.getDate()};
+            this.selected = { year: that.date.getFullYear(), month: that.date.getMonth(), date: that.date.getDate() };
             this.viewMonth = this.selected.month;
             this.viewYear = this.selected.year;
 
@@ -123,6 +117,7 @@ if (typeof jQuery === 'undefined') {
 
             if (that.config.clearBtn) buttons.wrapper.append(buttons.btnClear);
             if (that.config.cancelBtn) buttons.wrapper.append(buttons.btnCancel);
+
             buttons.wrapper.append(buttons.btnOk);
 
             calendarHolder.wrapper.append(calendarHolder.btnPrev)
@@ -152,14 +147,11 @@ if (typeof jQuery === 'undefined') {
             }
 
             /* ------------------------ Setup actions ------------------------ */
-            that.input.on('click', function () {
-                that.show();
-            })
+            that.input.on('click', function () { that.show() })
                 .on('keydown', function (e) {
                     if (e.keyCode === 13) that.show();
                     return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly);
-                })
-                .prop('readonly', that.config.readOnly);
+                }).prop('readonly', that.config.readOnly);
 
             // Switch to years view
             header.selectedYear.click(function (e) {
@@ -174,12 +166,8 @@ if (typeof jQuery === 'undefined') {
                 }
             });
 
-            calendarHolder.btnPrev.click(function (e) {
-                that.move('prev');
-            });
-            calendarHolder.btnNext.click(function (e) {
-                that.move('next');
-            });
+            calendarHolder.btnPrev.click(function (e) { that.move('prev') });
+            calendarHolder.btnNext.click(function (e) { that.move('next') });
 
             // Switch view to months view
             calendarHolder.calendarViews.wrapper
@@ -198,17 +186,12 @@ if (typeof jQuery === 'undefined') {
                 });
 
             if (that.config.overlayClose) {
-                picker.container.click(function (e) {
-                    that.hide();
-                });
-                picker.wrapper.click(function (e) {
-                    e.stopPropagation();
-                });
+                picker.container.click(function (e) { that.hide() });
+                picker.wrapper.click(function (e) { e.stopPropagation() });
             }
 
-            if (that.config.cancelBtn) buttons.btnCancel.click(function () {
-                that.hide();
-            });
+            if (that.config.cancelBtn) buttons.btnCancel.click(function () { that.hide() });
+
             buttons.btnOk.click(function () {
                 var _date = new Date(that.selected.year, that.selected.month, that.selected.date);
 
@@ -676,7 +659,18 @@ if (typeof jQuery === 'undefined') {
         /* Determines if date is disabled */
         disabledDate: function (date) {
             var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null,
-                now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+                dsabldDates = that.config.disabledDates,
+                dsabldDays = that.config.disabledDays,
+                inDsabldDates = dsabldDates.filter(function (x) {
+                    if (x.indexOf('-') >= 0)
+                        return (date >= that.parseDate(x.split('-')[0]).date && date <= that.parseDate(x.split('-')[1]).date)
+                    else 
+                        return that.parseDate(x).date.getTime() === date.getTime()
+                }).length > 0, 
+                inDsabledDays = dsabldDays.indexOf(DAYS_OF_WEEK[date.getDay()]) >= 0 || 
+                    dsabldDays.indexOf(SHORT_DAYS[date.getDay()]) >= 0 ||
+                    dsabldDays.indexOf(SHORT_DAYS.map(function(x){ return x.substr(0, 2) })[date.getDay()]) >= 0;
 
             if (that.minDate) min = that.minDate === "today" ? today : new Date(that.minDate);
             if (that.maxDate) max = that.maxDate === "today" ? today : new Date(that.maxDate);
@@ -701,8 +695,8 @@ if (typeof jQuery === 'undefined') {
                 rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
             }
 
-            return (min && date < min) || (max && date > max) || (rangeFrom && date < rangeFrom) || (rangeTo && date > rangeTo) ||
-                (rangeMin && date < rangeMin) || (rangeMax && date > rangeMax);
+            return ((min && date < min) || (max && date > max) || (rangeFrom && date < rangeFrom) || (rangeTo && date > rangeTo) ||
+                (rangeMin && date < rangeMin) || (rangeMax && date > rangeMax)) || (inDsabldDates || inDsabledDays);
         },
 
         /* Shows the date picker */
@@ -784,7 +778,8 @@ if (typeof jQuery === 'undefined') {
         readOnly: true,			// Determines if input element is readonly (key input is disabled)
         clearBtn: false,		// Determines if Clear button is displayed
         cancelBtn: false,		// Determines if Cancel button is displayed
-        overlayClose: true		// Determines if clicking the overlay will close the date picker
+        overlayClose: true,		// Determines if clicking the overlay will close the date picker
+        disabledDates: [],      // Array of dates to be disabled (format should be the same as the specified format)
+        disabledDays: []        // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
     };
-    // $.fn.duDatepicker.Constructor = DUDatePicker;
 }(jQuery);
