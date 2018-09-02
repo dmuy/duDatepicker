@@ -548,7 +548,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Triggers the datechanged and onchange (for asp.net) events */
         triggerChange: function (evt) {
-            this.input.trigger(evt).trigger('onchange');
+            this.input.trigger(evt).trigger('onchange').trigger('change');
         },
 
         /* Parses date string using default or specified format. */
