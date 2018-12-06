@@ -34,14 +34,15 @@ Then add this piece of code in your `script` tag:
 
 ### CDN
 Use the following if you don't want to host the `js` and `css` files:
-
+```
 https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.css
 https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.js
-
+```
 Minified version:
-
+```
 https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.min.css
 https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.min.js
+```
 
 [Learn more about the CDN](https://www.jsdelivr.com/features#gh)
 
