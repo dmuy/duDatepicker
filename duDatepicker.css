@@ -18,6 +18,7 @@
 	background-color: transparent;
 	-moz-transition: background-color .2s linear, opacity .2s ease;
     transition: background-color .2s linear, opacity .2s ease;
+    will-change: background-color, opacity;
 	z-index: 100001;
 	overflow: hidden;
 }
@@ -46,12 +47,13 @@
 	-moz-user-select: none;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
-	-moz-transform: translateX(-50%) scale(1.05);
-	transform: translateX(-50%) scale(1.05);
+	-moz-transform: translateX(-50%) scale(1.05) perspective(1px);
+	transform: translateX(-50%) scale(1.05) perspective(1px);
     -moz-box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 	-moz-transition: transform .25s ease, opacity .25s ease;
 	transition: transform .25s ease, opacity .25s ease;
+	will-change: transform, -moz-transform, opacity;
 }
 	.dcalendarpicker.dp__open .dudp__wrapper {
 		-moz-transform: translateX(-50%) scale(1);
@@ -98,6 +100,7 @@
 		opacity: 1;
 		-moz-transition: opacity .25s ease, background-color .25s linear;
 		transition: opacity .25s ease, background-color .25s linear;
+		will-change: opacity, background-color;
 		z-index: 2;
 	}
 	.dudp__cal-container .dudp__btn-cal-next { left: auto; right: 12px; }
@@ -117,6 +120,7 @@
 	opacity: 1;
 	-moz-transition: opacity .25s ease;
 	transition: opacity .25s ease;
+	will-change: opacity;
 }
 	.dudp__cal-container .dudp__calendar-views.dp__animate-out { opacity: 0; }
 	.dudp__cal-container .dudp__calendar-views.dp__hidden {
@@ -126,10 +130,11 @@
 .dudp__cal-container .dudp__calendar {
 	display: inline-block;
 	padding: 0 16px 10px;
-	-moz-transform: translateX(-100%);
-	transform: translateX(-100%);
+	-moz-transform: translateX(-100%) perspective(1px);
+	transform: translateX(-100%) perspective(1px);
 	-moz-transition: none;
 	transition: none;
+	will-change: transform;
 }
 	.dudp__cal-container .dudp__calendar.dp__animate-left {
 		-moz-transform: translateX(-200%);
@@ -209,10 +214,11 @@
 	right: 0;
 	padding: 45px 16px;
 	opacity: 1;
-	-moz-transform: scale(1);
-	transform: scale(1);
+	-moz-transform: scale(1) perspective(1px);
+	transform: scale(1) perspective(1px);
 	-moz-transition: transform .25s ease, opacity .25s ease;
 	transition: transform .25s ease, opacity .25s ease;
+	will-change: transform, opacity;
 }
 	.dudp__cal-container .dudp__months-view.dp__animate-out {
 		opacity: 0;

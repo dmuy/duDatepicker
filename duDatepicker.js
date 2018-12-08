@@ -1,5 +1,5 @@
 /* -- DO NOT REMOVE --
- * jQuery duDatePicker v1.1 plugin
+ * jQuery duDatePicker v1.2 plugin
  * https://github.com/dmuy/duDatepicker
  *
  * Author: Dionlee Uy
@@ -31,7 +31,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             _.config = options;
             _.viewMode = 'calendar';
             _.datepicker = {
-                container: $('<div class="dcalendarpicker dp__hidden"></div>'),
+                container: $('<div class="dcalendarpicker"></div>'),
                 wrapper: $('<div class="dudp__wrapper"></div>'),
                 header: {
                     wrapper: $('<section class="dudp__calendar-header"></section>'),
@@ -160,13 +160,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             });
             // Switch to calendar view (of the selected date)
             header.selectedDate.click(function (e) {
-                if ((_.viewMonth !== _.selected.month && _.viewYear !== _.selected.year) || _.viewMode !== 'calendar') {
+                if ((_.viewMonth !== _.selected.month || _.viewYear !== _.selected.year) || _.viewMode !== 'calendar') {
                     _.viewMonth = _.selected.month;
                     _.viewYear = _.selected.year;
                     _.setupCalendar();
                     _.switchView('calendar');
                 }
-                console.log('Reset');
             });
 
             calendarHolder.btnPrev.click(function (e) { _.move('prev') });
