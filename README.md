@@ -35,13 +35,13 @@ Then add this piece of code in your `script` tag:
 ### CDN
 Use the following if you don't want to host the `js` and `css` files:
 ```
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.css
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.js
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.css
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.js
 ```
 Minified version:
 ```
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.min.css
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.1/duDatepicker.min.js
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.min.css
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.min.js
 ```
 
 [Learn more about the CDN](https://www.jsdelivr.com/features#gh)
@@ -173,7 +173,7 @@ Below is the default configuration of the date picker.
 {
   format: 'mm/dd/yyyy', // Determines the date format
   theme: 'blue',        // Determines the color theme of the date picker
-  readOnly: true,       // Determines if input element is readonly (key input is disabled)
+  auto: false,          // Determines if clicking the date will automatically select it; OK button will not be displayed if true
   clearBtn: false,      // Determines if Clear button is displayed
   cancelBtn: false,     // Determines if Cancel button is displayed
   overlayClose: true    // Determines if clicking the overlay will close the date picker

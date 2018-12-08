@@ -23,14 +23,14 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         DCAL_DATA = '_duDatepicker', SELECTED_FORMAT = 'D, mmm d', MONTH_HEAD_FORMAT = 'mmmm yyyy',
 
         DUDatePicker = function (elem, options) {
-            var that = this;
-            this.animating = false;
+            var _ = this;
+            _.animating = false;
 
-            this.visible = false;
-            this.input = $(elem);
-            this.config = options;
-            this.viewMode = 'calendar';
-            this.datepicker = {
+            _.visible = false;
+            _.input = $(elem);
+            _.config = options;
+            _.viewMode = 'calendar';
+            _.datepicker = {
                 container: $('<div class="dcalendarpicker dp__hidden"></div>'),
                 wrapper: $('<div class="dudp__wrapper"></div>'),
                 header: {
@@ -58,18 +58,18 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             };
 
             //current selected date, default is today if no value given
-            this.date = this.input.val() === '' ? new Date() : this.parseDate(this.input.val()).date;
-            this.selected = { year: that.date.getFullYear(), month: that.date.getMonth(), date: that.date.getDate() };
-            this.viewMonth = this.selected.month;
-            this.viewYear = this.selected.year;
+            _.date = _.input.val() === '' ? new Date() : _.parseDate(_.input.val()).date;
+            _.selected = { year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate() };
+            _.viewMonth = _.selected.month;
+            _.viewYear = _.selected.year;
 
-            this.minDate = this.input.data('mindate') || this.config.minDate;
-            this.maxDate = this.input.data('maxdate') || this.config.maxDate;
-            this.rangeFromEl = this.input.data('rangefrom') || this.config.rangeFrom;
-            this.rangeToEl = this.input.data('rangeto') || this.config.rangeTo;
+            _.minDate = _.input.data('mindate') || _.config.minDate;
+            _.maxDate = _.input.data('maxdate') || _.config.maxDate;
+            _.rangeFromEl = _.input.data('rangefrom') || _.config.rangeFrom;
+            _.rangeToEl = _.input.data('rangeto') || _.config.rangeTo;
 
-            that.setupPicker();
-            that.setSelection();
+            _.setupPicker();
+            _.setSelection();
         };
 
     DUDatePicker.prototype = {
@@ -77,8 +77,8 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Initializes the date picker */
         setupPicker: function () {
-            var that = this,
-                picker = that.datepicker,
+            var _ = this,
+                picker = _.datepicker,
                 header = picker.header,
                 calendarHolder = picker.calendarHolder,
                 buttons = calendarHolder.buttons;
@@ -95,7 +95,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 for (var i = 0; i < 4; i++) {
                     var monthElem = $('<span class="dudp__month"></span>');
 
-                    if (_month === that.selected.month) monthElem.addClass('selected');
+                    if (_month === _.selected.month) monthElem.addClass('selected');
 
                     monthElem.text(SHORT_MONTHS[_month])
                         .data('month', _month)
@@ -103,9 +103,9 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                         .on('click', function (e) {
                             var _this = $(this), _data = _this.data('month');
 
-                            that.viewMonth = _data;
-                            that.setupCalendar();
-                            that.switchView('calendar');
+                            _.viewMonth = _data;
+                            _.setupCalendar();
+                            _.switchView('calendar');
                         });
                     _month++;
                 }
@@ -113,12 +113,13 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             }
 
             // Setup years view
-            calendarHolder.yearsView.html(that.getYears());
+            calendarHolder.yearsView.html(_.getYears());
 
-            if (that.config.clearBtn) buttons.wrapper.append(buttons.btnClear);
-            if (that.config.cancelBtn) buttons.wrapper.append(buttons.btnCancel);
+            if (_.config.clearBtn) buttons.wrapper.append(buttons.btnClear);
+            if (_.config.cancelBtn) buttons.wrapper.append(buttons.btnCancel);
 
-            buttons.wrapper.append(buttons.btnOk);
+            if (!_.config.auto)
+                buttons.wrapper.append(buttons.btnOk);
 
             calendarHolder.wrapper.append(calendarHolder.btnPrev)
                 .append(calendarHolder.btnNext)
@@ -132,14 +133,14 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 .appendTo('body');
 
             // Setup theme
-            switch (that.config.theme) {
+            switch (_.config.theme) {
                 case 'red':
                 case 'blue':
                 case 'green':
                 case 'purple':
                 case 'indigo':
                 case 'teal':
-                    picker.wrapper.attr('data-theme', that.config.theme);
+                    picker.wrapper.attr('data-theme', _.config.theme);
                     break;
                 default:
                     picker.wrapper.attr('data-theme', $.fn.duDatepicker.defaults.theme);
@@ -147,67 +148,69 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             }
 
             /* ------------------------ Setup actions ------------------------ */
-            that.input.on('click', function () { that.show() })
+            _.input.on('click', function () { _.show() })
                 .on('keydown', function (e) {
-                    if (e.keyCode === 13) that.show();
-                    return !(EX_KEYS.indexOf(e.which) < 0 && that.config.readOnly);
-                }).prop('readonly', that.config.readOnly);
+                    if (e.keyCode === 13) _.show();
+                    return !(EX_KEYS.indexOf(e.which) < 0);
+                }).prop('readonly', true);
 
             // Switch to years view
             header.selectedYear.click(function (e) {
-                if (that.viewMode !== 'years') that.switchView('years');
+                if (_.viewMode !== 'years') _.switchView('years');
             });
             // Switch to calendar view (of the selected date)
             header.selectedDate.click(function (e) {
-                if (that.viewMode !== 'calendar') {
-                    that.viewMonth = that.selected.month;
-                    that.setupCalendar();
-                    that.switchView('calendar');
+                if ((_.viewMonth !== _.selected.month && _.viewYear !== _.selected.year) || _.viewMode !== 'calendar') {
+                    _.viewMonth = _.selected.month;
+                    _.viewYear = _.selected.year;
+                    _.setupCalendar();
+                    _.switchView('calendar');
                 }
+                console.log('Reset');
             });
 
-            calendarHolder.btnPrev.click(function (e) { that.move('prev') });
-            calendarHolder.btnNext.click(function (e) { that.move('next') });
+            calendarHolder.btnPrev.click(function (e) { _.move('prev') });
+            calendarHolder.btnNext.click(function (e) { _.move('next') });
 
             // Switch view to months view
             calendarHolder.calendarViews.wrapper
                 .on('click', '.dudp__cal-month-year', function (e) {
-                    if (that.viewMode !== 'months') that.switchView('months');
+                    if (_.viewMode !== 'months') _.switchView('months');
                 });
 
-            if (that.config.clearBtn)
+            if (_.config.clearBtn)
                 buttons.btnClear.click(function () {
                     var now = new Date();
 
-                    that.date = now;
-                    that.input.val('').attr('value', '');
-                    that.triggerChange($.Event('datechanged', {date: null}));
-                    that.hide();
+                    _.date = now;
+                    _.input.val('').attr('value', '');
+                    _.triggerChange($.Event('datechanged', {date: null}));
+                    _.hide();
                 });
 
-            if (that.config.overlayClose) {
-                picker.container.click(function (e) { that.hide() });
+            if (_.config.overlayClose) {
+                picker.container.click(function (e) { _.hide() });
                 picker.wrapper.click(function (e) { e.stopPropagation() });
             }
 
-            if (that.config.cancelBtn) buttons.btnCancel.click(function () { that.hide() });
+            if (_.config.cancelBtn) buttons.btnCancel.click(function () { _.hide() });
 
             buttons.btnOk.click(function () {
-                var _date = new Date(that.selected.year, that.selected.month, that.selected.date);
+                var _date = new Date(_.selected.year, _.selected.month, _.selected.date);
 
-                if (that.disabledDate(_date)) return;
+                if (_.disabledDate(_date)) return;
 
-                that.date = _date;
-                that.setValue(that.date);
-                that.hide();
+                _.date = _date;
+                _.setValue(_.date);
+                _.hide();
             });
         },
 
         /* Returns the dates of the specified month and year */
         getDates: function (year, month) {
-            var that = this, day = 1, now = new Date(),
+            var _ = this, day = 1, now = new Date(),
                 today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-                selected = new Date(that.selected.year, that.selected.month, that.selected.date),
+                selected = new Date(_.selected.year, _.selected.month, _.selected.date),
                 date = new Date(year, month, day), totalDays = date.getDaysCount(), nmStartDay = 1,
                 weeks = [];
 
@@ -224,7 +227,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
                     if (date.getTime() === today.getTime()) daysOfWeek[dayOfWeek].addClass('current');
 
-                    if (that.disabledDate(date)) daysOfWeek[dayOfWeek].addClass('disabled');
+                    if (_.disabledDate(date)) daysOfWeek[dayOfWeek].addClass('disabled');
 
                     if (week === 1 && dayOfWeek === 0) {
                         break;
@@ -240,8 +243,6 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                     }
                 }
 
-                // if (!that.config.exceedingDates) continue;
-
                 /* For days of previous and next month */
                 if (week === 1 || week > 4) {
                     // First week
@@ -255,7 +256,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                             prevMonth.setDate(prevMonthDays);
                             daysOfWeek[a].text((prevMonthDays--)).addClass('dudp__pm');
 
-                            if (that.disabledDate(prevMonth)) daysOfWeek[a].addClass('disabled');
+                            if (_.disabledDate(prevMonth)) daysOfWeek[a].addClass('disabled');
 
                             if (prevMonth.getTime() === selected.getTime()) daysOfWeek[a].addClass('selected');
                             if (prevMonth.getTime() === today.getTime()) daysOfWeek[a].addClass('current');
@@ -271,7 +272,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                             nextMonth.setDate(nmStartDay);
                             daysOfWeek[a].text((nmStartDay++)).addClass('dudp__nm');
 
-                            if (that.disabledDate(nextMonth)) daysOfWeek[a].addClass('disabled');
+                            if (_.disabledDate(nextMonth)) daysOfWeek[a].addClass('disabled');
 
                             if (nextMonth.getTime() === selected.getTime()) daysOfWeek[a].addClass('selected');
                             if (nextMonth.getTime() === today.getTime()) daysOfWeek[a].addClass('current');
@@ -293,7 +294,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                             _date = _this.data('date'),
                             _selected = new Date(_year, _month, _date);
 
-                        if (that.disabledDate(_selected)) return;
+                        if (_.disabledDate(_selected)) return;
 
                         _this.parents('.dudp__calendar-views').find('.dudp__date').each(function (idx, delem) {
                             var _deYear = $(delem).data('year'), _deMonth = $(delem).data('month'),
@@ -301,16 +302,22 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
                             $(delem)[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'addClass' : 'removeClass']('selected');
                         });
+
                         _this.parents('.dudp__cal-container').find('.dudp__month').each(function (idx, melem) {
                             var _meMonth = $(melem).data('month');
 
                             $(melem)[_meMonth === _month ? 'addClass' : 'removeClass']('selected');
                         });
+
                         _this.addClass('selected');
+                        _.selected = {year: _year, month: _month, date: _date};
+                        _.setSelection();
 
-                        that.selected = {year: _year, month: _month, date: _date};
-
-                        that.setSelection();
+                        if (_.config.auto) {
+                            _.date = _selected;
+                            _.setValue(_.date);
+                            _.hide();
+                        }
                     });
 
                     calWeek.append(dateElem);
@@ -323,24 +330,24 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Returns years range for the years view */
         getYears: function () {
-            var that = this, _minYear = that.viewYear - 100, _maxYear = that.viewYear + 100,
+            var _ = this, _minYear = _.viewYear - 100, _maxYear = _.viewYear + 100,
                 _years = [];
 
             for (var y = _minYear; y <= _maxYear; y++) {
                 var yearElem = $('<span class="dudp__year"></span>');
 
-                if (y === that.viewYear) yearElem.addClass('selected');
+                if (y === _.viewYear) yearElem.addClass('selected');
 
                 yearElem.text(y)
                     .data('year', y)
                     .on('click', function (e) {
                         var _this = $(this), _data = _this.data('year');
 
-                        that.viewYear = _data;
-                        that.selected.year = _data;
-                        that.setSelection();
-                        that.setupCalendar();
-                        that.switchView('calendar');
+                        _.viewYear = _data;
+                        _.selected.year = _data;
+                        _.setSelection();
+                        _.setupCalendar();
+                        _.switchView('calendar');
                     });
 
                 _years.push(yearElem);
@@ -351,9 +358,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Sets up the calendar views */
         setupCalendar: function () {
-            var that = this, viewsHolder = that.datepicker.calendarHolder.calendarViews,
-                // _year = that.date.getFullYear(), _month = that.date.getMonth(), _date = that.date.getDate();
-                _year = that.viewYear, _month = that.viewMonth;
+            var _ = this, viewsHolder = _.datepicker.calendarHolder.calendarViews, _year = _.viewYear, _month = _.viewMonth;
 
             viewsHolder.calendars.length = 0;
 
@@ -374,19 +379,19 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 datesHolder: $('<div class="dudp__dates-holder"></div>')
             };
 
-            prev.header.text(that.formatDate(new Date(_year, _month - 1, 1), MONTH_HEAD_FORMAT)).appendTo(prev.wrapper);
+            prev.header.text(_.formatDate(new Date(_year, _month - 1, 1), MONTH_HEAD_FORMAT)).appendTo(prev.wrapper);
             prev.wrapper.append(prev.weekDays);
-            prev.datesHolder.html(that.getDates(_year, _month - 1)).appendTo(prev.wrapper);
+            prev.datesHolder.html(_.getDates(_year, _month - 1)).appendTo(prev.wrapper);
             viewsHolder.calendars.push(prev);
 
-            inView.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(inView.wrapper);
+            inView.header.text(_.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(inView.wrapper);
             inView.wrapper.append(inView.weekDays);
-            inView.datesHolder.html(that.getDates(_year, _month)).appendTo(inView.wrapper);
+            inView.datesHolder.html(_.getDates(_year, _month)).appendTo(inView.wrapper);
             viewsHolder.calendars.push(inView);
 
-            next.header.text(that.formatDate(new Date(_year, _month + 1, 1), MONTH_HEAD_FORMAT)).appendTo(next.wrapper);
+            next.header.text(_.formatDate(new Date(_year, _month + 1, 1), MONTH_HEAD_FORMAT)).appendTo(next.wrapper);
             next.wrapper.append(next.weekDays);
-            next.datesHolder.html(that.getDates(_year, _month + 1)).appendTo(next.wrapper);
+            next.datesHolder.html(_.getDates(_year, _month + 1)).appendTo(next.wrapper);
             viewsHolder.calendars.push(next);
 
             viewsHolder.wrapper.empty()
@@ -401,13 +406,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
             if (this.animating) return;
 
-            var that = this, picker = that.datepicker, viewsHolder = picker.calendarHolder.calendarViews,
-                _animDuration = 250, _isNext = direction === 'next';
+            var _ = this, picker = _.datepicker, viewsHolder = picker.calendarHolder.calendarViews, _animDuration = 250, _isNext = direction === 'next';
 
-            if (_isNext ? that.viewMonth + 1 > 11 : that.viewMonth - 1 < 0) that.viewYear += (_isNext ? 1 : -1);
-            that.viewMonth = _isNext ? (that.viewMonth + 1 > 11 ? 0 : that.viewMonth + 1) : (that.viewMonth - 1 < 0 ? 11 : that.viewMonth - 1);
+            if (_isNext ? _.viewMonth + 1 > 11 : _.viewMonth - 1 < 0) _.viewYear += (_isNext ? 1 : -1);
+            _.viewMonth = _isNext ? (_.viewMonth + 1 > 11 ? 0 : _.viewMonth + 1) : (_.viewMonth - 1 < 0 ? 11 : _.viewMonth - 1);
 
-            that.animating = true;
+            _.animating = true;
 
             //Start animation
             var animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right');
@@ -415,13 +419,13 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             viewsHolder.wrapper.find('.dudp__calendar').addClass(animateClass);
 
             //Setup new (previos or next) month calendar
-            var _year = that.viewYear, _month = _isNext ? that.viewMonth + 1 : that.viewMonth - 1;
+            var _year = _.viewYear, _month = _isNext ? _.viewMonth + 1 : _.viewMonth - 1;
 
             if (_isNext ? _month > 11 : _month < 0) {
                 _month = _isNext ? 0 : 11;
                 _year += _isNext ? 1 : -1;
             }
-            var newCalDates = that.getDates(_year, _month),
+            var newCalDates = _.getDates(_year, _month),
                 newCalEl = {
                     wrapper: $('<div class="dudp__calendar"></div>'),
                     header: $('<div class="dudp__cal-month-year"></div>'),
@@ -429,7 +433,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                     datesHolder: $('<div class="dudp__dates-holder"></div>')
                 };
 
-            newCalEl.header.text(that.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newCalEl.wrapper);
+            newCalEl.header.text(_.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newCalEl.wrapper);
             newCalEl.wrapper.append(newCalEl.weekDays);
             newCalEl.datesHolder.html(newCalDates).appendTo(newCalEl.wrapper);
 
@@ -441,7 +445,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 viewsHolder.calendars[_isNext ? 'shift' : 'pop']();
                 viewsHolder.calendars[_isNext ? 'push' : 'unshift'](newCalEl);
 
-                that.animating = false;
+                _.animating = false;
             }, _animDuration);
         },
 
@@ -449,12 +453,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         switchView: function (view) {
             if (view !== 'calendar' && view !== 'months' && view !== 'years') return;
 
-            var that = this, picker = that.datepicker, monthsView = picker.calendarHolder.monthsView,
+            var _ = this, picker = _.datepicker, monthsView = picker.calendarHolder.monthsView,
                 yearsView = picker.calendarHolder.yearsView,
                 calViews = picker.calendarHolder.calendarViews.wrapper,
                 _animDuration = 250;
 
-            that.viewMode = view;
+            _.viewMode = view;
             switch (view) {
                 case 'calendar':
                     calViews.addClass('dp__animate-out').removeClass('dp__hidden');
@@ -485,7 +489,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                     }, _animDuration);
                     break;
                 case 'years':
-                    yearsView.html(that.getYears());
+                    yearsView.html(_.getYears());
 
                     var _selYear = yearsView.find('.dudp__year.selected');
 
@@ -508,26 +512,26 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Resets the selection to the date value of the input */
         resetSelection: function () {
-            var that = this;
+            var _ = this;
 
-            that.selected = {year: that.date.getFullYear(), month: that.date.getMonth(), date: that.date.getDate()};
-            that.viewYear = that.selected.year;
-            that.viewMonth = that.selected.month;
+            _.selected = {year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate()};
+            _.viewYear = _.selected.year;
+            _.viewMonth = _.selected.month;
 
-            that.datepicker.calendarHolder.monthsView.find('.dudp__month').each(function (idx, melem) {
+            _.datepicker.calendarHolder.monthsView.find('.dudp__month').each(function (idx, melem) {
                 var _meMonth = $(melem).data('month');
 
-                $(melem)[_meMonth === that.selected.month ? 'addClass' : 'removeClass']('selected');
+                $(melem)[_meMonth === _.selected.month ? 'addClass' : 'removeClass']('selected');
             });
         },
 
         /* Sets the section display (datepicker header) */
         setSelection: function () {
-            var that = this, picker = that.datepicker,
-                selected = new Date(that.selected.year, that.selected.month, that.selected.date);
+            var _ = this, picker = _.datepicker,
+                selected = new Date(_.selected.year, _.selected.month, _.selected.date);
 
             picker.header.selectedYear.text(selected.getFullYear());
-            picker.header.selectedDate.text(that.formatDate(selected, SELECTED_FORMAT));
+            picker.header.selectedDate.text(_.formatDate(selected, SELECTED_FORMAT));
         },
 
         /* Sets the value of the input (either Date object or string) */
@@ -553,8 +557,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Parses date string using default or specified format. */
         parseDate: function (date, dateFormat) {
-            var that = this,
-                format = typeof dateFormat === 'undefined' ? that.config.format : dateFormat,
+            var _ = this, format = typeof dateFormat === 'undefined' ? _.config.format : dateFormat,
                 dayLength = (format.match(/d/g) || []).length,
                 monthLength = (format.match(/m/g) || []).length,
                 yearLength = (format.match(/y/g) || []).length,
@@ -658,40 +661,40 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Determines if date is disabled */
         disabledDate: function (date) {
-            var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null,
+            var _ = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null,
                 now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-                dsabldDates = that.config.disabledDates,
-                dsabldDays = that.config.disabledDays,
+                dsabldDates = _.config.disabledDates,
+                dsabldDays = _.config.disabledDays,
                 inDsabldDates = dsabldDates.filter(function (x) {
                     if (x.indexOf('-') >= 0)
-                        return (date >= that.parseDate(x.split('-')[0]).date && date <= that.parseDate(x.split('-')[1]).date)
+                        return (date >= _.parseDate(x.split('-')[0]).date && date <= _.parseDate(x.split('-')[1]).date)
                     else 
-                        return that.parseDate(x).date.getTime() === date.getTime()
+                        return _.parseDate(x).date.getTime() === date.getTime()
                 }).length > 0, 
                 inDsabledDays = dsabldDays.indexOf(DAYS_OF_WEEK[date.getDay()]) >= 0 || 
                     dsabldDays.indexOf(SHORT_DAYS[date.getDay()]) >= 0 ||
                     dsabldDays.indexOf(SHORT_DAYS.map(function(x){ return x.substr(0, 2) })[date.getDay()]) >= 0;
 
-            if (that.minDate) min = that.minDate === "today" ? today : new Date(that.minDate);
-            if (that.maxDate) max = that.maxDate === "today" ? today : new Date(that.maxDate);
+            if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
+            if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
 
-            if (that.rangeFromEl) {
-                var fromEl = $(that.rangeFromEl),
+            if (_.rangeFromEl) {
+                var fromEl = $(_.rangeFromEl),
                     fromData = fromEl.data(DCAL_DATA),
                     fromFormat = fromData.config.format,
                     fromVal = fromEl.val();
 
-                rangeFrom = that.parseDate(fromVal, fromFormat).date;
+                rangeFrom = _.parseDate(fromVal, fromFormat).date;
                 rangeMin = fromData.minDate === "today" ? today : new Date(fromData.minDate);
             }
 
-            if (that.rangeToEl) {
-                var toEl = $(that.rangeToEl),
+            if (_.rangeToEl) {
+                var toEl = $(_.rangeToEl),
                     toData = toEl.data(DCAL_DATA),
                     toFormat = toData.config.format,
                     toVal = toEl.val();
 
-                rangeTo = that.parseDate(toVal, toFormat).date;
+                rangeTo = _.parseDate(toVal, toFormat).date;
                 rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
             }
 
@@ -701,53 +704,39 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
         /* Shows the date picker */
         show: function () {
-            var that = this;
-
-            that.resetSelection();
-            that.setSelection();
-            that.setupCalendar();
+            var _ = this;
 
             $('body').attr('datepicker-display', 'on');
-
-            that.datepicker.wrapper.addClass('dp__animate');
-            that.datepicker.container.removeClass('dp__hidden').addClass('dp__animate');
-            setTimeout(function () {
-                that.datepicker.container.removeClass('dp__animate');
-                that.datepicker.wrapper.removeClass('dp__animate');
-
-                that.visible = true;
-                that.input.blur();
-            }, 10);
+            _.resetSelection();
+            _.setSelection();
+            _.setupCalendar();
+            _.datepicker.container.addClass('dp__open');
+            _.visible = true;
+            _.input.blur();
         },
 
         /* Hides the date picker */
         hide: function () {
-            var that = this;
+            var _ = this;
 
-            that.datepicker.container.addClass('dp__animate');
-            that.datepicker.wrapper.addClass('dp__animate');
+            _.datepicker.container.addClass('dp__closing');
+            _.switchView('calendar'); // Reset view to calendar
+            _.visible = false;
+            _.input.focus();
+            $('body').removeAttr('datepicker-display');
             setTimeout(function () {
-                that.datepicker.container.addClass('dp__hidden').removeClass('dp__animate');
-                that.datepicker.wrapper.removeClass('dp__animate');
-
-                // Reset view to calendar
-                that.switchView('calendar');
-
-                $('body').removeAttr('datepicker-display');
-
-                that.visible = false;
-                that.input.focus();
-            }, 300);
+                _.datepicker.container.removeClass('dp__closing dp__open');
+            }, 200);
         },
 
         /* Destroys the date picker plugin */
         destroy: function () {
-            var that = this;
+            var _ = this;
 
-            that.input.removeData(DCAL_DATA)
+            _.input.removeData(DCAL_DATA)
                 .unbind('keydown').unbind('click')
                 .removeProp('readonly');
-            that.datepicker.container.remove();
+            _.datepicker.container.remove();
         }
     };
 
@@ -775,10 +764,10 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
     $.fn.duDatepicker.defaults = {
         format: 'mm/dd/yyyy',	// Determines the date format
         theme: 'blue',			// Determines the color theme of the date picker
-        readOnly: true,			// Determines if input element is readonly (key input is disabled)
+        auto: false,            // Determines if clicking the date will automatically select it; OK button will not be displayed if true
         clearBtn: false,		// Determines if Clear button is displayed
         cancelBtn: false,		// Determines if Cancel button is displayed
-        overlayClose: true,		// Determines if clicking the overlay will close the date picker
+        overlayClose: true,     // Determines if clicking the overlay will close the date picker
         disabledDates: [],      // Array of dates to be disabled (format should be the same as the specified format)
         disabledDays: []        // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
     };
