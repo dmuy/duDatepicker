@@ -1,0 +1,50 @@
+---
+title: dmuy - duDatepicker
+layout: default
+---
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.min.css">
+<style type="text/css">
+</style>
+<h2>Demo</h2>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p>Default configurations</p>
+            <div class="input-group"><input class="form-control" type="text" placeholder="click me" id="dpicker1"></div>
+        </div>
+        <div class="col">
+            <p>mmm d, yyyy format</p>
+            <div class="input-group"><input class="form-control" type="text" placeholder="click me" id="dpicker2"></div>
+        </div>
+        <div class="col-12 col-md-6">
+            <p>Date range (you see disabled dates after you select either From or To</p>
+            <div class="row">
+                <div class="col-12 col-sm-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">From</span></div><input class="form-control" type="text" placeholder="click me" id="rangefrom"></div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">To</span></div><input class="form-control" type="text" placeholder="click me" id="rangeto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+{% capture docu_file %}{% include_relative README.md %}{% endcapture %}
+{{ docu_file | markdownify }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker/duDatepicker.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+        $('#dpicker1').duDatepicker();
+        $('#dpicker2').duDatepicker({ format: 'mmm d, yyyy', auto: true });
+        $('#rangefrom').duDatepicker({ format: 'mmm d, yyyy', rangeTo: '#rangeto' });
+        $('#rangeto').duDatepicker({ format: 'mmm d, yyyy', rangeFrom: '#rangefrom' });
+    });
+</script>
