@@ -135,7 +135,13 @@ $('#datepicker').duDatepicker({format: 'mm-dd-yyy'}).on('datechanged', function(
   alert(e.date);
 });
 ```
-The above code will alert the new date selected. For example: `01-16-2016` or January 16, 2016
+The above code will alert the new date selected. For example: `01-16-2016` or `January 16, 2016`
+If `outFormat` configuration is specified, the date format will be different.
+```javascript
+$('#datepicker').duDatepicker({format: 'mm-dd-yyy', outFormat: 'dd-mm-yyyy'}).on('datechanged', function(e){
+  alert(e.date); // this will alert '25-01-2019' for January 25, 2019
+});
+```
 
 ## Themes
 You can specify the color theme of the date picker by adding `theme` option upon initialization:
@@ -150,6 +156,7 @@ Below is the default configuration of the date picker.
 ```javascript
 {
   format: 'mm/dd/yyyy', // Determines the date format
+  outFormat: null,      // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
   theme: 'blue',        // Determines the color theme of the date picker
   auto: false,          // Determines if clicking the date will automatically select it; OK button will not be displayed if true
   clearBtn: false,      // Determines if Clear button is displayed

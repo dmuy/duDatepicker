@@ -537,8 +537,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         setValue: function (value) {
             if (typeof value === 'undefined') throw new Error('Expecting a value.');
 
-            var date = typeof value === 'string' ? this.parseDate(value, this.config.format) : value,
+            var date = typeof value === 'string' ? this.parseDate(value, this.config.format).date : value,
                 formatted = this.formatDate(date, this.config.format);
+
+            console.log('set value');
+            console.log(typeof value);
+            console.log(date);
 
             this.date = date;
             this.viewYear = date.getFullYear();
@@ -546,7 +550,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             this.input.val(formatted)
                 .attr('value', formatted);
 
-            this.triggerChange($.Event('datechanged', {date: this.formatDate(this.date, this.config.format)}));
+            this.triggerChange($.Event('datechanged', {date: this.formatDate(this.date, this.config.outFormat || this.config.format)}));
         },
 
         /* Triggers the datechanged and onchange (for asp.net) events */
@@ -761,13 +765,14 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
     };
 
     $.fn.duDatepicker.defaults = {
-        format: 'mm/dd/yyyy',	// Determines the date format
-        theme: 'blue',			// Determines the color theme of the date picker
-        auto: false,            // Determines if clicking the date will automatically select it; OK button will not be displayed if true
-        clearBtn: false,		// Determines if Clear button is displayed
-        cancelBtn: false,		// Determines if Cancel button is displayed
-        overlayClose: true,     // Determines if clicking the overlay will close the date picker
-        disabledDates: [],      // Array of dates to be disabled (format should be the same as the specified format)
-        disabledDays: []        // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
+        format: 'mm/dd/yyyy',    // Determines the date format
+        outFormat: null,         // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
+        theme: 'blue',           // Determines the color theme of the date picker
+        auto: false,             // Determines if clicking the date will automatically select it; OK button will not be displayed if true
+        clearBtn: false,         // Determines if Clear button is displayed
+        cancelBtn: false,        // Determines if Cancel button is displayed
+        overlayClose: true,      // Determines if clicking the overlay will close the date picker
+        disabledDates: [],       // Array of dates to be disabled (format should be the same as the specified format)
+        disabledDays: []         // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
     };
 }(jQuery);
