@@ -3,8 +3,6 @@
  * 
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
- *
- * Date: Monday, Sept 4 2017
  */
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,500');
@@ -16,8 +14,8 @@
 	visibility: hidden;
 	opacity: 0;
 	background-color: transparent;
-	-moz-transition: background-color .2s linear, opacity .2s ease;
-    transition: background-color .2s linear, opacity .2s ease;
+	-moz-transition: background-color .2s linear, opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: background-color .2s linear, opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
     will-change: background-color, opacity;
 	z-index: 100001;
 	overflow: hidden;
@@ -51,8 +49,8 @@
 	transform: translateX(-50%) scale(1.05) perspective(1px);
     -moz-box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-	-moz-transition: transform .25s ease, opacity .25s ease;
-	transition: transform .25s ease, opacity .25s ease;
+	-moz-transition: transform .25s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.4, 0.0, 0.2, 1);
+	transition: transform .25s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.4, 0.0, 0.2, 1);
 	will-change: transform, -moz-transform, opacity;
 }
 	.dcalendarpicker.dp__open .dudp__wrapper {
@@ -98,8 +96,8 @@
 		-moz-border-radius: 50%;
 		border-radius: 50%;
 		opacity: 1;
-		-moz-transition: opacity .25s ease, background-color .25s linear;
-		transition: opacity .25s ease, background-color .25s linear;
+		-moz-transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1), background-color .25s linear;
+		transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1), background-color .25s linear;
 		will-change: opacity, background-color;
 		z-index: 2;
 	}
@@ -118,8 +116,8 @@
 	width: 860px;
 	overflow: hidden;
 	opacity: 1;
-	-moz-transition: opacity .25s ease;
-	transition: opacity .25s ease;
+	-moz-transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+	transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
 	will-change: opacity;
 }
 	.dudp__cal-container .dudp__calendar-views.dp__animate-out { opacity: 0; }
@@ -216,8 +214,8 @@
 	opacity: 1;
 	-moz-transform: scale(1) perspective(1px);
 	transform: scale(1) perspective(1px);
-	-moz-transition: transform .25s ease, opacity .25s ease;
-	transition: transform .25s ease, opacity .25s ease;
+	-moz-transition: transform .25s cubic-bezier(0.0, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+	transition: transform .25s cubic-bezier(0.0, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
 	will-change: transform, opacity;
 }
 	.dudp__cal-container .dudp__months-view.dp__animate-out {
@@ -258,8 +256,8 @@
 	bottom: 0;
 	background-color: #fff;
 	opacity: 1;
-	-moz-transition: opacity .25s ease;
-	transition: opacity .25s ease;
+	-moz-transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+	transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
 	overflow-y: scroll;
 	overflow-x: hidden;
 }

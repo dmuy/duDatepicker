@@ -1,5 +1,5 @@
 /* -- DO NOT REMOVE --
- * jQuery duDatePicker v1.2 plugin
+ * jQuery duDatePicker v1.2.1 plugin
  * https://github.com/dmuy/duDatepicker
  *
  * Author: Dionlee Uy
@@ -57,7 +57,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 }
             };
 
-            //current selected date, default is today if no value given
+            // set default value
+            if (_.config.value)
+            	_.input.val(_.config.value)
+                	.attr('value', _.config.value);
+
+            // current selected date, default is today if no value given
             _.date = _.input.val() === '' ? new Date() : _.parseDate(_.input.val()).date;
             _.selected = { year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate() };
             _.viewMonth = _.selected.month;
@@ -133,19 +138,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 .appendTo('body');
 
             // Setup theme
-            switch (_.config.theme) {
-                case 'red':
-                case 'blue':
-                case 'green':
-                case 'purple':
-                case 'indigo':
-                case 'teal':
-                    picker.wrapper.attr('data-theme', _.config.theme);
-                    break;
-                default:
-                    picker.wrapper.attr('data-theme', $.fn.duDatepicker.defaults.theme);
-                    break;
-            }
+            picker.wrapper.attr('data-theme', _.config.theme || $.fn.duDatepicker.defaults.theme);
 
             /* ------------------------ Setup actions ------------------------ */
             _.input.on('click', function () { _.show() })
@@ -158,6 +151,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             header.selectedYear.click(function (e) {
                 if (_.viewMode !== 'years') _.switchView('years');
             });
+
             // Switch to calendar view (of the selected date)
             header.selectedDate.click(function (e) {
                 if ((_.viewMonth !== _.selected.month || _.viewYear !== _.selected.year) || _.viewMode !== 'calendar') {
@@ -537,20 +531,36 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         setValue: function (value) {
             if (typeof value === 'undefined') throw new Error('Expecting a value.');
 
-            var date = typeof value === 'string' ? this.parseDate(value, this.config.format).date : value,
-                formatted = this.formatDate(date, this.config.format);
+            var _ = this, date = typeof value === 'string' ? _.parseDate(value, _.config.format).date : value,
+                formatted = _.formatDate(date, _.config.format);
 
-            console.log('set value');
-            console.log(typeof value);
-            console.log(date);
-
-            this.date = date;
-            this.viewYear = date.getFullYear();
-            this.viewMonth = date.getMonth();
-            this.input.val(formatted)
+            _.date = date;
+            _.viewYear = date.getFullYear();
+            _.viewMonth = date.getMonth();
+            _.input.val(formatted)
                 .attr('value', formatted);
 
-            this.triggerChange($.Event('datechanged', {date: this.formatDate(this.date, this.config.outFormat || this.config.format)}));
+            _.triggerChange($.Event('datechanged', {date: _.formatDate(_.date, _.config.outFormat || _.config.format)}));
+
+            // if range from value is empty
+            if (_.rangeFromEl) {
+            	var _fromEl = $(_.rangeFromEl),
+            		_fromVal = _fromEl.val(), _fromPicker = _fromEl.data(DCAL_DATA);
+
+            	if (_fromVal === '') {
+            		_fromPicker.setValue(date);
+            	}
+            }
+
+            // if range to value is empty
+            if (_.rangeToEl) {
+            	var _toEl = $(_.rangeToEl),
+            		_toVal = _toEl.val(), _toPicker = _toEl.data(DCAL_DATA);
+
+            	if (_toVal === '') {
+            		_toPicker.setValue(date);
+            	}
+            }
         },
 
         /* Triggers the datechanged and onchange (for asp.net) events */
@@ -765,6 +775,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
     };
 
     $.fn.duDatepicker.defaults = {
+    	value: null,             // Default input value (should be formatted as specified in the 'format' configuration)
         format: 'mm/dd/yyyy',    // Determines the date format
         outFormat: null,         // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
         theme: 'blue',           // Determines the color theme of the date picker

@@ -1,0 +1,7 @@
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar-header { background-color: #F9A825; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.current { color: #FBC02D; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.selected { background-color: #FBC02D; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover { background-color: #F57F17; }
+.dudp__wrapper[data-theme='yellow'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='yellow'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='yellow'] .dudp__years-view .dudp__year.selected { color: #F57F17; }
