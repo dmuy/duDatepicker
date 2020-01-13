@@ -363,6 +363,34 @@
 .dudp__wrapper[data-theme='green'] .dudp__buttons .dudp__button,
 .dudp__wrapper[data-theme='green'] .dudp__months-view .dudp__month.selected,
 .dudp__wrapper[data-theme='green'] .dudp__years-view .dudp__year.selected { color: #1b5e20; }
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar-header { background-color: #121212; }
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container,
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__years-view { background-color: rgb(29,29,29); }
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date { color: rgba(255,255,255,.87); }
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev, 
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next, 
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-month-year, 
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__weekdays span, 
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:not(.selected), 
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:not(.selected), 
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__pm, 
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__nm { color: rgba(255,255,255,.6); }
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.disabled { color: rgba(255,255,255,.38); }
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button { color: #42a5f5; }
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button.clear { color: #ef5350 !important; }
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev:hover, 
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):hover { background-color: rgba(255,255,255,.04); }
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev:active, 
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next:active,
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button:active,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:active,
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:active,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):active { background-color: rgba(255,255,255,.1); }
 /* End color theme */
 
 body[datepicker-display='on'] { overflow: hidden; }

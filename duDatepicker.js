@@ -62,16 +62,28 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             	_.input.val(_.config.value)
                 	.attr('value', _.config.value);
 
-            // current selected date, default is today if no value given
-            _.date = _.input.val() === '' ? new Date() : _.parseDate(_.input.val()).date;
-            _.selected = { year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate() };
-            _.viewMonth = _.selected.month;
-            _.viewYear = _.selected.year;
-
             _.minDate = _.input.data('mindate') || _.config.minDate;
             _.maxDate = _.input.data('maxdate') || _.config.maxDate;
             _.rangeFromEl = _.input.data('rangefrom') || _.config.rangeFrom;
             _.rangeToEl = _.input.data('rangeto') || _.config.rangeTo;
+
+            // current selected date, default is today if no value given
+            var _date = new Date();
+
+            if (_.rangeFromEl) {
+                var fromEl = $(_.rangeFromEl), fromVal = fromEl.val();
+
+                if (fromVal !== '') {
+                    var fromPicker = fromEl.data(DCAL_DATA), fromFormat = fromPicker.config.format;
+                    
+                    _date = _.parseDate(fromVal, fromFormat).date;
+                }
+            }
+
+            _.date = _.input.val() === '' ? _date : _.parseDate(_.input.val()).date;
+            _.selected = { year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate() };
+            _.viewMonth = _.selected.month;
+            _.viewYear = _.selected.year;
 
             _.setupPicker();
             _.setSelection();
