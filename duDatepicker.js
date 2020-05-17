@@ -766,17 +766,22 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
     };
 
     /* Date picker definition */
-    $.fn.duDatepicker = function (config) {
+    $.fn.duDatepicker = function () {
+        var dudp_args = arguments, 
+            arg0 = dudp_args[0];
+
         return $(this).each(function (idx, el) {
             var that = this,
                 $that = $(this),
                 picker = $(this).data(DCAL_DATA),
-                options = $.extend({}, $.fn.duDatepicker.defaults, $that.data(), typeof config === 'object' && config);
+                options = $.extend({}, $.fn.duDatepicker.defaults, $that.data(), typeof arg0 === 'object' && arg0);
 
             if (!picker) {
                 $that.data(DCAL_DATA, (picker = new DUDatePicker(that, options)));
             }
-            if (typeof config === 'string') picker[config]();
+
+            if (typeof arg0 === 'string')
+                picker[arg0].apply(picker, Array.prototype.slice.call(dudp_args).slice(1));
 
             $(document).on('keydown', function (e) {
                 if (e.keyCode !== 27) return;
