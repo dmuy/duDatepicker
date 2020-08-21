@@ -22,7 +22,7 @@ Below is the default configuration of the date picker.
   auto: false,          // Determines if clicking the date will automatically select it; OK button will not be displayed if true
   clearBtn: false,      // Determines if Clear button is displayed
   cancelBtn: false,     // Determines if Cancel button is displayed
-  overlayClose: true    // Determines if clicking the overlay will close the date picker
+  overlayClose: true,   // Determines if clicking the overlay will close the date picker
   disabledDates: [],    // Array of dates to be disabled (format should be the same as the specified format)
   disabledDays: [],     // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
   range: false,         // Determines if date picker is range mode
