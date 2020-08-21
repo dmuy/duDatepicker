@@ -98,7 +98,7 @@ If you specify the `minDate` and/or `maxDate` and place the `data-mindate` and/o
 ### Usable built-in methods
 Below are some built-in methods you can use (assuming the date picker is already initialized).
 
-`setValue` - Sets the date value
+`setValue` - Sets the date value; follow `format` configuration
 ```javascript
 // default
 $('#datepicker').duDatepicker('setValue', '08/01/2020');
