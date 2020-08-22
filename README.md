@@ -241,4 +241,4 @@ Predefined themes are: `red`, `blue`, `green`, `purple`, `indigo`, `teal`, and `
 If you don't specify the theme, the default theme (`blue`) will be used.
 
 #### Custom theme
-If you want to customize the theme, just follow the `duDatepicker-custom-theme.css` format, and change the `{theme}` in `.dudp__wrapper[data-theme='{theme}']`.
+If you want to customize the theme, just follow the `duDatepicker-custom-theme.css` format, and change the `{theme}` in `.dudp__wrapper[data-theme='{theme}']` to your desired theme name.
