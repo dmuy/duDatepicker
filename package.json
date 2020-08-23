@@ -1,0 +1,23 @@
+{
+    "name": "@dmuy/jquery-datepicker",
+    "version": "1.2.2-rc",
+    "description": "jQuery date picker plugin for input fields.",
+    "keywords": [
+        "jquery-datepicker", "datepicker", "material", "date-range-picker", "material-datepicker"
+    ],
+    "license": "MIT",
+    "author": {
+        "name": "Dionlee Uy",
+        "email": "dionleeuy@gmail.com"
+    },
+    "repository": "git://github.com/dmuy/duDatepicker.git",
+    "homepage": "https://dmuy.github.io/duDatepicker/",
+    "main": "duDatepicker.js",
+    "files": [
+        "duDatepicker.js",
+        "duDatepicker.css"
+    ],
+    "dependencies": {
+        "jquery": "^3.5.1"
+    }
+}
