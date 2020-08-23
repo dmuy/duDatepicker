@@ -12,6 +12,42 @@ This is the enhanced date picker extracted from [DCalendar plugin](https://githu
 ![alt text](https://i.imgur.com/XsbXa5K.png "Date range mode")
 ![alt text](https://i.imgur.com/MNSkZ0x.png "Dark theme")
 
+## Installation
+### NPM
+Install via npm:
+```
+npm i @dmuy/jquery-datepicker
+```
+
+Include in your app
+```javascript
+import '@dmuy/jquery-datepicker/duDatepicker.css'
+import duDatepicker from '@dmuy/jquery-datepicker'
+```
+
+### CDN
+Use the following if you don't want to host the `js` and `css` files:
+```
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.css
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.js
+```
+Minified version:
+```
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.min.css
+https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.min.js
+```
+***Note: Replace `{version}` with the version you want to use.***
+
+[Learn more about the CDN](https://www.jsdelivr.com/features#gh)
+
+### Local Copy
+Copy `duDatepicker.css` and `duDatepicker.js` and include in your app:
+```html
+<link rel="stylesheet" type="text/css" href="{path-to}/duDatepicker.css">
+<script type="text/javascript" src="{path-to}/duDatepicker.js"></script>
+```
+***Note: Replace `{path-to}` with the absolute or relative path to where you copied the css and js files.***
+
 ## Options
 Below is the default configuration of the date picker.
 ```javascript
@@ -27,6 +63,8 @@ Below is the default configuration of the date picker.
   disabledDays: [],     // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
   range: false,         // Determines if date picker is range mode
   rangeDelim: '-',      // Range string delimiter
+  fromTarget: null,     // Date from target input element (range mode)
+  toTarget: null,       // Date to target input element (range mode)
   rangeFormatter: null  // Function call to execute custom date range format (displayed on the input)
 }
 ```
@@ -53,40 +91,11 @@ $('#datepicker').duDatepicker({format: 'mm-dd-yyy'}); //Initializes the date pic
 The above code will output a date in this format `mm-dd-yyyy`, for example: `10-31-2016` - which is October 31, 2016.
 You can specify other format you want, like `mmm dd, yyyy` which would output something like `Oct 01, 2016`.
 
-## How to use
-Make sure you include the jQuery library first.
-Include `duDatepicker.css` and `duDatepicker.js` in your html file:
-```html
-<link rel="stylesheet" type="text/css" href="duDatepicker.css">
-<script type="text/javascript" src="duDatepicker.js"></script>
-```
-
-Add a reference on your `input` element for later use:
-```html
-<input type="text" id="datepicker"/>
-```
-
-Then add this piece of code in your `script` tag:
+## Usage
+Add this piece of code in your script:
 ```javascript
-$(document).ready(function(){
-  $('#datepicker').duDatepicker(); //Initializes the date picker
-});
+$('#datepicker').duDatepicker(); //Initializes the date picker
 ```
-
-### CDN
-Use the following if you don't want to host the `js` and `css` files:
-```
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.css
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.js
-```
-Minified version:
-```
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.min.css
-https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@{version}/duDatepicker.min.js
-```
-***Note: Replace `{version}` with the version you want to use.***
-
-[Learn more about the CDN](https://www.jsdelivr.com/features#gh)
 
 ### Using configuration
 During initialization, you can also specify the min and max date.
@@ -102,7 +111,7 @@ Below are some built-in methods you can use (assuming the date picker is already
 ```javascript
 // default
 $('#datepicker').duDatepicker('setValue', '08/01/2020');
-// date range
+// date range mode
 $('#datepicker').duDatepicker('setValue', '08/01/2020-08/05/2020');
 ```
 `show` - Programmatically shows the date picker
@@ -158,7 +167,7 @@ If you are using a custom `format` configuration using a dash (`-`), make sure t
 ```javascript
 $('#daterange').duDatepicker({ format: 'yyyy-mm-dd', range: true, rangeDelim: '/' });
 ```
-By default, the value display for date range will be like this `datefrom-dateto`, regardless if `dateFrom` is equal to `dateTo`. To customize the value displayed in the input, use the `rangeFormatter` configuration.
+By default, the value display for date range will be like this `datefrom-dateto`, and will display 1 date if `dateFrom` is equal to `dateTo`. To customize the value displayed in the input, use the `rangeFormatter` configuration.
 ```javascript
 $('#daterange').duDatepicker({ 
   format: 'mmmm d, yyyy', range: true,
@@ -199,17 +208,10 @@ For situations where you need to use two input elements representing a date rang
 <input type="text" id="range-to">
 ```
 ```javascript
-var rangeFrom = $('#range-from'), rangeTo = $('#range-to'),
-  rangePicker = $('#daterange');
-
-rangeFrom.click(function() { rangePicker.click() });
-rangeTo.click(function() { rangePicker.click() });
-
-rangePicker.duDatepicker({ range: true, clearBtn: true }).on('datechanged', function(e) {
-  //set the value manually
-  rangeFrom.val(e.dateFrom);
-  rangeTo.val(e.dateTo);
-});
+$('#daterange').duDatepicker({
+  range: true, clearBtn: true,
+  fromTarget: '#range-from', toTarget: '#range-to'
+})
 ```
 
 ### Event
@@ -234,12 +236,6 @@ $('#datepicker').duDatepicker({format: 'mm-dd-yyy', outFormat: 'dd-mm-yyyy'}).on
 });
 ```
 
-### Remember
-Comment or remove the line below (in the css file) if you already have a link to the Roboto font.
-```css
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,500');
-```
-
 ### Themes
 You can specify the color theme of the date picker by adding `theme` option upon initialization:
 ```javascript
@@ -255,4 +251,10 @@ Predefined themes are: `red`, `blue`, `green`, `purple`, `indigo`, `teal`, and `
 If you don't specify the theme, the default theme (`blue`) will be used.
 
 #### Custom theme
-If you want to customize the theme, just follow the `duDatepicker-custom-theme.css` format, and change the `{theme}` in `.dudp__wrapper[data-theme='{theme}']`.
+If you want to customize the theme, just follow the `duDatepicker-custom-theme.css` format, and change the `{theme}` in `.dudp__wrapper[data-theme='{theme}']` to your desired theme name.
+
+### Remember
+Comment or remove the line below (in the css file) if you already have a link to the Roboto font.
+```css
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500');
+```

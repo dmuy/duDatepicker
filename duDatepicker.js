@@ -8,13 +8,31 @@
  * @requires jQuery
  * -- DO NOT REMOVE --
  */
-if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin requires jQuery');
+(function (factory) {
+	if ( typeof define === 'function' && define.amd ) {
+		define(['jquery'], factory);
+	} else if (typeof exports === 'object') {
+		module.exports = factory(require('jquery'));;
+	} else {
+		factory(jQuery);
+	}
+})(function ($) {
+    if (typeof $ === 'undefined') throw new Error('duDatePicker: This plugin requires jQuery');
 
-+function ($) {
+    /**
+     * Gets the number of days based on the month of the given date
+     * @param {Date} date Date object
+     */
+    function getDaysCount(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
 
-    Date.prototype.getDaysCount = function () { return new Date(this.getFullYear(), this.getMonth() + 1, 0).getDate() }
-
-    function datediff(from, to) {
+    /**
+     * Calculates date difference
+     * @param {Date} from Date from
+     * @param {Date} to Date to
+     */
+    function dateDiff(from, to) {
         // Take the difference between the dates and divide by milliseconds per day.
         // Round to nearest whole number to deal with DST.
         return Math.round((to - from) / (1000 * 60 * 60 * 24));
@@ -31,9 +49,13 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             var _ = this;
             _.animating = false;
             _.visible = false;
-            _.input = $(elem);
             _.config = options;
+            _.input = $(elem);
+            _.fromEl = _.config.fromTarget ? $(_.config.fromTarget) : null;
+            _.toEl = _.config.toTarget ? $(_.config.toTarget) : null;
+            _.input.prop('hidden', _.config.range && (_.fromEl || _.toEl))
             _.viewMode = 'calendar';
+
             _.datepicker = {
                 container: $('<div class="dcalendarpicker"></div>'),
                 wrapper: $('<div class="dudp__wrapper"></div>'),
@@ -91,11 +113,25 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
                 // set default value
                 if (value) {
-                    var valueDisp = _.config.rangeFormatter ? _.config.rangeFormatter.call(_, _from, _to) : value
+                    var valueDisp = _.config.rangeFormatter ? _.config.rangeFormatter.call(_, _from, _to) : value,
+                        formattedFrom = _.formatDate(_from, _.config.format),
+                        outFrom = _.formatDate(_from, _.config.outFormat || _.config.format),
+                        formattedTo = _.formatDate(_to, _.config.format),
+                        outTo = _.formatDate(_to, _.config.outFormat || _.config.format);
 
                     _.input.val(valueDisp).attr('value', valueDisp)
                         .attr('data-range-from', _.formatDate(_from, _.config.outFormat || _.config.format))
                         .attr('data-range-to', _.formatDate(_to, _.config.outFormat || _.config.format));
+
+                    if (_.fromEl) {
+                        _.fromEl.val(formattedFrom).attr('value', formattedFrom)
+                            .attr('data-value', outFrom);
+                    }
+    
+                    if (_.toEl) {
+                        _.toEl.val(formattedTo).attr('value', formattedTo)
+                            .attr('data-value', outTo);
+                    }
                 }
             } else {
                 _.date = _.input.val() === '' ? _date : _.parseDate(_.input.val()).date;
@@ -103,6 +139,33 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
 
                 _.viewMonth = _.date.getMonth();
                 _.viewYear = _.date.getFullYear();
+            }
+
+            _.inputClick = function() { _.show(); }
+            _.inputKeydown = function(e) {
+                if (e.keyCode === 13) _.show();
+                return !(EX_KEYS.indexOf(e.which) < 0);
+            }
+            /**
+             * Unbinds input element(s)
+             */
+            _.unbindInput = function() {
+                _.input.removeData(DCAL_DATA)
+                    .off('click', _.inputClick)
+                    .off('keydown', _.inputKeydown)
+                    .prop('readonly', false);
+
+                if (_.fromEl) {
+                    _.fromEl.off('click', _.inputClick)
+                        .off('keydown', _.inputKeydown)
+                        .prop('readonly', false);
+                }
+
+                if (_.toEl) {
+                    _.toEl.off('click', _.inputClick)
+                        .off('keydown', _.inputKeydown)
+                        .prop('readonly', false);
+                }
             }
 
             _.setupPicker();
@@ -176,11 +239,21 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             picker.wrapper.attr('data-theme', _.config.theme || $.fn.duDatepicker.defaults.theme);
 
             /* ------------------------ Setup actions ------------------------ */
-            _.input.on('click', function () { _.show() })
-                .on('keydown', function (e) {
-                    if (e.keyCode === 13) _.show();
-                    return !(EX_KEYS.indexOf(e.which) < 0);
-                }).prop('readonly', true);
+            _.input.on('click', _.inputClick)
+                .on('keydown', _.inputKeydown)
+                .prop('readonly', true);
+
+            if (_.fromEl) {
+                _.fromEl.on('click', _.inputClick)
+                    .on('keydown', _.inputKeydown)
+                    .prop('readonly', true);
+            }
+
+            if (_.toEl) {
+                _.toEl.on('click', _.inputClick)
+                    .on('keydown', _.inputKeydown)
+                    .prop('readonly', true);
+            }
 
             // Switch to years view
             header.selectedYear.click(function (e) {
@@ -314,7 +387,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 selected = _.config.range ? null : new Date(_.selected.year, _.selected.month, _.selected.date),
                 rangeFrom = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
                 rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null,
-                date = new Date(year, month, day), totalDays = date.getDaysCount(), nmStartDay = 1,
+                date = new Date(year, month, day), totalDays = getDaysCount(date), nmStartDay = 1,
                 weeks = [];
 
             for (var week = 1; week <= 6; week++) {
@@ -355,7 +428,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                 if (week === 1 || week > 4) {
                     // First week
                     if (week === 1) {
-                        var prevMonth = new Date(year, month - 1, 1), prevMonthDays = prevMonth.getDaysCount();
+                        var prevMonth = new Date(year, month - 1, 1), prevMonthDays = getDaysCount(prevMonth);
 
                         for (var a = 6; a >= 0; a--) {
                             if (daysOfWeek[a].text() !== '') continue;
@@ -417,12 +490,12 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                                 rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null;
 
                             if (!_.rangeFrom || (_.rangeFrom && _selected < rangeFrom) ||
-                                (_.rangeFrom && _.rangeTo && datediff(rangeFrom, _selected) <= datediff(_selected, rangeTo) && datediff(rangeFrom, _selected) !== 0) ||
+                                (_.rangeFrom && _.rangeTo && dateDiff(rangeFrom, _selected) <= dateDiff(_selected, rangeTo) && dateDiff(rangeFrom, _selected) !== 0) ||
                                 (_.rangeFrom && _.rangeTo && rangeTo.getTime() === _selected.getTime())) {
                                 _.rangeFrom = { year: _year, month: _month, date: _date };
                                 isFrom = true;
                             } else if (!_.rangeTo || (_.rangeTo && _selected > rangeTo) ||
-                                (_.rangeFrom && _.rangeTo && datediff(_selected, rangeTo) < datediff(rangeFrom, _selected) && datediff(_selected, rangeTo) !== 0) ||
+                                (_.rangeFrom && _.rangeTo && dateDiff(_selected, rangeTo) < dateDiff(rangeFrom, _selected) && dateDiff(_selected, rangeTo) !== 0) ||
                                 (_.rangeFrom && _.rangeTo && rangeFrom.getTime() === _selected.getTime())) {
                                 _.rangeTo = { year: _year, month: _month, date: _date };
                                 isFrom = false;
@@ -611,17 +684,23 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
             _.viewMode = view;
             switch (view) {
                 case 'calendar':
+                    var _calendar = calViews.find('.dudp__calendar:eq(1)'); // current month in view
+
                     calViews.addClass('dp__animate-out').removeClass('dp__hidden');
+                    _calendar.addClass('dp__zooming dp__animate-zoom');
                     picker.calendarHolder.btnPrev.removeClass('dp__hidden');
                     picker.calendarHolder.btnNext.removeClass('dp__hidden');
 
                     setTimeout(function () {
                         calViews.removeClass('dp__animate-out');
+                        _calendar.removeClass('dp__animate-zoom');
                     }, 10);
+
                     monthsView.addClass('dp__animate-out');
                     yearsView.addClass('dp__hidden');
 
                     setTimeout(function () {
+                        _calendar.removeClass('dp__zooming');
                         monthsView.addClass('dp__hidden').removeClass('dp__animate-out');
                     }, _animDuration);
                     break;
@@ -648,9 +727,9 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
                     picker.calendarHolder.btnPrev.addClass('dp__hidden');
                     picker.calendarHolder.btnNext.addClass('dp__hidden');
 
+                    yearsView.removeClass('dp__hidden');
                     monthsView.addClass('dp__animate-out');
                     calViews.addClass('dp__animate-out');
-                    yearsView.removeClass('dp__hidden');
 
                     setTimeout(function () {
                         calViews.addClass('dp__hidden').removeClass('dp__animate-out');
@@ -705,26 +784,39 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         setValue: function (value) {
             if (typeof value === 'undefined') throw new Error('Expecting a value.');
 
-            var _ = this, changeData = null;
+            var _ = this, _empty = typeof value === 'string' && value === '', changeData = null;
 
             if (_.config.range) {
-                var _range = value.split(_.config.rangeDelim);
+                var _range = _empty ? [] : value.split(_.config.rangeDelim);
 
                 if (value !== '' && _range.length < 2) throw new Error('duDatePicker: Invalid date range value');
 
-                var _from = value === '' ? _date : _.parseDate(_range[0]).date,
-                    _to = value === '' ? _date : _.parseDate(_range[1]).date,
-                    formattedFrom = _.formatDate(_from, _.config.outFormat || _.config.format),
-                    formattedTo = _.formatDate(_to, _.config.outFormat || _.config.format),
-                    valueDisp = _.config.rangeFormatter ? _.config.rangeFormatter.call(_, _from, _to) :
-                        _range[0] === _range[1] ? _range[0] : value;
+                var now = new Date(),
+                    _from = _empty ? null : _.parseDate(_range[0]).date,
+                    _to = _empty ? null : _.parseDate(_range[1]).date,
+                    formattedFrom = _empty ? '' : _.formatDate(_from, _.config.format),
+                    outFrom = _empty ? '' : _.formatDate(_from, _.config.outFormat || _.config.format),
+                    formattedTo = _empty ? '' : _.formatDate(_to, _.config.format),
+                    outTo = _empty ? '' : _.formatDate(_to, _.config.outFormat || _.config.format),
+                    valueDisp = _empty ? '' : (
+                        _.config.rangeFormatter ? _.config.rangeFormatter.call(_, _from, _to) : _range[0] === _range[1] ? _range[0] : value);
 
                 _.dateFrom = _from;
                 _.dateTo = _to;
-                _.viewYear = _from.getFullYear();
-                _.viewMonth = _from.getMonth();
+                _.viewYear = (_from ? _from : now).getFullYear();
+                _.viewMonth = (_from ? _from : now).getMonth();
                 _.input.val(valueDisp).attr('value', valueDisp)
                     .attr('data-range-from', formattedFrom).attr('data-range-to', formattedTo);
+
+                if (_.fromEl) {
+                    _.fromEl.val(formattedFrom).attr('value', formattedFrom)
+                        .attr('data-value', outFrom);
+                }
+
+                if (_.toEl) {
+                    _.toEl.val(formattedTo).attr('value', formattedTo)
+                        .attr('data-value', outTo);
+                }
 
                 changeData = {
                     _dateFrom: _from, _dateTo: _to,
@@ -907,9 +999,7 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         destroy: function () {
             var _ = this;
 
-            _.input.removeData(DCAL_DATA)
-                .unbind('keydown').unbind('click')
-                .removeProp('readonly');
+            _.unbindInput();
             _.datepicker.container.remove();
         }
     };
@@ -958,6 +1048,8 @@ if (typeof jQuery === 'undefined') throw new Error('duDatePicker: This plugin re
         disabledDays: [],        // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
         range: false,            // Determines if date picker is range mode
         rangeDelim: '-',         // Range string delimiter
+        fromTarget: null,        // Date from target input element (range mode)
+        toTarget: null,          // Date to target input element (range mode)
         rangeFormatter: null     // Function call to execute custom date range format (displayed on the input)
     };
-}(jQuery);
+});
