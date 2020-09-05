@@ -56,6 +56,7 @@ Below is the default configuration of the date picker.
   outFormat: null,      // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
   theme: 'blue',        // Determines the color theme of the date picker
   auto: false,          // Determines if clicking the date will automatically select it; OK button will not be displayed if true
+  inline: false,        // Determines if date picker will be inline (popover) with the input (and not a dialog)
   clearBtn: false,      // Determines if Clear button is displayed
   cancelBtn: false,     // Determines if Cancel button is displayed
   overlayClose: true,   // Determines if clicking the overlay will close the date picker

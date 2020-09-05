@@ -38,13 +38,43 @@
         return Math.round((to - from) / (1000 * 60 * 60 * 24));
     }
 
+    /**
+     * Returns the document width and height
+     */
+    function screenDim() {
+        return {
+            height: $(document).outerHeight(),
+            width: $(document).outerWidth()
+        };
+    }
+
+    /**
+     * Calculates the offset of the given html element
+     * @param {Element} el Html element
+     */
+    function calcOffset(el) {
+        var offset = el.offset(),
+            dim = {
+                height: el.outerHeight(),
+                width: el.outerWidth()
+            },
+            screen = screenDim();
+
+        return {
+            top: offset.top + dim.height,
+            left: offset.left,
+            right: screen.width - (offset.left + dim.width),
+            bottom: screen.height - (offset.top)
+        }
+    }
+
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         WEEK_DAYS_HTML = "<span>" + SHORT_DAYS.map(function (x) { return x.substr(0, 2) }).join("</span><span>") + "</span>",
         EX_KEYS = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123],
-        DCAL_DATA = '_duDatepicker', SELECTED_FORMAT = 'D, mmm d', MONTH_HEAD_FORMAT = 'mmmm yyyy',
+        DCAL_DATA = '_duDatepicker', SELECTED_FORMAT = 'D, mmm d',
         DUDatePicker = function (elem, options) {
             var _ = this;
             _.animating = false;
@@ -58,7 +88,7 @@
 
             _.datepicker = {
                 container: $('<div class="dcalendarpicker"></div>'),
-                wrapper: $('<div class="dudp__wrapper"></div>'),
+                wrapper: $('<div class="dudp__wrapper" tabindex="0"></div>'),
                 header: {
                     wrapper: $('<section class="dudp__calendar-header"></section>'),
                     selectedYear: $('<span class="dudp__sel-year"></span>'),
@@ -141,9 +171,17 @@
                 _.viewYear = _.date.getFullYear();
             }
 
-            _.inputClick = function() { _.show(); }
+            _.inputClick = function() {
+                _.showInFromEl = _.config.inline && _.fromEl && this === _.fromEl[0];
+                _.showInToEl = _.config.inline && _.toEl && this === _.toEl[0];
+                _.show(); 
+            }
             _.inputKeydown = function(e) {
-                if (e.keyCode === 13) _.show();
+                if (e.keyCode === 13) {
+                    _.showInFromEl = _.config.inline && _.fromEl && this === _.fromEl[0];
+                    _.showInToEl = _.config.inline && _.toEl && this === _.toEl[0];
+                    _.show();
+                }
                 return !(EX_KEYS.indexOf(e.which) < 0);
             }
             /**
@@ -187,9 +225,30 @@
                 _selected = _.selected ? _.selected : new Date();
 
             // Setup header
-            header.wrapper.append(header.selectedYear)
-                .append(header.selectedDate)
-                .appendTo(picker.wrapper);
+            if (!_.config.inline) {
+                header.wrapper.append(header.selectedYear)
+                    .append(header.selectedDate)
+                    .appendTo(picker.wrapper);
+
+                // Switch to years view
+                header.selectedYear.click(function (e) {
+                    if (_.viewMode !== 'years') _.switchView('years');
+                });
+
+                // Switch to calendar view (of the selected date)
+                header.selectedDate.click(function (e) {
+                    var now = new Date(),
+                        _month = _.config.range ? now.getMonth() : _.selected.month,
+                        _year = _.config.range ? now.getFullYear() : _.selected.year;
+
+                    if ((_.viewMonth !== _month || _.viewYear !== _year) || _.viewMode !== 'calendar') {
+                        _.viewMonth = _month;
+                        _.viewYear = _year;
+                        _.setupCalendar();
+                        _.switchView('calendar');
+                    }
+                });
+            }
 
             // Setup months view
             var _month = 0;
@@ -232,13 +291,13 @@
                 .append(buttons.wrapper)
                 .appendTo(picker.wrapper);
 
-            picker.container.append(picker.wrapper)
-                .appendTo('body');
+            picker.container.append(picker.wrapper).appendTo('body');
+
+            if (_.config.inline) picker.container.attr('inline', true)
 
             // Setup theme
             picker.wrapper.attr('data-theme', _.config.theme || $.fn.duDatepicker.defaults.theme);
 
-            /* ------------------------ Setup actions ------------------------ */
             _.input.on('click', _.inputClick)
                 .on('keydown', _.inputKeydown)
                 .prop('readonly', true);
@@ -255,42 +314,33 @@
                     .prop('readonly', true);
             }
 
-            // Switch to years view
-            header.selectedYear.click(function (e) {
-                if (_.viewMode !== 'years') _.switchView('years');
-            });
-
-            // Switch to calendar view (of the selected date)
-            header.selectedDate.click(function (e) {
-                var now = new Date(),
-                    _month = _.config.range ? now.getMonth() : _.selected.month,
-                    _year = _.config.range ? now.getFullYear() : _.selected.year;
-
-                if ((_.viewMonth !== _month || _.viewYear !== _year) || _.viewMode !== 'calendar') {
-                    _.viewMonth = _month;
-                    _.viewYear = _year;
-                    _.setupCalendar();
-                    _.switchView('calendar');
-                }
-            });
-
             calendarHolder.btnPrev.click(function (e) { _.move('prev') });
             calendarHolder.btnNext.click(function (e) { _.move('next') });
 
             // Switch view to months view
             calendarHolder.calendarViews.wrapper
                 .on('click', '.dudp__cal-month-year', function (e) {
-                    if (_.viewMode !== 'months') _.switchView('months');
+                    var target = $(e.target)
+                    
+                    if (target.hasClass('cal-year')) {
+                        _.switchView('years');
+                    } else if (target.hasClass('cal-month')) {
+                        _.switchView('months');
+                    }
                 });
 
             // clear button click
-            if (_.config.clearBtn)
+            if (_.config.clearBtn) {
                 buttons.btnClear.click(function () {
                     if (_.config.range) {
                         _.dateFrom = null;
                         _.dateTo = null;
                         _.input.val('').attr('value', '')
                             .attr('data-range-from', null).attr('data-range-to', null);
+
+                        if (_.fromEl) _.fromEl.val('').attr('value', '').attr('data-value', null);
+                        if (_.toEl) _.toEl.val('').attr('value', '').attr('data-value', null);
+
                         _.triggerChange($.Event('datechanged', { _dateFrom: null, _dateTo: null, dateFrom: null, dateTo: null, value: '' }));
                     } else {
                         var now = new Date();
@@ -301,11 +351,18 @@
                     }
                     _.hide();
                 });
+            }
 
             // overlay click
             if (_.config.overlayClose) {
                 picker.container.click(function (e) { _.hide() });
                 picker.wrapper.click(function (e) { e.stopPropagation() });
+            }
+
+            picker.wrapper.on('keydown', function (e) { if (e.keyCode === 27) _.hide() })
+
+            if (_.config.inline) {
+                picker.wrapper.on('blur', function () { _.hide() })
             }
 
             if (_.config.cancelBtn) buttons.btnCancel.click(function () { _.hide() });
@@ -371,6 +428,7 @@
 
             if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
             if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
+
 
             return (min && date < min) || (max && date > max) || 
                 (inDsabldDates || inDsabledDays);
@@ -594,21 +652,30 @@
                 header: $('<div class="dudp__cal-month-year"></div>'),
                 weekDays: $('<div class="dudp__weekdays">' + WEEK_DAYS_HTML + '</div>'),
                 datesHolder: $('<div class="dudp__dates-holder"></div>')
-            };
+            }, prevMonth = _month === 0 ? 11 : _month - 1,
+                nextMonth = _month === 11 ? 0 : _month + 1,
+                prevYear = _month === 0 ? _year - 1 : _year,
+                nextYear = _month === 11 ? _year + 1 : _year;
 
-            prev.header.text(_.formatDate(new Date(_year, _month - 1, 1), MONTH_HEAD_FORMAT)).appendTo(prev.wrapper);
+            prev.header.append('<span class="cal-month">' + MONTHS[prevMonth] + '</span>')
+                .append('<span class="cal-year">' + prevYear + '</span>')
+                .appendTo(prev.wrapper);
             prev.wrapper.append(prev.weekDays);
-            prev.datesHolder.html(_.getDates(_year, _month - 1)).appendTo(prev.wrapper);
+            prev.datesHolder.html(_.getDates(prevYear, prevMonth)).appendTo(prev.wrapper);
             viewsHolder.calendars.push(prev);
 
-            inView.header.text(_.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(inView.wrapper);
+            inView.header.append('<span class="cal-month">' + MONTHS[_month] + '</span>')
+                .append('<span class="cal-year">' + _year + '</span>')
+                .appendTo(inView.wrapper);
             inView.wrapper.append(inView.weekDays);
             inView.datesHolder.html(_.getDates(_year, _month)).appendTo(inView.wrapper);
             viewsHolder.calendars.push(inView);
 
-            next.header.text(_.formatDate(new Date(_year, _month + 1, 1), MONTH_HEAD_FORMAT)).appendTo(next.wrapper);
+            next.header.append('<span class="cal-month">' + MONTHS[nextMonth] + '</span>')
+                .append('<span class="cal-year">' + nextYear + '</span>')
+                .appendTo(next.wrapper);
             next.wrapper.append(next.weekDays);
-            next.datesHolder.html(_.getDates(_year, _month + 1)).appendTo(next.wrapper);
+            next.datesHolder.html(_.getDates(nextYear, nextMonth)).appendTo(next.wrapper);
             viewsHolder.calendars.push(next);
 
             viewsHolder.wrapper.empty()
@@ -651,9 +718,12 @@
                     header: $('<div class="dudp__cal-month-year"></div>'),
                     weekDays: $('<div class="dudp__weekdays">' + WEEK_DAYS_HTML + '</div>'),
                     datesHolder: $('<div class="dudp__dates-holder"></div>')
-                };
+                },
+                calDate = new Date(_year, _month, 1);
 
-            newCalEl.header.text(_.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)).appendTo(newCalEl.wrapper);
+            newCalEl.header.append('<span class="cal-month">' + _.formatDate(calDate, 'mmmm') + '</span>')
+                .append('<span class="cal-year">' + _.formatDate(calDate, 'yyyy') + '</span>')
+                .appendTo(newCalEl.wrapper);
             newCalEl.wrapper.append(newCalEl.weekDays);
             newCalEl.datesHolder.html(newCalDates).appendTo(newCalEl.wrapper);
 
@@ -690,6 +760,7 @@
                     _calendar.addClass('dp__zooming dp__animate-zoom');
                     picker.calendarHolder.btnPrev.removeClass('dp__hidden');
                     picker.calendarHolder.btnNext.removeClass('dp__hidden');
+                    picker.calendarHolder.buttons.wrapper.removeClass('dp__hidden');
 
                     setTimeout(function () {
                         calViews.removeClass('dp__animate-out');
@@ -707,6 +778,7 @@
                 case 'months':
                     picker.calendarHolder.btnPrev.addClass('dp__hidden');
                     picker.calendarHolder.btnNext.addClass('dp__hidden');
+                    picker.calendarHolder.buttons.wrapper.addClass('dp__hidden');
                     calViews.addClass('dp__animate-out');
                     monthsView.addClass('dp__animate-out').removeClass('dp__hidden');
 
@@ -726,6 +798,7 @@
 
                     picker.calendarHolder.btnPrev.addClass('dp__hidden');
                     picker.calendarHolder.btnNext.addClass('dp__hidden');
+                    picker.calendarHolder.buttons.wrapper.addClass('dp__hidden');
 
                     yearsView.removeClass('dp__hidden');
                     monthsView.addClass('dp__animate-out');
@@ -973,6 +1046,29 @@
             _.setSelection();
             _.setupCalendar();
             _.datepicker.container.addClass('dp__open');
+
+            if (_.config.inline) {
+                var inputRef = _.showInFromEl ? _.fromEl : _.showInToEl ? _.toEl : _.input,
+                    offset = calcOffset(inputRef),
+                    picker_dim = {
+                        height: _.datepicker.wrapper.outerHeight(),
+                        width: _.datepicker.wrapper.outerWidth()
+                    },
+                    screen_dim = screenDim(),
+                    below = offset.top + picker_dim.height < screen_dim.height,
+                    left_side = offset.left + picker_dim.width < screen_dim.width,
+                    offsetCss = {},
+                    scroll = {
+                        y: window.scrollY,
+                        x: window.scrollX
+                    };
+
+                offsetCss[below ? 'top' : 'bottom'] = below ? offset.top - scroll.y : offset.bottom;
+                offsetCss[left_side ? 'left' : 'right'] = left_side ? offset.left - scroll.x : offset.right;
+
+                _.datepicker.container.removeAttr('style').css(offsetCss);
+            }
+            _.datepicker.wrapper.focus();
             _.visible = true;
             _.input.blur();
         },
@@ -1023,12 +1119,6 @@
 
             if (typeof arg0 === 'string')
                 picker[arg0].apply(picker, Array.prototype.slice.call(dudp_args).slice(1));
-
-            $(document).on('keydown', function (e) {
-                if (e.keyCode !== 27) return;
-
-                if (picker.visible) picker.hide();
-            });
         });
     };
 
@@ -1041,6 +1131,7 @@
         outFormat: null,         // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
         theme: 'blue',           // Determines the color theme of the date picker
         auto: false,             // Determines if clicking the date will automatically select it; OK button will not be displayed if true
+        inline: false,           // Determines if date picker will be inline (popover) with the input (and not a dialog)
         clearBtn: false,         // Determines if Clear button is displayed
         cancelBtn: false,        // Determines if Cancel button is displayed
         overlayClose: true,      // Determines if clicking the overlay will close the date picker
