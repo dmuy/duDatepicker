@@ -9,8 +9,10 @@ This is the enhanced date picker extracted from [DCalendar plugin](https://githu
 ![alt text](https://i.imgur.com/DHtNcEN.png "with Clear button")
 ![alt text](https://i.imgur.com/iBYl49d.png "Months view")
 ![alt text](https://i.imgur.com/wgvJYCf.png "Years view")
-![alt text](https://i.imgur.com/XsbXa5K.png "Date range mode")
-![alt text](https://i.imgur.com/MNSkZ0x.png "Dark theme")
+![alt text](https://i.imgur.com/cezrhRv.png "Date range mode")
+![alt text](https://i.imgur.com/KZxDxsW.png "Dark theme")
+![alt text](https://i.imgur.com/Gqt8UzL.png "Inline date picker")
+![alt text](https://i.imgur.com/5YfbZm9.png "Inline range date picker")
 
 ## Installation
 ### NPM
