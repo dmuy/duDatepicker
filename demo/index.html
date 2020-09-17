@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Date Picker Plugin</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../dist/duDatepicker.min.css">
+	<link rel="stylesheet" type="text/css" href="../dist/duDatepicker-theme.css">
+	<style type="text/css">
+		html,
+		body {
+			min-height: 100%;
+			background-color: #f5f5f5;
+		}
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+		.stats { margin-bottom: 12px; }
+		.stats a { text-decoration: none; }
+		.stats a + a { margin-left: 8px; }
+		#logger { margin-top: 24px; }
+		#logger span { display: block; }
+		#logger textarea {
+			width: 400px;
+			max-width: 100%;
+			margin-top: 4px;
+			resize: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper">
+		<h1>duDatepicker</h1>
+		<div class="stats">
+			<a href="https://www.npmjs.com/package/@dmuy/jquery-datepicker" rel="noreferrer" target="_blank">
+				<img alt="npm" src="https://img.shields.io/npm/dt/@dmuy/jquery-datepicker?style=flat-square">
+			</a>
+			<a href="https://github.com/dmuy/duDatepicker" rel="noreferrer" target="_blank">
+				<img src="https://img.shields.io/github/stars/dmuy/duDatepicker?style=social" alt="stars">
+			</a>
+		</div>
+		<h2>Date picker</h2>
+		<table id="mycalendar"></table>
+		<input type="text" id="datepicker1" data-maxdate="today">
+		<input type="text" id="datepicker2" data-theme="dark">
+		<h3>Range</h3>
+		<input type="text" id="daterange" data-theme="dark">
+		<input type="text" id="range-from">
+		<input type="text" id="range-to">
+		<input type="text" id="datepicker3">
+		<div id="logger">
+			<span>Logger:</span>
+			<textarea id="loggerTxt" rows="10" disabled></textarea>
+		</div>
+	</div>
+	<script type="text/javascript" src="../dist/duDatepicker.min.js"></script>
+	<script type="text/javascript">
+		function log (message) {
+			document.querySelector('#loggerTxt').value = message
+		}
+
+		window.onload = function () {
+			document.querySelector('#datepicker1').addEventListener('datechanged', function(e) {
+				console.log('New date', e.data, this.value)
+			})
+
+			duDatepicker('#datepicker1', {
+				format: 'mmmm d, yyyy', range: true, clearBtn: true,
+				// disabledDays: ['Sat', 'Sun'],
+				events: {
+					dateChanged: function (data) {
+						log('From: ' + data.dateFrom + '\nTo: ' + data.dateTo)
+					},
+					onRangeFormat: function (from, to) {
+						var fromFormat = 'mmmm d, yyyy', toFormat = 'mmmm d, yyyy';
+
+						if (from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear()) {
+							fromFormat = 'mmmm d'
+							toFormat = 'd, yyyy'
+						} else if (from.getFullYear() === to.getFullYear()) {
+							fromFormat = 'mmmm d'
+							toFormat = 'mmmm d, yyyy'
+						}
+
+						return from.getTime() === to.getTime() ?
+							this.formatDate(from, 'mmmm d, yyyy') :
+							[this.formatDate(from, fromFormat), this.formatDate(to, toFormat)].join('-');
+					}
+				}
+			})
+
+			duDatepicker('#datepicker2, #datepicker3', { auto: true, inline: true,
+				events: {
+					dateChanged: function (data) {
+						log('Date:' + data.date)
+					}
+				}
+			})
+
+			duDatepicker('#daterange', {
+				range: true, format: 'mmmm d, yyyy', outFormat: 'yyyy-mm-dd', fromTarget: '#range-from', toTarget: '#range-to',
+				clearBtn: true, theme: 'yellow', maxDate: 'today'
+				// inline: true
+				// events: {
+				// 	ready: function () {
+				// 		console.log('duDatepicker', this)
+				// 	},
+				// 	dateChanged: function (data) {
+				// 		console.log('new date', data)
+				// 	}
+				// }
+			})
+			// duDatepicker('#daterange', 'setValue', 'August 2, 2020-August 5, 2020')
+		}
+	</script>
+</body>
+
+</html>

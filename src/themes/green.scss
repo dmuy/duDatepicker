@@ -1,0 +1,29 @@
+$headerBg: #2e7d32;             // header background color
+$highlight: #388e3c;            // current date color, selected date(s) highlight color
+$selectedHighlight: #1b5e20;    // selected highlight & buttons color
+
+.dudp__wrapper[data-theme='green'] {
+    .dudp__calendar-header { background-color: $headerBg; }
+
+    .dudp__calendar {
+        .dudp__cal-week {
+            .dudp__date.current { color: $highlight; }
+
+            .dudp__date.in-range,
+            .dudp__date.range-from,
+            .dudp__date.range-to { background-color: rgba($color: $highlight, $alpha: 0.2); }
+
+            .dudp__date.selected:before,
+            .dudp__date.range-from:before,
+            .dudp__date.range-to:before { background-color: $highlight; }
+
+            .dudp__date.selected:hover:before,
+            .dudp__date.range-from:hover:before,
+            .dudp__date.range-to:hover:before { background-color: $selectedHighlight; }
+        }
+    }
+
+    .dudp__buttons .dudp__button,
+    .dudp__months-view .dudp__month.selected,
+    .dudp__years-view .dudp__year.selected { color: $selectedHighlight; }
+}

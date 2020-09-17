@@ -1,0 +1,449 @@
+/*!Don't remove this!
+ * duDatePicker styles
+ * 
+ * Author: Dionlee Uy
+ * Email: dionleeuy@gmail.com
+ */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500');
+
+$borderRadius: 4px; // picker & button
+$shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+$headerColor: rgb(220,220,220);
+$headerHover: #fff;
+$contentBg: #fff;
+$btnHover: #d9d9d9;     // year & month selection, next & prev, buttons hover background
+$btnActive: #bfbfbf;    // year & month selection, next & prev, buttons active background
+$btnHeight: 32px;
+$monthSize: 63px;         // month selection box size
+$calHdrSize: 48px;        // calendar header height
+
+.dcalendarpicker {
+    position: fixed;
+	top: 0; bottom: 0;
+	left: 0; right: 0;
+	visibility: hidden;
+	opacity: 0;
+	background-color: transparent;
+    transition: background-color .2s linear, opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    will-change: background-color, opacity;
+	z-index: 100001;
+    overflow: hidden;
+
+    .dudp__wrapper {
+        font-family: Roboto, sans-serif;
+        font-size: 12px;
+        line-height: normal;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        left: 50%;
+        bottom: 24px;
+        min-width: 272px;
+        overflow: hidden;
+        user-select: none;
+        outline: none;
+        border-radius: $borderRadius;
+        transform: translateX(-50%) scale(1.05) perspective(1px);
+        box-shadow: $shadow;
+        transition: transform .25s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.4, 0.0, 0.2, 1);
+        will-change: transform, -moz-transform, opacity;
+    }
+
+    .dudp__calendar-header {
+        font-size: 18px;
+        padding: 20px;
+        color: $headerColor;
+        box-sizing: content-box;
+
+        .dudp__sel-year,
+        .dcp_sel-date { 
+            display: block;
+            cursor: pointer;
+
+            &:hover { color: $headerHover; }
+        }
+
+        .dcp_sel-date { font-size: 30px; }
+    }
+
+    .dudp__cal-container {
+        position: relative;
+        background-color: $contentBg;
+        width: 284px;
+        user-select: none;
+        overflow: hidden;
+        flex: 0 1 auto;
+
+        .dudp__btn-cal-prev,
+        .dudp__btn-cal-next {
+            position: absolute;
+            top: 0;
+            left: 12px;
+            display: block;
+            text-align: center;
+            font-size: 28px;
+            line-height: 44px;
+            width: $calHdrSize;
+            height: $calHdrSize;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 50%;
+            opacity: 1;
+            transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1), background-color .25s linear;
+            will-change: opacity, background-color;
+            z-index: 2;
+
+            &:hover { background-color: $btnHover; }
+
+            &:active { background-color: $btnActive; }
+
+            &.dp__hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .dudp__btn-cal-next { left: auto; right: 12px; }
+
+        .dudp__calendar-views {
+            width: 860px;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+            will-change: opacity;
+
+            &.dp__animate-out { opacity: 0; }
+            &.dp__hidden {
+                visibility: hidden;
+                opacity: 0;
+            }
+        }
+
+        .dudp__calendar {
+            display: inline-block;
+            padding: 0 16px 10px;
+            opacity: 1;
+            transform: translateX(-100%) perspective(1px);
+            transition: none;
+            will-change: transform;
+
+            &.dp__zooming {
+                transition: transform .25s, opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+            }
+
+            &.dp__animate-zoom {
+                opacity: 0;
+                transform: translateX(-100%) perspective(1px) scale(0.85);
+            }
+
+            &.dp__animate-left {
+                transform: translateX(-200%);
+                transition: transform .25s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+            }
+
+            &.dp__animate-right {
+                transform: translateX(0);
+                transition: transform .25s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+            }
+
+            .dudp__cal-month-year {
+                text-align: center;
+                line-height: $calHdrSize;
+                font-size: 14px;
+                font-weight: 500;
+
+                span {
+                    display: inline-block;
+                    cursor: pointer;
+                    padding: 0 4px;
+                }
+            }
+
+            .dudp__weekdays {
+                display: flex;
+                flex-direction: row;
+
+                span {
+                    display: inline-block;
+                    flex: 0 1 auto;
+                    width: 36px;
+                    text-align: center;
+                    color: rgb(50,50,50);
+                    font-size: 11px;
+                    line-height: 20px;
+                    vertical-align: middle;
+                }
+            }
+
+            .dudp__cal-week {
+                display: flex;
+                flex-direction: row;
+
+                .dudp__date {
+                    position: relative;
+                    flex: 0 1 auto;
+                    display: block;
+                    text-decoration: none;
+                    text-align: center;
+                    color: rgb(50,50,50);
+                    width: 36px;
+                    line-height: 36px;
+                    height: 36px;
+                    outline: none;
+                    cursor: pointer;
+
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        border-radius: 50%;
+                        transition: background-color .24s, color .24s;
+                        z-index: -1;
+                    }
+
+                    &.dudp__pm,
+                    &.dudp__nm { color: rgb(150,150,150); }
+
+                    &.disabled { cursor: not-allowed; color: rgb(200,200,200); }
+
+                    &:not(.disabled):not(.selected):not(.range-from):not(.range-to):hover:before { background-color: #d9d9d9; }
+
+                    &:not(.disabled):not(.selected):not(.range-from):not(.range-to):active:before { background-color: #bfbfbf; }
+
+                    &.current {
+                        color: #1976d2;
+                        font-weight: 500;
+                    }
+
+                    &.in-range {
+                        background-color: rgba(25,118,210,.2);
+                        border-radius: 0;
+                    }
+
+                    &.selected,
+                    &.range-from,
+                    &.range-to {
+                        font-weight: normal;
+                        color: #fff !important;
+
+                        &:before {
+                            background-color: #1976d2;
+                        }
+                    }
+
+                    &.range-from {
+                        background-color: rgba(25,118,210,.2);
+                        border-radius: 50% 0 0 50%;
+                    }
+
+                    &.range-to {
+                        background-color: rgba(25,118,210,.2);
+                        border-radius: 0 50% 50% 0;
+                    }
+
+                    &.range-from.range-to { border-radius: 50%; }
+                }
+            }
+        }
+
+        .dudp__months-view {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transform: scale(1) perspective(1px);
+            transition: transform .25s cubic-bezier(0.0, 0.0, 0.2, 1), opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+            will-change: transform, opacity;
+
+            &.dp__animate-out {
+                opacity: 0;
+                transform: scale(1.3);
+            }
+
+            &.dp__hidden {
+                display: none;
+                opacity: 0;
+            }
+
+            .dudp__month-row {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .dudp__month {
+                flex: 0 1 auto;
+                display: inline-block;
+                line-height: $monthSize;
+                min-width: $monthSize;
+                text-align: center;
+                font-size: 14px;
+                cursor: pointer;
+                border-radius: 50%;
+                transition: background-color .2s linear;
+
+                &:hover { background-color: $btnHover; }
+
+                &:active { background-color: $btnActive; }
+
+                &.selected {
+                    font-weight: 500;
+                    color: #1565c0;
+                }
+            }
+        }
+
+        .dudp__years-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: $contentBg;
+            opacity: 1;
+            transition: opacity .25s cubic-bezier(0.0, 0.0, 0.2, 1);
+            overflow-y: scroll;
+            overflow-x: hidden;
+
+            &.dp__hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .dudp__year {
+                display: block;
+                padding: 10px 0;
+                text-align: center;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color .2s linear;
+
+                &:hover { background-color: $btnHover; }
+                
+                &:active { background-color: $btnActive; }
+
+                &.selected {
+                    font-weight: 500;
+                    font-size: 24px;
+                    color: #1565c0;
+                }
+            }
+        }
+
+        .dudp__buttons {
+            padding: 0 10px 10px;
+            text-align: right;
+
+            &.dp__hidden { visibility: hidden; }
+
+            &:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+            .dudp__button {
+                display: inline-block;
+                font-size: 14px;
+                padding: 0 16px;
+                min-width: 40px;
+                text-align: center;
+                text-transform: uppercase;
+                line-height: $btnHeight;
+                font-weight: 500;
+                cursor: pointer;
+                color: #1565c0;
+                border-radius: $borderRadius;
+                transition: background-color .2s linear;
+
+                &.clear {
+                    float: left;
+                    color: #b71c1c !important;
+                }
+
+                &:hover { background-color: $btnHover; }
+
+                &:active { background-color: $btnActive; }
+            }
+        }
+    }
+    
+    &.dp__open {
+		visibility: visible;
+		opacity: 1;
+        background-color: rgba(10,10,10,.65);
+        
+        & .dudp__wrapper {
+            transform: translateX(-50%) scale(1);
+        }
+    }
+
+    &.dp__closing {
+		opacity: 0;
+		background-color: transparent;
+    }
+    
+    &[inline='true'] {
+		top: auto;
+		left: auto;
+		right: auto;
+		bottom: auto;
+		background-color: transparent !important;
+        box-shadow: $shadow;
+        
+        .dudp__wrapper {
+            position: relative;
+            left: auto;
+            bottom: auto;
+            transform: none;
+        }
+
+        &.dp__open .dudp__wrapper {
+			transform: none;
+        }
+        
+        .dudp__cal-container {
+            width: 272px;
+            
+            .dudp__calendar {
+                padding: 0 10px;
+            }
+        }
+	}
+}
+
+@media (max-height: 414px) {
+    .dcalendarpicker {
+        .dudp__wrapper {
+            flex-direction: row;
+            bottom: 8px;
+        }
+        .dudp__calendar-header {
+            width: 110px;
+        }
+    }
+}
+
+@media (max-height: 320px) {
+	.dcalendarpicker .dudp__wrapper { bottom: 0; }
+}
+
+body[datepicker-display='on'] { overflow: hidden; }
+
+// themes
+@import './themes/red.scss';
+@import './themes/green.scss';
+@import './themes/blue.scss';
+@import './themes/teal.scss';
+@import './themes/purple.scss';
+@import './themes/indigo.scss';
+@import './themes/dark.scss';

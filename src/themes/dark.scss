@@ -1,0 +1,78 @@
+$headerBg: #121212;             // header background color
+$contentBg: #1D1D1D;            // content background color
+$datesColor: rgba(255,255,255,.87);
+$disabledColor: rgba(255,255,255,.38);
+$grayedOut: rgba(255,255,255,.6);
+$highlight: #1976d2;            // current date color, selected date(s) highlight color
+$selectedHighlight: #0d47a1;    // selected highlight & buttons color
+$hoverBg: rgba(255,255,255,.04);
+$activeBg: rgba(255,255,255,.1);
+$clearBtnColor: #ef5350;
+
+.dudp__wrapper[data-theme='dark'] {
+    .dudp__calendar-header { background-color: $headerBg; }
+
+    .dudp__calendar {
+        .dudp__cal-week {
+            .dudp__date {
+                color: $datesColor;
+
+                &.current { color: $highlight; }
+
+                &.in-range,
+                &.range-from,
+                &.range-to { background-color: rgba($color: $highlight, $alpha: 0.2); }
+
+                &.selected:before,
+                &.range-from:before,
+                &.range-to:before { background-color: $highlight; }
+
+                &.selected:hover:before,
+                &.range-from:hover:before,
+                &.range-to:hover:before { background-color: $selectedHighlight; }
+
+                &.disabled { color: $disabledColor; }
+            }
+        }
+    }
+
+    .dudp__cal-container,
+    .dudp__cal-container .dudp__years-view {
+        background-color: $contentBg;
+    }
+
+    .dudp__cal-container .dudp__btn-cal-prev,
+    .dudp__cal-container .dudp__btn-cal-next,
+    .dudp__calendar .dudp__cal-month-year,
+    .dudp__calendar .dudp__weekdays span,
+    .dudp__months-view .dudp__month:not(.selected),
+    .dudp__years-view .dudp__year:not(.selected),
+    .dudp__calendar .dudp__cal-week .dudp__pm,
+    .dudp__calendar .dudp__cal-week .dudp__nm {
+        color: $grayedOut;
+    }
+
+    .dudp__buttons .dudp__button,
+    .dudp__months-view .dudp__month.selected,
+    .dudp__years-view .dudp__year.selected { color: $selectedHighlight; }
+
+    .dudp__buttons .dudp__button.clear { color: $clearBtnColor !important; }
+
+    .dudp__cal-container .dudp__btn-cal-prev:hover, 
+    .dudp__cal-container .dudp__btn-cal-next:hover,
+    .dudp__buttons .dudp__button:hover,
+    .dudp__months-view .dudp__month:hover,
+    .dudp__years-view .dudp__year:hover,
+    .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):hover:before {
+        background-color: $hoverBg;
+    }
+
+    .dudp__cal-container .dudp__btn-cal-prev:active, 
+    .dudp__cal-container .dudp__btn-cal-next:active,
+    .dudp__buttons .dudp__button:active,
+    .dudp__months-view .dudp__month:active,
+    .dudp__years-view .dudp__year:active,
+    .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):active:before {
+        background-color: $activeBg;
+    }
+}

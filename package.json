@@ -1,9 +1,13 @@
 {
-    "name": "@dmuy/jquery-datepicker",
-    "version": "1.2.2-rc",
-    "description": "jQuery date picker plugin for input fields.",
+    "name": "@dmuy/datepicker",
+    "version": "2.0.0-rc",
+    "description": "Date picker plugin for input fields.",
     "keywords": [
-        "jquery-datepicker", "datepicker", "material", "date-range-picker", "material-datepicker"
+        "date-picker",
+        "material-design",
+        "date-range-picker",
+        "material-datepicker",
+        "material-date-picker"
     ],
     "license": "MIT",
     "author": {
@@ -12,12 +16,30 @@
     },
     "repository": "git://github.com/dmuy/duDatepicker.git",
     "homepage": "https://dmuy.github.io/duDatepicker/",
-    "main": "duDatepicker.js",
+    "main": "dist/duDatepicker.js",
     "files": [
-        "duDatepicker.js",
-        "duDatepicker.css"
+        "dist"
     ],
-    "dependencies": {
-        "jquery": "^3.5.1"
+    "scripts": {
+        "build": "npm run compile && npm run minify",
+        "build-theme": "npm run compile-css && npm run minify-theme-css",
+        "compile": "rollup --config rollup.config.js && npm run compile-css",
+        "compile-css": "node-sass -x --output-style=expanded src/duDatepicker.scss -o=dist && postcss --no-map -u autoprefixer -r dist/duDatepicker.css",
+        "compile-theme-css": "node-sass -x --output-style=expanded src/themes/_format.scss dist/duDatepicker-theme.css && postcss --no-map -u autoprefixer -r dist/duDatepicker-theme.css",
+        "minify": "uglifyjs dist/duDatepicker.js -c -m -o dist/duDatepicker.min.js && npm run minify-css",
+        "minify-css": "postcss dist/duDatepicker.css --no-map -o dist/duDatepicker.min.css --config postcss.config.js",
+        "minify-theme-css": "postcss dist/duDatepicker-theme.css --no-map -o dist/duDatepicker-theme.min.css --config postcss.config.js"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.11.6",
+        "@babel/preset-env": "^7.11.5",
+        "@rollup/plugin-babel": "^5.2.1",
+        "@rollup/plugin-node-resolve": "^9.0.0",
+        "autoprefixer": "^9.8.6",
+        "cssnano": "^4.1.10",
+        "node-sass": "^4.14.1",
+        "postcss-cli": "^7.1.2",
+        "rollup": "^2.27.0",
+        "uglify-js": "^3.10.4"
     }
 }

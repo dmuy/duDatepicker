@@ -1,14 +1,31 @@
-.dudp__wrapper[data-theme='yellow'] .dudp__calendar-header { background-color: #F9A825; }
-.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.current { color: #FBC02D; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar-header {
+  background-color: #F9A825;
+}
+
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #FBC02D;
+}
+
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
-.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to { background-color: rgba(251,192,45,.2); }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(251, 192, 45, 0.2);
+}
+
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
-.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before { background-color: #FBC02D; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #FBC02D;
+}
+
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
 .dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
-.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before { background-color: #F57F17; }
+.dudp__wrapper[data-theme='yellow'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #F57F17;
+}
+
 .dudp__wrapper[data-theme='yellow'] .dudp__buttons .dudp__button,
 .dudp__wrapper[data-theme='yellow'] .dudp__months-view .dudp__month.selected,
-.dudp__wrapper[data-theme='yellow'] .dudp__years-view .dudp__year.selected { color: #F57F17; }
+.dudp__wrapper[data-theme='yellow'] .dudp__years-view .dudp__year.selected {
+  color: #F57F17;
+}
