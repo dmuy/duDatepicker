@@ -23,7 +23,7 @@ npm i @dmuy/datepicker
 
 Include in your app
 ```javascript
-import '@dmuy/datepicker/duDatepicker.css'
+import '@dmuy/datepicker/dist/duDatepicker.css'
 import duDatepicker from '@dmuy/datepicker'
 ```
 
