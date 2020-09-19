@@ -38,6 +38,9 @@
 			<a href="https://www.npmjs.com/package/@dmuy/jquery-datepicker" rel="noreferrer" target="_blank">
 				<img alt="npm" src="https://img.shields.io/npm/dt/@dmuy/jquery-datepicker?style=flat-square">
 			</a>
+			<a href="https://www.npmjs.com/package/@dmuy/datepicker" rel="noreferrer" target="_blank">
+				<img alt="npm" src="https://img.shields.io/npm/dt/@dmuy/datepicker?style=flat-square">
+			</a>
 			<a href="https://github.com/dmuy/duDatepicker" rel="noreferrer" target="_blank">
 				<img src="https://img.shields.io/github/stars/dmuy/duDatepicker?style=social" alt="stars">
 			</a>
@@ -67,14 +70,28 @@
 				console.log('New date', e.data, this.value)
 			})
 
+			var months = 'gennaio_febbraio_marzo_aprile_maggio_giugno_luglio_agosto_settembre_ottobre_novembre_dicembre'.split('_'),
+				days = 'domenica_lunedì_martedì_mercoledì_giovedì_venerdì_sabato'.split('_');
+
 			duDatepicker('#datepicker1', {
 				format: 'mmmm d, yyyy', range: true, clearBtn: true,
+				// i18n: {
+				// 	months: months,
+				// 	shortMonths: months.map(function(m) { return m.substr(0, 3) }),
+				// 	days: days,
+				// 	shortDays: days.map(function(d) { return d.substr(0, 3) }),
+				// 	shorterDays: days.map(function(d) { return d.substr(0, 2) }),
+				// 	firstDay: 1
+				// },
+				i18n: new duDatepicker.i18n.Locale(months, null, days, null, null, 1),
+				// firstDay: 7,
 				// disabledDays: ['Sat', 'Sun'],
 				events: {
 					dateChanged: function (data) {
 						log('From: ' + data.dateFrom + '\nTo: ' + data.dateTo)
 					},
 					onRangeFormat: function (from, to) {
+						console.log('onRangeFormat', from, to)
 						var fromFormat = 'mmmm d, yyyy', toFormat = 'mmmm d, yyyy';
 
 						if (from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear()) {
@@ -92,26 +109,34 @@
 				}
 			})
 
-			duDatepicker('#datepicker2, #datepicker3', { auto: true, inline: true,
+			duDatepicker('#datepicker2, #datepicker3', {
+				auto: true, inline: true,
+				format: 'DD mmmm d, yyyy', //range: true,
+				i18n: 'ru',
+				// firstDay: 2,
 				events: {
 					dateChanged: function (data) {
-						log('Date:' + data.date)
+						console.log(data)
+						log('Date: ' + data.date)
 					}
 				}
 			})
 
 			duDatepicker('#daterange', {
 				range: true, format: 'mmmm d, yyyy', outFormat: 'yyyy-mm-dd', fromTarget: '#range-from', toTarget: '#range-to',
-				clearBtn: true, theme: 'yellow', maxDate: 'today'
-				// inline: true
-				// events: {
-				// 	ready: function () {
-				// 		console.log('duDatepicker', this)
-				// 	},
-				// 	dateChanged: function (data) {
-				// 		console.log('new date', data)
-				// 	}
-				// }
+				clearBtn: true, theme: 'yellow', maxDate: 'today',
+				// i18n: 'fa',
+				// firstDay: 7,
+				// inline: true,
+				events: {
+					// ready: function () {
+					// 	console.log('duDatepicker', this)
+					// },
+					dateChanged: function (data) {
+						console.log('new date', data)
+						log('From: ' + data.dateFrom + '\nTo: ' + data.dateTo)
+					}
+				}
 			})
 			// duDatepicker('#daterange', 'setValue', 'August 2, 2020-August 5, 2020')
 		}

@@ -75,26 +75,49 @@ duDatepicker(
 ### Default configurations
 ```javascript
 {
-  format: 'mm/dd/yyyy',   // Determines the date format
-  outFormat: null,        // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
-  theme: 'blue',          // Determines the color theme of the date picker
-  auto: false,            // Determines if clicking the date will automatically select it; OK button will not be displayed if true
-  clearBtn: false,        // Determines if Clear button is displayed
-  cancelBtn: false,       // Determines if Cancel button is displayed
-  overlayClose: true,     // Determines if clicking the overlay will close the date picker
-  disabledDates: [],      // Array of dates to be disabled (format should be the same as the specified format)
-  disabledDays: [],       // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
-  range: false,           // Determines if date picker range mode is on
-  rangeDelim: '-',        // Range string delimiter
-  fromTarget: null,       // Date from target input element (range mode)
-  toTarget: null,         // Date to target input element (range mode)
+  // Determines the date format
+  format: 'mm/dd/yyyy',
+  // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
+  outFormat: null,
+  // Determines the color theme of the date picker
+  theme: 'blue',
+  // Determines if clicking the date will automatically select it; OK button will not be displayed if true
+  auto: false,  
+  // Determines if Clear button is displayed
+  clearBtn: false,      
+  // Determines if Cancel button is displayed
+  cancelBtn: false,     
+  // Determines if clicking the overlay will close the date picker
+  overlayClose: true,   
+  // Array of dates to be disabled (format should be the same as the specified format)
+  disabledDates: [],    
+  // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
+  disabledDays: [],     
+  // Determines if date picker range mode is on
+  range: false,
+  // Range string delimiter
+  rangeDelim: '-',
+  // Date from target input element (range mode)
+  fromTarget: null,     
+  // Date to target input element (range mode)
+  toTarget: null, 
+  // callback functions
   events: {
-    dateChanged: null,    // Callback function on date selection
-    onRangeFormat: null,  // Function call to execute custom date range format (displayed on the input) upon selection
-    ready: null,          // Callback function when date picker is initialized
-    shown: null,          // Callback function when date picker is shown
-    hidden: null          // Callback function when date picker is hidden
-  }
+    // Callback function on date selection
+    dateChanged: null,
+    // Function call to execute custom date range format (displayed on the input) upon selection
+    onRangeFormat: null,
+    // Callback function when date picker is initialized null,  
+    ready: null,
+    // Callback function when date picker is shown
+    shown: null,
+    // Callback function when date picker is hidden
+    hidden: null
+  },
+  // internationalization
+  i18n: 'en',
+  // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
+  firstDay: null
 }
 ```
 #### Callback functions
@@ -303,6 +326,68 @@ duDatepicker('#daterange', {
 });
 ```
 The above script uses the configurations `fromTarget` and `toTarget` to use as the display input elements.
+
+### Internationalization
+The date picker offers the following `i18n` presets: 
+| Language          | Usage (object or string)          |
+| ----------------- | --------------------------------- |
+| English (default) | `duDatepicker.i18n.en` or `'en'`  |
+| Russian           | `duDatepicker.i18n.ru` or `'ru'`  |
+| Spanish           | `duDatepicker.i18n.es` or `'es'`  |
+| Turkish           | `duDatepicker.i18n.tr` or `'tr'`  |
+| Persian           | `duDatepicker.i18n.fa` or `'fa'`  |
+| French            | `duDatepicker.i18n.fr` or `'fr'`  |
+| German            | `duDatepicker.i18n.de` or `'de'`  |
+| Japanese          | `duDatepicker.i18n.ja` or `'ja'`  |
+| Portuguese        | `duDatepicker.i18n.pt` or `'pt'`  |
+| Vietnamese        | `duDatepicker.i18n.vi` or `'vi'`  |
+| Chinese           | `duDatepicker.i18n.zh` or `'zh'`  |
+***Disclaimer: As of writing, preset list is based on the top 11 [Languages used on the Internet](https://en.wikipedia.org/wiki/Languages_used_on_the_Internet#Content_languages_for_websites)***
+
+To use the above presets, you can access it via `duDatepicker.i18n` or use its code.
+```javascript
+// sets the language to Russian
+duDatepicker('#datepicker', { i18n: 'ru' });
+duDatepicker('#datepicker', { i18n: duDatepicker.i18n.ru });
+```
+
+#### Custom i18n
+You can also pass your own `i18n` object with the following format:
+```javascript
+{
+  // required; array of month names
+  months: [],
+  // required; array of 3-character month names
+  shortMonths: [],
+  // required; array of day names
+  days: [],
+  // required; array of 3-character day names
+  shortDays: [],
+  // required; array of 2-character day names; this will used as week day label on the calendar
+  shorterDays: [],
+  // required; first day of the week; this gets overriden by `config.firstDay`
+  firstDay: 1,
+  // optional; dictionary for the button texts (if not specified English text will be used)
+  dict: {
+    // optional; OK button text
+    btnOk: '',
+    // optional; CANCEL button text
+    btnCancel: '',
+    // optional; CLEAR button text
+    btnClear: ''
+  }
+}
+```
+Or create it via [`duDatepicker.i18n.Locale()`](https://github.com/dmuy/duDatepicker/blob/master/src/i18n.js#L12)
+```javascript
+// custom i18n config
+var months = 'gennaio_febbraio_marzo_aprile_maggio_giugno_luglio_agosto_settembre_ottobre_novembre_dicembre'.split('_'),
+    days = 'domenica_lunedì_martedì_mercoledì_giovedì_venerdì_sabato'.split('_');
+
+duDatepicker('#datepicker', {
+  i18n: new duDatepicker.i18n.Locale(months, null, days, null, null, 1)
+});
+```
 
 ### Event handling
 The event `datechanged` is fired after selection of date in the date picker.

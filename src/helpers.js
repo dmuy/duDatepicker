@@ -1,5 +1,3 @@
-import { SHORT_DAYS, DAYS_OF_WEEK, SHORT_MONTHS, MONTHS } from './vars'
-
 /**
  * Helper functions
  */
@@ -68,7 +66,7 @@ export const hf = {
      * @param {Boolean} isHtml Determines if `content` specified should added as an html element
      */
     createElem: function (tag, attributes, content, isHtml) {
-        var el = document.createElement(tag)
+        let el = document.createElement(tag)
 
         if (typeof content !== 'undefined')
             el[isHtml || false ? 'innerHTML' : 'innerText'] = content
@@ -84,7 +82,7 @@ export const hf = {
      * @param {Object} attrs Attribute object
      */
     setAttributes: function (el, attrs) {
-        for(var attr in attrs) { el.setAttribute(attr, attrs[attr]) }
+        for(let attr in attrs) { el.setAttribute(attr, attrs[attr]) }
     },
     /**
      * Sets the inline style(s) of the element
@@ -92,7 +90,7 @@ export const hf = {
      * @param {Object} styles Styles object
      */
     setStyles: function (el, styles) {
-        for (var style in styles) { el.style[style] = styles[style] }
+        for (let style in styles) { el.style[style] = styles[style] }
     },
     /**
      * Gets the number of days based on the month of the given date
@@ -113,7 +111,7 @@ export const hf = {
      * Returns the document width and height
      */
     screenDim: function () {
-        var doc = document.documentElement
+        let doc = document.documentElement
 
         return {
             height: Math.max(doc.offsetHeight, doc.clientHeight),
@@ -125,7 +123,7 @@ export const hf = {
      * @param {Element} el HTML element
      */
     calcOffset: function (el) {
-        var doc = document.documentElement || document.body,
+        let doc = document.documentElement || document.body,
             rect = el.getBoundingClientRect(),
             offset = {
                 top: rect.top + doc.scrollTop,
@@ -150,10 +148,10 @@ export const hf = {
     */
     extend: function () {
         // Variables
-        var extended = {}
-        var deep = false
-        var i = 0
-        var length = arguments.length
+        let extended = {}
+        let deep = false
+        let i = 0
+        let length = arguments.length
 
         // Check if a deep merge
         if (Object.prototype.toString.call(arguments[0]) === '[object Boolean]') {
@@ -162,8 +160,8 @@ export const hf = {
         }
 
         // Merge the object into the extended object
-        var merge = function (obj) {
-            for (var prop in obj) {
+        let merge = function (obj) {
+            for (let prop in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                     // If deep merge and property is an object, merge properties
                     if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
@@ -177,7 +175,7 @@ export const hf = {
 
         // Loop through each object and conduct a merge
         for (; i < length; i++) {
-            var obj = arguments[i]
+            let obj = arguments[i]
             merge(obj)
         }
 
@@ -189,26 +187,28 @@ export const hf = {
      * @param {string} format Date format pattern
      */
     formatDate: function (date, format) {
-        var d = new Date(date), day = d.getDate(), m = d.getMonth(), y = d.getFullYear()
+        let d = new Date(date), day = d.getDate(), m = d.getMonth(), y = d.getFullYear(),
+            i18n = this.config.i18n,
+            mVal = m + 1
 
         return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|DD|D|dd|d)/g, function (e) {
             switch (e) {
                 case 'd':
                     return day
                 case 'dd':
-                    return (day < 10 ? "0" + day : day)
+                    return ('00' + day).slice(-2)
                 case 'D':
-                    return SHORT_DAYS[d.getDay()]
+                    return i18n.shortDays[d.getDay()]
                 case 'DD':
-                    return DAYS_OF_WEEK[d.getDay()]
+                    return i18n.days[d.getDay()]
                 case 'm':
-                    return m + 1
+                    return mVal
                 case 'mm':
-                    return (m + 1 < 10 ? "0" + (m + 1) : (m + 1))
+                    return ('00' + mVal).slice(-2)
                 case 'mmm':
-                    return SHORT_MONTHS[m]
+                    return i18n.shortMonths[m]
                 case 'mmmm':
-                    return MONTHS[m]
+                    return i18n.months[m]
                 case 'yy':
                     return y.toString().substr(2, 2)
                 case 'yyyy':
@@ -221,40 +221,38 @@ export const hf = {
      * @param {string} date Date string to parse
      * @param {string=} dateFormat Format of the date string; `config.format` will be used if not specified
      */
-    parseDate: function (date, dateFormat) {
-        var _ = this, format = typeof dateFormat === 'undefined' ? _.config.format : dateFormat,
-            dayLength = (format.match(/d/g) || []).length,
-            monthLength = (format.match(/m/g) || []).length,
-            yearLength = (format.match(/y/g) || []).length,
+    parseDate: function (date, format) {
+        let _ = this, _format = typeof format === 'undefined' ? _.config.format : format,
+            dayLength = (_format.match(/d/g) || []).length,
+            monthLength = (_format.match(/m/g) || []).length,
+            yearLength = (_format.match(/y/g) || []).length,
             isFullMonth = monthLength === 4,
             isMonthNoPadding = monthLength === 1,
             isDayNoPadding = dayLength === 1,
             lastIndex = date.length,
-            firstM = format.indexOf('m'), firstD = format.indexOf('d'), firstY = format.indexOf('y'),
-            month = '', day = '', year = ''
+            firstM = _format.indexOf('m'), firstD = _format.indexOf('d'), firstY = _format.indexOf('y'),
+            month = '', day = '', year = '',
+            before, after,
+            monthIdx = -1
 
         if (date === '') return { m: null, d: null, y: null, date: new Date('') }
 
         // Get month on given date string using the format (default or specified)
         if (isFullMonth) {
-            var monthIdx = -1
-
-            MONTHS.forEach(function (m, i) {
-                if (date.indexOf(m) >= 0) monthIdx = i
-            })
-
-            month = MONTHS[monthIdx]
-            format = format.replace('mmmm', month)
-            firstD = format.indexOf('d')
-            firstY = firstY < firstM ? format.indexOf('y') : format.indexOf('y', format.indexOf(month) + month.length)
+            monthIdx = _.config.i18n.months.findIndex(m => date.indexOf(m) >= 0)
+            month = _.config.i18n.months[monthIdx]
+            _format = _format.replace('mmmm', month)
+            firstD = _format.indexOf('d')
+            firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length)
         } else if (!isDayNoPadding && !isMonthNoPadding || (isDayNoPadding && !isMonthNoPadding && firstM < firstD)) {
             month = date.substr(firstM, monthLength)
         } else {
-            var lastIndexM = format.lastIndexOf('m'),
-                before = format.substring(firstM - 1, firstM),
-                after = format.substring(lastIndexM + 1, lastIndexM + 2)
+            let lastIndexM = _format.lastIndexOf('m')
 
-            if (lastIndexM === format.length - 1) {
+            before = _format.substring(firstM - 1, firstM)
+            after = _format.substring(lastIndexM + 1, lastIndexM + 2)
+
+            if (lastIndexM === _format.length - 1) {
                 month = date.substring(date.indexOf(before, firstM - 1) + 1, lastIndex)
             } else if (firstM === 0) {
                 month = date.substring(0, date.indexOf(after, firstM))
@@ -267,11 +265,12 @@ export const hf = {
         if (!isDayNoPadding && !isMonthNoPadding || (!isDayNoPadding && isMonthNoPadding && firstD < firstM)) {
             day = date.substr(firstD, dayLength)
         } else {
-            var lastIndexD = format.lastIndexOf('d'),
-                before = format.substring(firstD - 1, firstD),
-                after = format.substring(lastIndexD + 1, lastIndexD + 2)
+            let lastIndexD = _format.lastIndexOf('d')
 
-            if (lastIndexD === format.length - 1) {
+            before = _format.substring(firstD - 1, firstD)
+            after = _format.substring(lastIndexD + 1, lastIndexD + 2)
+
+            if (lastIndexD === _format.length - 1) {
                 day = date.substring(date.indexOf(before, firstD - 1) + 1, lastIndex)
             } else if (firstD === 0) {
                 day = date.substring(0, date.indexOf(after, firstD))
@@ -285,7 +284,7 @@ export const hf = {
             || (!isMonthNoPadding && isDayNoPadding && firstY < firstD) || (isMonthNoPadding && !isDayNoPadding && firstY < firstM)) {
             year = date.substr(firstY, yearLength)
         } else {
-            before = format.substring(firstY - 1, firstY)
+            before = _format.substring(firstY - 1, firstY)
             year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength)
         }
 
@@ -293,7 +292,7 @@ export const hf = {
             m: month,
             d: day,
             y: year,
-            date: isNaN(parseInt(month)) ? new Date(month + " " + day + ", " + year) : new Date(year, month - 1, day)
+            date: new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
         }
     },
     /**
@@ -306,7 +305,7 @@ export const hf = {
         el.dispatchEvent(new Event('onchange'))
 
         function CustomEvent(data) {
-            var changeEvt = document.createEvent('CustomEvent')
+            let changeEvt = document.createEvent('CustomEvent')
 
             changeEvt.initCustomEvent('datechanged', false, false)
             changeEvt.data = data
@@ -314,5 +313,42 @@ export const hf = {
             return changeEvt
         }
         el.dispatchEvent(new CustomEvent(data))
+    },
+    /**
+     * Creates HTML for the days of the week
+     */
+    daysOfWeekDOM: function() {
+        let config = this.config,
+            locale = config.i18n,
+            firstDay = config.firstDay || locale.firstDay
+
+        let weekDays = []
+
+        for (let i = 0, dow = firstDay; i < locale.shorterDays.length; i++, dow++) {
+            weekDays.push(locale.shorterDays[dow % 7])
+        }
+
+        return `<span>${weekDays.join('</span><span>')}</span>`
+    },
+    /**
+     * Converts date JSON to Date object
+     * @param {Object} o Date breakdown (year, month, date)
+     * @param {number} o.year Year value
+     * @param {number} o.month Month value
+     * @param {number} o.date Date value
+     */
+    jsonToDate: function(o) {
+        return new Date(o.year, o.month, o.date)
+    },
+    /**
+     * Converts Date object to JSON
+     * @param {Date} date Date object
+     */
+    dateToJson: function(date) {
+        return date ? {
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            date: date.getDate()
+        } : null
     }
 }

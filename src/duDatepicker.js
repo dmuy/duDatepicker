@@ -1,5 +1,6 @@
-import { MONTHS, SHORT_MONTHS, DAYS_OF_WEEK, SHORT_DAYS, WEEK_DAYS_HTML, EX_KEYS, DATA_KEY, DEFAULT_CLASS, SELECTED_FORMAT, DEFAULTS } from './vars'
+import { EX_KEYS, DATA_KEY, DEFAULT_CLASS, SELECTED_FORMAT, DEFAULTS } from './vars'
 import { hf } from './helpers'
+import { DICT_DEFAULTS, i18n } from './i18n'
 
 /**
  * Date picker class
@@ -11,7 +12,10 @@ class _duDatePicker {
 	 * @param {Object} options Date picker options
 	 */
 	constructor(el, options) {
-		var _ = this
+		let _ = this , i18n = options.i18n
+
+		if (typeof i18n === 'string')
+			options.i18n = duDatepicker.i18n[i18n]
 
 		this.config = hf.extend(DEFAULTS, options)
 		/**
@@ -32,6 +36,7 @@ class _duDatePicker {
 		this.toEl = document.querySelector(this.config.toTarget)
 		this.input.hidden = this.config.range && (this.fromEl || this.toEl)
 		this.viewMode = 'calendar'
+		this.dict = hf.extend(DICT_DEFAULTS, this.config.i18n.dict)
 
 		/**
 		 * Date picker elements holder
@@ -57,9 +62,9 @@ class _duDatePicker {
 				monthsView: hf.createElem('div', { class: 'dudp__months-view dp__hidden' }),
 				buttons: {
 					wrapper: hf.createElem('div', { class: 'dudp__buttons' }),
-					btnClear: hf.createElem('span', { class: 'dudp__button clear', role: 'button' }, 'Clear'),
-					btnCancel: hf.createElem('span', { class: 'dudp__button cancel', role: 'button' }, 'Cancel'),
-					btnOk: hf.createElem('span', { class: 'dudp__button ok', role: 'button' }, 'Ok'),
+					btnClear: hf.createElem('span', { class: 'dudp__button clear', role: 'button' }, _.dict.btnClear),
+					btnCancel: hf.createElem('span', { class: 'dudp__button cancel', role: 'button' }, _.dict.btnCancel),
+					btnOk: hf.createElem('span', { class: 'dudp__button ok', role: 'button' }, _.dict.btnOk),
 				}
 			}
 		}
@@ -74,15 +79,15 @@ class _duDatePicker {
 		this.maxDate = _.input.dataset.maxdate || _.config.maxDate
 
 		// current selected date, default is today if no value given
-		var _date = new Date()
+		let _date = new Date()
 
 		if (_.config.range) {
-			var value = _.input.value, _range = value.split(_.config.rangeDelim)
+			let value = _.input.value, _range = value.split(_.config.rangeDelim)
 
 			if (value !== '' && _range.length < 2)
 				throw new Error('duDatePicker: Invalid date range value')
 
-			var _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
+			let _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
 				_to = value === '' ? null : hf.parseDate.call(_, _range[1]).date
 
 			this.dateFrom = _from
@@ -95,11 +100,11 @@ class _duDatePicker {
 
 			// set default value
 			if (value) {
-				var valueDisp = _.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : value,
-					formattedFrom = hf.formatDate(_from, _.config.format),
-					outFrom = hf.formatDate(_from, _.config.outFormat || _.config.format),
-					formattedTo = hf.formatDate(_to, _.config.format),
-					outTo = hf.formatDate(_to, _.config.outFormat || _.config.format)
+				let valueDisp = _.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : value,
+					formattedFrom = hf.formatDate.call(_, _from, _.config.format),
+					outFrom = hf.formatDate.call(_, _from, _.config.outFormat || _.config.format),
+					formattedTo = hf.formatDate.call(_, _to, _.config.format),
+					outTo = hf.formatDate.call(_, _to, _.config.outFormat || _.config.format)
 
 				_.input.value = valueDisp
 				hf.setAttributes(_.input, {
@@ -126,11 +131,7 @@ class _duDatePicker {
 			}
 		} else {
 			this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date
-			this.selected = {
-				year: _.date.getFullYear(),
-				month: _.date.getMonth(),
-				date: _.date.getDate()
-			}
+			this.selected = hf.dateToJson(_.date)
 
 			this.viewMonth = _.selected.month
 			this.viewYear = _.selected.year
@@ -196,7 +197,7 @@ class _duDatePicker {
 	 * Initializes the date picker
 	 */
 	_init() {
-		var _ = this,
+		let _ = this,
 			picker = _.datepicker,
 			header = picker.header,
 			calendarHolder = picker.calendarHolder,
@@ -214,7 +215,7 @@ class _duDatePicker {
 			})
 
 			hf.addEvent(header.selectedDate, 'click', function () {
-				var now = new Date(),
+				let now = new Date(),
 					_month = _.config.range ? now.getMonth() : _.selected.month,
 					_year = _.config.range ? now.getFullYear() : _.selected.year
 
@@ -228,21 +229,21 @@ class _duDatePicker {
 		}
 
 		// Setup months view
-		var _month = 0
-		for (var r = 1; r < 4; r++) {
-			var monthRow = hf.createElem('div', { class: 'dudp__month-row' })
+		let _month = 0
+		for (let r = 1; r < 4; r++) {
+			let monthRow = hf.createElem('div', { class: 'dudp__month-row' })
 
-			for (var i = 0; i < 4; i++) {
-				var monthElem = hf.createElem('span', { class: 'dudp__month' })
+			for (let i = 0; i < 4; i++) {
+				let monthElem = hf.createElem('span', { class: 'dudp__month' })
 
 				if (_month === _selected.month)
 					monthElem.classList.add('selected')
 
-				monthElem.innerText = SHORT_MONTHS[_month]
+				monthElem.innerText = _.config.i18n.shortMonths[_month]
 				monthElem.dataset.month = _month
 				hf.appendTo(monthElem, monthRow)
 				hf.addEvent(monthElem, 'click', function (e) {
-					var _this = this, _data = _this.dataset.month
+					let _this = this, _data = _this.dataset.month
 
 					_.viewMonth = _data
 
@@ -328,17 +329,17 @@ class _duDatePicker {
 				if (!_.rangeFrom || !_.rangeTo)
 					return
 
-				var _from = new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date),
-					_to = new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date)
+				let _from = hf.jsonToDate(_.rangeFrom),
+					_to = hf.jsonToDate(_.rangeTo)
 
 				if (_._dateDisabled(_from) || _._dateDisabled(_to))
 					return
 
 				_.dateFrom = _from
 				_.dateTo = _to
-				_.setValue([hf.formatDate(_from, _.config.format), hf.formatDate(_to, _.config.format)].join(_.config.rangeDelim))
+				_.setValue([hf.formatDate.call(_, _from, _.config.format), hf.formatDate.call(_, _to, _.config.format)].join(_.config.rangeDelim))
 			} else {
-				var _date = new Date(_.selected.year, _.selected.month, _.selected.date)
+				let _date = hf.jsonToDate(_.selected)
 
 				if (_._dateDisabled(_date))
 					return
@@ -361,9 +362,9 @@ class _duDatePicker {
 		if (!this.config.range)
 			return false
 
-		var _ = this,
-			_from = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-			_to = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null
+		let _ = this,
+			_from = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+			_to = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
 
 		return (_from && date > _from) && (_to && date < _to)
 	}
@@ -373,7 +374,7 @@ class _duDatePicker {
 	 * @returns {Boolean} `true` if specified date should be disabled, `false` otherwise
 	 */
 	_dateDisabled(date) {
-		var _ = this, min = null, max = null,
+		let _ = this, min = null, max = null,
 			now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
 			_dates = _.config.disabledDates,
 			_days = _.config.disabledDays,
@@ -384,9 +385,9 @@ class _duDatePicker {
 				else
 					return hf.parseDate.call(_, x).date.getTime() === date.getTime()
 			}).length > 0,
-			_inDays = _days.indexOf(DAYS_OF_WEEK[date.getDay()]) >= 0 ||
-				_days.indexOf(SHORT_DAYS[date.getDay()]) >= 0 ||
-				_days.indexOf(SHORT_DAYS.map(function (x) { return x.substr(0, 2) })[date.getDay()]) >= 0
+			_inDays = _days.indexOf(_.config.i18n.days[date.getDay()]) >= 0 ||
+				_days.indexOf(_.config.i18n.shortDays[date.getDay()]) >= 0 ||
+				_days.indexOf(_.config.i18n.shorterDays[date.getDay()]) >= 0
 
 		if (_.minDate)
 			min = _.minDate === "today" ? today : new Date(_.minDate)
@@ -401,57 +402,53 @@ class _duDatePicker {
 	 * @returns {HTMLSpanElement[]} Returns the dates of the specified month and year
 	 */
 	_getDates(year, month) {
-		var _ = this, day = 1, now = new Date(),
+		let _ = this, day = 1, now = new Date(),
 			today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-			selected = _.config.range ? null : new Date(_.selected.year, _.selected.month, _.selected.date),
-			rangeFrom = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-			rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null,
+			selected = _.config.range ? null : hf.jsonToDate(_.selected),
+			rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+			rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null,
 			date = new Date(year, month, day), totalDays = hf.getDaysCount(date), nmStartDay = 1,
-			weeks = []
+			weeks = [], 
+			firstDay = _.config.firstDay || _.config.i18n.firstDay,
+            lastDay = (firstDay + 6) % 7
 
-		for (var week = 1; week <= 6; week++) {
-			var daysOfWeek = []
+		for (let week = 1; week <= 6; week++) {
+			let daysOfWeek = []
 
-			for (var idx = 0; idx < 7; idx++) {
-				daysOfWeek.push(hf.createElem('span', { class: 'dudp__date' }))
+			for (let idx = 0, dow = firstDay; idx < 7; idx++, dow++) {
+				daysOfWeek.push(hf.createElem('span', { class: 'dudp__date', 'data-dow': dow % 7 }))
 			}
 
 			while (day <= totalDays) {
 				date.setDate(day)
-				var dayOfWeek = date.getDay()
+				let dayOfWeek = date.getDay(),
+					dayEl = daysOfWeek.find(d => parseInt(d.dataset.dow) === dayOfWeek)
 
-				daysOfWeek[dayOfWeek].dataset.date = day
-				daysOfWeek[dayOfWeek].dataset.month = month
-				daysOfWeek[dayOfWeek].dataset.year = year
+				dayEl.dataset.date = day
+				dayEl.dataset.month = month
+				dayEl.dataset.year = year
 
 				if (date.getTime() === today.getTime())
-					daysOfWeek[dayOfWeek].classList.add('current')
+					dayEl.classList.add('current')
 
 				if (_._dateDisabled(date))
-					daysOfWeek[dayOfWeek].classList.add('disabled')
+					dayEl.classList.add('disabled')
 				if (_._inRange(date))
-					daysOfWeek[dayOfWeek].classList.add('in-range')
+					dayEl.classList.add('in-range')
 
-				if (week === 1 && dayOfWeek === 0) {
+				if (!_.config.range && date.getTime() === selected.getTime())
+					dayEl.classList.add('selected')
+				if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime())
+					dayEl.classList.add('range-from')
+				if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime())
+					dayEl.classList.add('range-to')
+
+				if (week === 1 && dayOfWeek === firstDay % 7) {
 					break
-				} else if (dayOfWeek < 6) {
-					if (!_.config.range && date.getTime() === selected.getTime())
-						daysOfWeek[dayOfWeek].classList.add('selected')
-					if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime())
-						daysOfWeek[dayOfWeek].classList.add('range-from')
-					if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime())
-						daysOfWeek[dayOfWeek].classList.add('range-to')
-
-					daysOfWeek[dayOfWeek].innerText = day++
+				} else if (dayOfWeek !== lastDay) {
+					dayEl.innerText = day++
 				} else {
-					if (!_.config.range && date.getTime() === selected.getTime())
-						daysOfWeek[dayOfWeek].classList.add('selected')
-					if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime())
-						daysOfWeek[dayOfWeek].classList.add('range-from')
-					if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime())
-						daysOfWeek[dayOfWeek].classList.add('range-to')
-
-					daysOfWeek[dayOfWeek].innerText = day++
+					dayEl.innerText = day++
 					break
 				}
 			}
@@ -460,80 +457,86 @@ class _duDatePicker {
 			if (week === 1 || week > 4) {
 				// First week
 				if (week === 1) {
-					var prevMonth = new Date(year, month - 1, 1), prevMonthDays = hf.getDaysCount(prevMonth)
+					let pm = new Date(year, month - 1, 1), pmDays = hf.getDaysCount(pm)
 
-					for (var a = 6; a >= 0; a--) {
-						if (daysOfWeek[a].innerText !== '')
+					for (let a = 1; a <= 7; a++) {
+						pm.setDate(pmDays--)
+
+						let dayEl = daysOfWeek.find(d => parseInt(d.dataset.dow) === pm.getDay())
+
+						if (dayEl.innerText !== '')
 							continue
 
-						daysOfWeek[a].dataset.date = prevMonthDays
-						daysOfWeek[a].dataset.month = month - 1
-						daysOfWeek[a].dataset.year = year
+						dayEl.dataset.date = pm.getDate()
+						dayEl.dataset.month = pm.getMonth()
+						dayEl.dataset.year = pm.getFullYear()
+						dayEl.innerText = pm.getDate()
+						dayEl.classList.add('dudp__pm')
 
-						prevMonth.setDate(prevMonthDays)
-						daysOfWeek[a].innerText = (prevMonthDays--)
-						daysOfWeek[a].classList.add('dudp__pm')
+						if (_._dateDisabled(pm))
+							dayEl.classList.add('disabled')
+						if (_._inRange(pm))
+							dayEl.classList.add('in-range')
 
-						if (_._dateDisabled(prevMonth))
-							daysOfWeek[a].classList.add('disabled')
-						if (_._inRange(prevMonth))
-							daysOfWeek[a].classList.add('in-range')
-
-						if (prevMonth.getTime() === today.getTime())
-							daysOfWeek[a].classList.add('current')
-						if (!_.config.range && prevMonth.getTime() === selected.getTime())
-							daysOfWeek[a].classList.add('selected')
-						if (_.config.range && rangeFrom && prevMonth.getTime() === rangeFrom.getTime())
-							daysOfWeek[a].classList.add('range-from')
-						if (_.config.range && rangeTo && prevMonth.getTime() === rangeTo.getTime())
-							daysOfWeek[a].classList.add('range-to')
+						if (pm.getTime() === today.getTime())
+							dayEl.classList.add('current')
+						if (!_.config.range && pm.getTime() === selected.getTime())
+							dayEl.classList.add('selected')
+						if (_.config.range && rangeFrom && pm.getTime() === rangeFrom.getTime())
+							dayEl.classList.add('range-from')
+						if (_.config.range && rangeTo && pm.getTime() === rangeTo.getTime())
+							dayEl.classList.add('range-to')
 					}
 				}
 
 				// Last week
 				else if (week > 4) {
-					var nextMonth = new Date(year, month + 1, 1)
-					for (var a = 0; a <= 6; a++) {
-						if (daysOfWeek[a].innerText !== '')
+					let nm = new Date(year, month + 1, 1)
+
+					for (let a = 1; a <= 7; a++) {
+						nm.setDate(nmStartDay)
+
+						let dayEl = daysOfWeek.find(d => parseInt(d.dataset.dow) === nm.getDay())
+
+						if (dayEl.innerText !== '')
 							continue
 
-						daysOfWeek[a].dataset.date = nmStartDay
-						daysOfWeek[a].dataset.month = month + 1
-						daysOfWeek[a].dataset.year = year
+						nmStartDay++
+						dayEl.dataset.date = nm.getDate()
+						dayEl.dataset.month = nm.getMonth()
+						dayEl.dataset.year = nm.getFullYear()
+						dayEl.innerText = nm.getDate()
+						dayEl.classList.add('dudp__nm')
 
-						nextMonth.setDate(nmStartDay)
-						daysOfWeek[a].innerText = (nmStartDay++)
-						daysOfWeek[a].classList.add('dudp__nm')
+						if (_._dateDisabled(nm))
+							dayEl.classList.add('disabled')
+						if (_._inRange(nm))
+							dayEl.classList.add('in-range')
 
-						if (_._dateDisabled(nextMonth))
-							daysOfWeek[a].classList.add('disabled')
-						if (_._inRange(nextMonth))
-							daysOfWeek[a].classList.add('in-range')
-
-						if (nextMonth.getTime() === today.getTime())
-							daysOfWeek[a].classList.add('current')
-						if (!_.config.range && nextMonth.getTime() === selected.getTime())
-							daysOfWeek[a].classList.add('selected')
-						if (_.config.range && rangeFrom && nextMonth.getTime() === rangeFrom.getTime())
-							daysOfWeek[a].classList.add('range-from')
-						if (_.config.range && rangeTo && nextMonth.getTime() === rangeTo.getTime())
-							daysOfWeek[a].classList.add('range-to')
+						if (nm.getTime() === today.getTime())
+							dayEl.classList.add('current')
+						if (!_.config.range && nm.getTime() === selected.getTime())
+							dayEl.classList.add('selected')
+						if (_.config.range && rangeFrom && nm.getTime() === rangeFrom.getTime())
+							dayEl.classList.add('range-from')
+						if (_.config.range && rangeTo && nm.getTime() === rangeTo.getTime())
+							dayEl.classList.add('range-to')
 					}
 				}
 			}
 			weeks.push(daysOfWeek)
 		}
 
-		var calDates = []
-		weeks.forEach(function (dow) {
-			var calWeek = hf.createElem('div', { class: 'dudp__cal-week' })
+		let datesDOM = []
+		weeks.forEach(function (datesEl) {
+			let weekDOM = hf.createElem('div', { class: 'dudp__cal-week' })
 
-			for (var i = 0; i < dow.length; i++) {
-				var dateElem = dow[i]
+			for (let i = 0; i < datesEl.length; i++) {
+				let dateElem = datesEl[i]
 
 				// Attach click handler for dates
 				hf.addEvent(dateElem, 'click', function () {
-					var _this = this, _year = _this.dataset.year, _month = _this.dataset.month,
+					let _this = this, _year = _this.dataset.year, _month = _this.dataset.month,
 						_date = _this.dataset.date,
 						_selected = new Date(_year, _month, _date),
 						isFrom = false
@@ -542,8 +545,8 @@ class _duDatePicker {
 						return
 
 					if (_.config.range) {
-						var rangeFrom = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-							rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null
+						let rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+							rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
 
 						if (!_.rangeFrom || (_.rangeFrom && _selected < rangeFrom) ||
 							(_.rangeFrom && _.rangeTo && hf.dateDiff(rangeFrom, _selected) <= hf.dateDiff(_selected, rangeTo) && hf.dateDiff(rangeFrom, _selected) !== 0) ||
@@ -558,7 +561,7 @@ class _duDatePicker {
 						}
 
 						_.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
-							var _deYear = delem.dataset.year, _deMonth = delem.dataset.month, _deDate = delem.dataset.date,
+							let _deYear = delem.dataset.year, _deMonth = delem.dataset.month, _deDate = delem.dataset.date,
 								_inRange = _._inRange(new Date(_deYear, _deMonth, _deDate))
 
 							delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove'](isFrom ? 'range-from' : 'range-to')
@@ -566,7 +569,7 @@ class _duDatePicker {
 						})
 					} else {
 						_.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
-							var _deYear = delem.dataset.year,
+							let _deYear = delem.dataset.year,
 								_deMonth = delem.dataset.month,
 								_deDate = delem.dataset.date
 
@@ -586,29 +589,29 @@ class _duDatePicker {
 					}
 
 					_.datepicker.calendarHolder.wrapper.querySelectorAll('.dudp__month').forEach(function (melem) {
-						var _meMonth = melem.dataset.month
+						let _meMonth = melem.dataset.month
 
 						melem.classList[_meMonth === _month ? 'add' : 'remove']('selected')
 					})
 				})
 
-				hf.appendTo(dateElem, calWeek)
+				hf.appendTo(dateElem, weekDOM)
 			}
 
-			calDates.push(calWeek)
+			datesDOM.push(weekDOM)
 		})
 
-		return calDates
+		return datesDOM
 	}
 	/**
 	 * @returns {HTMLSpanElement[]} Returns years range for the years view
 	 */
 	_getYears() {
-		var _ = this, _minYear = _.viewYear - 50, _maxYear = _.viewYear + 25,
+		let _ = this, _minYear = _.viewYear - 50, _maxYear = _.viewYear + 25,
 			_years = []
 
-		for (var y = _minYear; y <= _maxYear; y++) {
-			var yearElem = hf.createElem('span', { class: 'dudp__year' })
+		for (let y = _minYear; y <= _maxYear; y++) {
+			let yearElem = hf.createElem('span', { class: 'dudp__year' })
 
 			if (y === _.viewYear)
 				yearElem.classList.add('selected')
@@ -616,7 +619,7 @@ class _duDatePicker {
 			yearElem.innerText = y
 			yearElem.dataset.year = y
 			hf.addEvent(yearElem, 'click', function () {
-				var _this = this, _data = parseInt(_this.dataset.year)
+				let _this = this, _data = parseInt(_this.dataset.year)
 
 				_.viewYear = _data
 				if (!_.config.range)
@@ -635,24 +638,24 @@ class _duDatePicker {
 	 * Sets up the calendar views
 	 */
 	_setupCalendar() {
-		var _ = this, viewsHolder = _.datepicker.calendarHolder.calendarViews, _year = +_.viewYear, _month = +_.viewMonth
+		let _ = this, viewsHolder = _.datepicker.calendarHolder.calendarViews, _year = +_.viewYear, _month = +_.viewMonth
 
 		viewsHolder.calendars.length = 0
 
-		var inView = {
+		let inView = {
 			wrapper: hf.createElem('div', { class: 'dudp__calendar' }),
 			header: hf.createElem('div', { class: 'dudp__cal-month-year' }),
-			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, WEEK_DAYS_HTML, true),
+			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, hf.daysOfWeekDOM.call(_), true),
 			datesHolder: hf.createElem('div', { class: 'dudp__dates-holder' })
 		}, prev = {
 			wrapper: hf.createElem('div', { class: 'dudp__calendar' }),
 			header: hf.createElem('div', { class: 'dudp__cal-month-year' }),
-			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, WEEK_DAYS_HTML, true),
+			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, hf.daysOfWeekDOM.call(_), true),
 			datesHolder: hf.createElem('div', { class: 'dudp__dates-holder' })
 		}, next = {
 			wrapper: hf.createElem('div', { class: 'dudp__calendar' }),
 			header: hf.createElem('div', { class: 'dudp__cal-month-year' }),
-			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, WEEK_DAYS_HTML, true),
+			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, hf.daysOfWeekDOM.call(_), true),
 			datesHolder: hf.createElem('div', { class: 'dudp__dates-holder' })
 		}, prevMonth = _month === 0 ? 11 : _month - 1,
 			nextMonth = _month === 11 ? 0 : _month + 1,
@@ -660,7 +663,7 @@ class _duDatePicker {
 			nextYear = _month === 11 ? _year + 1 : _year
 
 		hf.appendTo([
-			hf.createElem('span', { class: 'cal-month' }, MONTHS[prevMonth]),
+			hf.createElem('span', { class: 'cal-month' }, _.config.i18n.months[prevMonth]),
 			hf.createElem('span', { class: 'cal-year' }, prevYear)
 		], prev.header)
 		hf.appendTo(_._getDates(prevYear, prevMonth), prev.datesHolder)
@@ -668,7 +671,7 @@ class _duDatePicker {
 		viewsHolder.calendars.push(prev)
 
 		hf.appendTo([
-			hf.createElem('span', { class: 'cal-month' }, MONTHS[_month]),
+			hf.createElem('span', { class: 'cal-month' }, _.config.i18n.months[_month]),
 			hf.createElem('span', { class: 'cal-year' }, _year)
 		], inView.header)
 		hf.appendTo(_._getDates(_year, _month), inView.datesHolder)
@@ -676,7 +679,7 @@ class _duDatePicker {
 		viewsHolder.calendars.push(inView)
 
 		hf.appendTo([
-			hf.createElem('span', { class: 'cal-month' }, MONTHS[nextMonth]),
+			hf.createElem('span', { class: 'cal-month' }, _.config.i18n.months[nextMonth]),
 			hf.createElem('span', { class: 'cal-year' }, nextYear)
 		], next.header)
 		hf.appendTo(_._getDates(nextYear, nextMonth), next.datesHolder)
@@ -699,25 +702,28 @@ class _duDatePicker {
 		if (view !== 'calendar' && view !== 'months' && view !== 'years')
 			return
 
-		var _ = this, picker = _.datepicker,
+		let _ = this, picker = _.datepicker,
 			monthsView = picker.calendarHolder.monthsView,
 			yearsView = picker.calendarHolder.yearsView,
 			calViews = picker.calendarHolder.calendarViews.wrapper,
+			buttons = picker.calendarHolder.buttons.wrapper,
 			_animDuration = 250,
-			_oldView = _.viewMode
+			_oldView = _.viewMode,
+			hc = 'dp__hidden' // hidden class
 
 		_.viewMode = view
 
 		switch (_.viewMode) {
 			case 'calendar':
-				var _calendar = calViews.querySelector('.dudp__calendar:nth-child(2)') // current month in view
+				let _calendar = calViews.querySelector('.dudp__calendar:nth-child(2)') // current month in view
 
 				calViews.classList.add('dp__animate-out')
-				calViews.classList.remove('dp__hidden')
+				calViews.classList.remove(hc)
 				if (_oldView !== 'calendar')
 					_calendar.classList.add('dp__zooming', 'dp__animate-zoom')
-				picker.calendarHolder.btnPrev.classList.remove('dp__hidden')
-				picker.calendarHolder.btnNext.classList.remove('dp__hidden')
+				picker.calendarHolder.btnPrev.classList.remove(hc)
+				picker.calendarHolder.btnNext.classList.remove(hc)
+				buttons.classList.remove(hc)
 
 				setTimeout(() => {
 					calViews.classList.remove('dp__animate-out')
@@ -725,27 +731,28 @@ class _duDatePicker {
 						_calendar.classList.remove('dp__animate-zoom')
 				}, 10)
 				monthsView.classList.add('dp__animate-out')
-				yearsView.classList.add('dp__hidden')
+				yearsView.classList.add(hc)
 
 				setTimeout(() => {
 					if (_oldView !== 'calendar')
 						_calendar.classList.remove('dp__zooming')
-					monthsView.classList.add('dp__hidden')
+					monthsView.classList.add(hc)
 					monthsView.classList.remove('dp__animate-out')
 				}, _animDuration)
 				break
 			case 'months':
-				picker.calendarHolder.btnPrev.classList.add('dp__hidden')
-				picker.calendarHolder.btnNext.classList.add('dp__hidden')
+				picker.calendarHolder.btnPrev.classList.add(hc)
+				picker.calendarHolder.btnNext.classList.add(hc)
+				buttons.classList.add(hc)
 				calViews.classList.add('dp__animate-out')
 				monthsView.classList.add('dp__animate-out')
-				monthsView.classList.remove('dp__hidden')
+				monthsView.classList.remove(hc)
 
 				setTimeout(() => {
 					monthsView.classList.remove('dp__animate-out')
 				}, 10)
 				setTimeout(() => {
-					calViews.classList.add('dp__hidden')
+					calViews.classList.add(hc)
 					calViews.classList.remove('dp__animate-out')
 				}, _animDuration)
 				break
@@ -753,21 +760,22 @@ class _duDatePicker {
 				hf.empty(yearsView)
 				hf.appendTo(_._getYears(), yearsView)
 
-				var _selYear = yearsView.querySelector('.dudp__year.selected')
+				let _selYear = yearsView.querySelector('.dudp__year.selected')
 
 				yearsView.scrollTop = _selYear.offsetTop - 120
 
-				picker.calendarHolder.btnPrev.classList.add('dp__hidden')
-				picker.calendarHolder.btnNext.classList.add('dp__hidden')
+				picker.calendarHolder.btnPrev.classList.add(hc)
+				picker.calendarHolder.btnNext.classList.add(hc)
+				buttons.classList.add(hc)
 
 				monthsView.classList.add('dp__animate-out')
 				calViews.classList.add('dp__animate-out')
-				yearsView.classList.remove('dp__hidden')
+				yearsView.classList.remove(hc)
 
 				setTimeout(() => {
-					calViews.classList.add('dp__hidden')
+					calViews.classList.add(hc)
 					calViews.classList.remove('dp__animate-out')
-					monthsView.classList.add('dp__hidden')
+					monthsView.classList.add(hc)
 					monthsView.classList.remove('dp__animate-out')
 				}, _animDuration)
 				break
@@ -781,12 +789,12 @@ class _duDatePicker {
 		if (direction !== 'next' && direction !== 'prev')
 			return
 
-		var _ = this
+		let _ = this
 
 		if (_.animating)
 			return
 
-		var picker = _.datepicker, viewsHolder = picker.calendarHolder.calendarViews, _animDuration = 250, _isNext = direction === 'next'
+		let picker = _.datepicker, viewsHolder = picker.calendarHolder.calendarViews, _animDuration = 250, _isNext = direction === 'next'
 
 		if (_isNext ? _.viewMonth + 1 > 11 : _.viewMonth - 1 < 0)
 			_.viewYear += (_isNext ? 1 : -1)
@@ -795,30 +803,29 @@ class _duDatePicker {
 		_.animating = true
 
 		//Start animation
-		var animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right')
+		let animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right')
 
 		viewsHolder.wrapper.querySelectorAll('.dudp__calendar').forEach(function (cal) {
 			cal.classList.add(animateClass)
 		})
 
 		//Setup new (previos or next) month calendar
-		var _year = _.viewYear, _month = _isNext ? _.viewMonth + 1 : _.viewMonth - 1
+		let _year = _.viewYear, _month = _isNext ? _.viewMonth + 1 : _.viewMonth - 1
 
 		if (_isNext ? _month > 11 : _month < 0) {
 			_month = _isNext ? 0 : 11
 			_year += _isNext ? 1 : -1
 		}
-		var newCalDates = _._getDates(_year, _month),
+		let newCalDates = _._getDates(_year, _month),
 			newCalEl = {
 				wrapper: hf.createElem('div', { class: 'dudp__calendar' }),
 				header: hf.createElem('div', { class: 'dudp__cal-month-year' }),
-				weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, WEEK_DAYS_HTML, true),
+				weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, hf.daysOfWeekDOM.call(_), true),
 				datesHolder: hf.createElem('div', { class: 'dudp__dates-holder' })
 			}
 
-		// newCalEl.header.innerText = fns.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)
 		hf.appendTo([
-			hf.createElem('span', { class: 'cal-month' }, MONTHS[_month]),
+			hf.createElem('span', { class: 'cal-month' }, _.config.i18n.months[_month]),
 			hf.createElem('span', { class: 'cal-year' }, _year)
 		], newCalEl.header)
 		hf.appendTo(newCalDates, newCalEl.datesHolder)
@@ -840,24 +847,24 @@ class _duDatePicker {
 	 * Resets the selection to the date value of the input
 	 */
 	_resetSelection() {
-		var _ = this
+		let _ = this
 
 		if (_.config.range) {
-			var _date = _.dateFrom ? _.dateFrom : new Date()
+			let _date = _.dateFrom ? _.dateFrom : new Date()
 
-			_.rangeFrom = _.dateFrom ? { year: _.dateFrom.getFullYear(), month: _.dateFrom.getMonth(), date: _.dateFrom.getDate() } : null
-			_.rangeTo = _.dateTo ? { year: _.dateTo.getFullYear(), month: _.dateTo.getMonth(), date: _.dateTo.getDate() } : null
+			_.rangeFrom = hf.dateToJson(_.dateFrom)
+			_.rangeTo = hf.dateToJson(_.dateTo)
 
 			_.viewYear = _date.getFullYear()
 			_.viewMonth = _date.getMonth()
 		} else {
-			_.selected = { year: _.date.getFullYear(), month: _.date.getMonth(), date: _.date.getDate() }
+			_.selected = hf.dateToJson(_.date)
 			_.viewYear = _.selected.year
 			_.viewMonth = _.selected.month
 		}
 
 		_.datepicker.calendarHolder.monthsView.querySelectorAll('.dudp__month').forEach(function (melem) {
-			var _meMonth = parseInt(melem.dataset.month),
+			let _meMonth = parseInt(melem.dataset.month),
 				_month = _.config.range ? _.dateFrom ? _.dateFrom.getMonth() : null : _.selected.month
 
 			melem.classList[_meMonth === _month ? 'add' : 'remove']('selected')
@@ -867,11 +874,11 @@ class _duDatePicker {
 	 * Sets the section display (datepicker header)
 	 */
 	_setSelection() {
-		var _ = this, picker = _.datepicker,
-			selected = _.config.range ? new Date() : new Date(_.selected.year, _.selected.month, _.selected.date)
+		let _ = this, picker = _.datepicker,
+			selected = _.config.range ? new Date() : hf.jsonToDate(_.selected)
 
 		picker.header.selectedYear.innerText = selected.getFullYear()
-		picker.header.selectedDate.innerText = hf.formatDate(selected, SELECTED_FORMAT)
+		picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT)
 	}
 	/**
 	 * Sets the value of the input
@@ -880,21 +887,21 @@ class _duDatePicker {
 	setValue(value) {
 		if (typeof value === 'undefined')
 			throw new Error('Expecting a value.')
-		var _ = this, _empty = typeof value === 'string' && value === '', changeData = null
+		let _ = this, _empty = typeof value === 'string' && value === '', changeData = null
 
 		if (_.config.range) {
-			var _range = _empty ? [] : value.split(_.config.rangeDelim)
+			let _range = _empty ? [] : value.split(_.config.rangeDelim)
 
 			if (value !== '' && _range.length < 2)
 				throw new Error('Invalid date range value.')
 
-			var now = new Date(),
+			let now = new Date(),
 				_from = _empty ? null : hf.parseDate.call(_, _range[0]).date,
 				_to = _empty ? null : hf.parseDate.call(_, _range[1]).date,
-				formattedFrom = _empty ? '' : hf.formatDate(_from, _.config.format),
-				outFrom = _empty ? '' : hf.formatDate(_from, _.config.outFormat || _.config.format),
-				formattedTo = _empty ? '' : hf.formatDate(_to, _.config.format),
-				outTo = _empty ? '' : hf.formatDate(_to, _.config.outFormat || _.config.format),
+				formattedFrom = _empty ? '' : hf.formatDate.call(_, _from, _.config.format),
+				outFrom = _empty ? '' : hf.formatDate.call(_, _from, _.config.outFormat || _.config.format),
+				formattedTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.format),
+				outTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.outFormat || _.config.format),
 				valueDisp = _empty ? '' : (
 					_.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value)
 
@@ -931,9 +938,9 @@ class _duDatePicker {
 				value: valueDisp
 			}
 		} else {
-			var date = typeof value === 'string' ? (
+			let date = typeof value === 'string' ? (
 				_empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date) : value,
-				formatted = _empty ? '' : hf.formatDate(date, _.config.format)
+				formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format)
 
 			_.date = date
 			_.viewYear = date.getFullYear()
@@ -943,7 +950,7 @@ class _duDatePicker {
 
 			changeData = {
 				_date: _empty ? null : _.date,
-				date: _empty ? null : hf.formatDate(_.date, _.config.outFormat || _.config.format)
+				date: _empty ? null : hf.formatDate.call(_, _.date, _.config.outFormat || _.config.format)
 			}
 		}
 
@@ -957,7 +964,7 @@ class _duDatePicker {
 	 * @param {Date} date Date object
 	 * @param {string} format Date format
 	 */
-	formatDate(date, format) { return hf.formatDate(date, format) }
+	formatDate(date, format) { return hf.formatDate.call(this, date, format) }
 	/**
 	 * Formats specified date range to string (for display)
 	 * @param {Date} from Date from
@@ -969,7 +976,7 @@ class _duDatePicker {
 	 * Shows the date picker
 	 */
 	show() {
-		var _ = this
+		let _ = this
 		setTimeout(() => {
 			hf.setAttributes(document.body, { 'datepicker-display': 'on' })
 			_._resetSelection()
@@ -978,7 +985,7 @@ class _duDatePicker {
 			_.datepicker.container.classList.add('dp__open')
 
 			if (_.config.inline) {
-				var inputRef = _.showInFromEl ? _.fromEl : _.showInToEl ? _.toEl : _.input,
+				let inputRef = _.showInFromEl ? _.fromEl : _.showInToEl ? _.toEl : _.input,
 					offset = hf.calcOffset(inputRef),
 					picker_dim = {
 						height: _.datepicker.wrapper.offsetHeight,
@@ -1012,7 +1019,7 @@ class _duDatePicker {
 	 * Hides the date picker
 	 */
 	hide() {
-		var _ = this
+		let _ = this
 
 		_.datepicker.container.classList.add('dp__closing')
 		_.visible = false
@@ -1040,14 +1047,14 @@ class _duDatePicker {
  * Creates date picker
  */
 function duDatepicker() {
-	var args = arguments,
+	let args = arguments,
 		arg0 = args[0], arg0IsList = arg0 instanceof NodeList || Array.isArray(arg0), arg0IsElem = arg0 instanceof Element,
 		inputs = typeof arg0 === 'string' ? document.querySelectorAll(arg0) :
 			(arg0IsList ? arg0 : (arg0IsElem ? [arg0] : document.querySelectorAll(DEFAULT_CLASS))),
 		options = typeof arg0 === 'object' && !(arg0IsList) && !(arg0IsElem) ? arg0 : args[1] && typeof args[1] === 'object' ? args[1] : {}
 
 	Array.from(inputs).forEach(function (el) {
-		var picker = el[DATA_KEY]
+		let picker = el[DATA_KEY]
 
 		if (!picker)
 			el[DATA_KEY] = (picker = new _duDatePicker(el, options))
@@ -1057,6 +1064,10 @@ function duDatepicker() {
 		}
 	})
 }
+
+Object.defineProperty(duDatepicker, 'i18n', {
+	value: i18n
+})
 
 export default duDatepicker
 

@@ -1,27 +1,4 @@
-/**
- * Month names (i.e. `January`, `February`, etc)
- */
-export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-/**
- * Shortened month names (i.e. `Jan`, `Feb`, etc)
- */
-export const SHORT_MONTHS = MONTHS.map(x => x.substr(0, 3))
-
-/**
- * Days of the week (i.e. `Monday`, `Tuesday`, etc)
- */
-export const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-/**
- * Shortened days of the week (i.e. `Mon`, `Tue`, etc)
- */
-export const SHORT_DAYS = DAYS_OF_WEEK.map(x => x.substr(0, 3))
-
-/**
- * Days of the week HTML (displaying `Mo`, `Tu`, `We`, etc)
- */
-export const WEEK_DAYS_HTML = `<span>${SHORT_DAYS.map(x => x.substr(0, 2)).join('</span><span>')}</span>`
+import { i18n } from './i18n'
 
 /**
  * Keydown excluded key codes
@@ -77,6 +54,7 @@ export const DEFAULTS = {
     fromTarget: null,        
     // Date to target input element (range mode)
     toTarget: null, 
+    // callback functions
     events: {
         // Callback function on date selection
         dateChanged: null,    
@@ -88,5 +66,9 @@ export const DEFAULTS = {
         shown: null, 
         // Callback function when date picker is hidden
         hidden: null 
-    }
+    },
+    // internationalization
+    i18n: i18n.en,
+    // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
+    firstDay: null
 }

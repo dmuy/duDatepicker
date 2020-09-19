@@ -50,108 +50,8 @@
   }
 
   /**
-   * Month names (i.e. `January`, `February`, etc)
-   */
-  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  /**
-   * Shortened month names (i.e. `Jan`, `Feb`, etc)
-   */
-
-  var SHORT_MONTHS = MONTHS.map(function (x) {
-    return x.substr(0, 3);
-  });
-  /**
-   * Days of the week (i.e. `Monday`, `Tuesday`, etc)
-   */
-
-  var DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  /**
-   * Shortened days of the week (i.e. `Mon`, `Tue`, etc)
-   */
-
-  var SHORT_DAYS = DAYS_OF_WEEK.map(function (x) {
-    return x.substr(0, 3);
-  });
-  /**
-   * Days of the week HTML (displaying `Mo`, `Tu`, `We`, etc)
-   */
-
-  var WEEK_DAYS_HTML = "<span>".concat(SHORT_DAYS.map(function (x) {
-    return x.substr(0, 2);
-  }).join('</span><span>'), "</span>");
-  /**
-   * Keydown excluded key codes
-   */
-
-  var EX_KEYS = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
-  /**
-   * Key name for the date picker data
-   */
-
-  var DATA_KEY = '_duDatepicker';
-  /**
-   * Default date picker query selector class
-   */
-
-  var DEFAULT_CLASS = '.duDatepicker-input';
-  /**
-   * Header selected date format
-   */
-
-  var SELECTED_FORMAT = 'D, mmm d';
-  /**
-   * Default date picker configurations
-   */
-
-  var DEFAULTS = {
-    // Default input value (should be formatted as specified in the 'format' configuration)
-    value: null,
-    // Determines the date format
-    format: 'mm/dd/yyyy',
-    // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
-    outFormat: null,
-    // Determines the color theme of the date picker
-    theme: 'blue',
-    // Determines if clicking the date will automatically select it; OK button will not be displayed if true
-    auto: false,
-    // Determines if date picker will be inline (popover) with the input (and not a dialog)
-    inline: false,
-    // Determines if Clear button is displayed
-    clearBtn: false,
-    // Determines if Cancel button is displayed
-    cancelBtn: false,
-    // Determines if clicking the overlay will close the date picker
-    overlayClose: true,
-    // Array of dates to be disabled (format should be the same as the specified format)
-    disabledDates: [],
-    // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
-    disabledDays: [],
-    // Determines if date picker range mode is on
-    range: false,
-    // Range string delimiter
-    rangeDelim: '-',
-    // Date from target input element (range mode)
-    fromTarget: null,
-    // Date to target input element (range mode)
-    toTarget: null,
-    events: {
-      // Callback function on date selection
-      dateChanged: null,
-      // Function call to execute custom date range format (displayed on the input) upon selection
-      onRangeFormat: null,
-      // Callback function when date picker is initialized
-      ready: null,
-      // Callback function when date picker is shown
-      shown: null,
-      // Callback function when date picker is hidden
-      hidden: null
-    }
-  };
-
-  /**
    * Helper functions
    */
-
   var hf = {
     /**
      * Appends element(s) to parent
@@ -353,32 +253,34 @@
       var d = new Date(date),
           day = d.getDate(),
           m = d.getMonth(),
-          y = d.getFullYear();
+          y = d.getFullYear(),
+          i18n = this.config.i18n,
+          mVal = m + 1;
       return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|DD|D|dd|d)/g, function (e) {
         switch (e) {
           case 'd':
             return day;
 
           case 'dd':
-            return day < 10 ? "0" + day : day;
+            return ('00' + day).slice(-2);
 
           case 'D':
-            return SHORT_DAYS[d.getDay()];
+            return i18n.shortDays[d.getDay()];
 
           case 'DD':
-            return DAYS_OF_WEEK[d.getDay()];
+            return i18n.days[d.getDay()];
 
           case 'm':
-            return m + 1;
+            return mVal;
 
           case 'mm':
-            return m + 1 < 10 ? "0" + (m + 1) : m + 1;
+            return ('00' + mVal).slice(-2);
 
           case 'mmm':
-            return SHORT_MONTHS[m];
+            return i18n.shortMonths[m];
 
           case 'mmmm':
-            return MONTHS[m];
+            return i18n.months[m];
 
           case 'yy':
             return y.toString().substr(2, 2);
@@ -394,22 +296,25 @@
      * @param {string} date Date string to parse
      * @param {string=} dateFormat Format of the date string; `config.format` will be used if not specified
      */
-    parseDate: function parseDate(date, dateFormat) {
+    parseDate: function parseDate(date, format) {
       var _ = this,
-          format = typeof dateFormat === 'undefined' ? _.config.format : dateFormat,
-          dayLength = (format.match(/d/g) || []).length,
-          monthLength = (format.match(/m/g) || []).length,
-          yearLength = (format.match(/y/g) || []).length,
+          _format = typeof format === 'undefined' ? _.config.format : format,
+          dayLength = (_format.match(/d/g) || []).length,
+          monthLength = (_format.match(/m/g) || []).length,
+          yearLength = (_format.match(/y/g) || []).length,
           isFullMonth = monthLength === 4,
           isMonthNoPadding = monthLength === 1,
           isDayNoPadding = dayLength === 1,
           lastIndex = date.length,
-          firstM = format.indexOf('m'),
-          firstD = format.indexOf('d'),
-          firstY = format.indexOf('y'),
+          firstM = _format.indexOf('m'),
+          firstD = _format.indexOf('d'),
+          firstY = _format.indexOf('y'),
           month = '',
           day = '',
-          year = '';
+          year = '',
+          before,
+          after,
+          monthIdx = -1;
 
       if (date === '') return {
         m: null,
@@ -419,22 +324,22 @@
       }; // Get month on given date string using the format (default or specified)
 
       if (isFullMonth) {
-        var monthIdx = -1;
-        MONTHS.forEach(function (m, i) {
-          if (date.indexOf(m) >= 0) monthIdx = i;
+        monthIdx = _.config.i18n.months.findIndex(function (m) {
+          return date.indexOf(m) >= 0;
         });
-        month = MONTHS[monthIdx];
-        format = format.replace('mmmm', month);
-        firstD = format.indexOf('d');
-        firstY = firstY < firstM ? format.indexOf('y') : format.indexOf('y', format.indexOf(month) + month.length);
+        month = _.config.i18n.months[monthIdx];
+        _format = _format.replace('mmmm', month);
+        firstD = _format.indexOf('d');
+        firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length);
       } else if (!isDayNoPadding && !isMonthNoPadding || isDayNoPadding && !isMonthNoPadding && firstM < firstD) {
         month = date.substr(firstM, monthLength);
       } else {
-        var lastIndexM = format.lastIndexOf('m'),
-            before = format.substring(firstM - 1, firstM),
-            after = format.substring(lastIndexM + 1, lastIndexM + 2);
+        var lastIndexM = _format.lastIndexOf('m');
 
-        if (lastIndexM === format.length - 1) {
+        before = _format.substring(firstM - 1, firstM);
+        after = _format.substring(lastIndexM + 1, lastIndexM + 2);
+
+        if (lastIndexM === _format.length - 1) {
           month = date.substring(date.indexOf(before, firstM - 1) + 1, lastIndex);
         } else if (firstM === 0) {
           month = date.substring(0, date.indexOf(after, firstM));
@@ -447,11 +352,12 @@
       if (!isDayNoPadding && !isMonthNoPadding || !isDayNoPadding && isMonthNoPadding && firstD < firstM) {
         day = date.substr(firstD, dayLength);
       } else {
-        var lastIndexD = format.lastIndexOf('d'),
-            before = format.substring(firstD - 1, firstD),
-            after = format.substring(lastIndexD + 1, lastIndexD + 2);
+        var lastIndexD = _format.lastIndexOf('d');
 
-        if (lastIndexD === format.length - 1) {
+        before = _format.substring(firstD - 1, firstD);
+        after = _format.substring(lastIndexD + 1, lastIndexD + 2);
+
+        if (lastIndexD === _format.length - 1) {
           day = date.substring(date.indexOf(before, firstD - 1) + 1, lastIndex);
         } else if (firstD === 0) {
           day = date.substring(0, date.indexOf(after, firstD));
@@ -464,7 +370,7 @@
       if (!isMonthNoPadding && !isDayNoPadding || isMonthNoPadding && isDayNoPadding && firstY < firstM && firstY < firstD || !isMonthNoPadding && isDayNoPadding && firstY < firstD || isMonthNoPadding && !isDayNoPadding && firstY < firstM) {
         year = date.substr(firstY, yearLength);
       } else {
-        before = format.substring(firstY - 1, firstY);
+        before = _format.substring(firstY - 1, firstY);
         year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength);
       }
 
@@ -472,7 +378,7 @@
         m: month,
         d: day,
         y: year,
-        date: isNaN(parseInt(month)) ? new Date(month + " " + day + ", " + year) : new Date(year, month - 1, day)
+        date: new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
       };
     },
 
@@ -493,7 +399,238 @@
       }
 
       el.dispatchEvent(new CustomEvent(data));
+    },
+
+    /**
+     * Creates HTML for the days of the week
+     */
+    daysOfWeekDOM: function daysOfWeekDOM() {
+      var config = this.config,
+          locale = config.i18n,
+          firstDay = config.firstDay || locale.firstDay;
+      var weekDays = [];
+
+      for (var i = 0, dow = firstDay; i < locale.shorterDays.length; i++, dow++) {
+        weekDays.push(locale.shorterDays[dow % 7]);
+      }
+
+      return "<span>".concat(weekDays.join('</span><span>'), "</span>");
+    },
+
+    /**
+     * Converts date JSON to Date object
+     * @param {Object} o Date breakdown (year, month, date)
+     * @param {number} o.year Year value
+     * @param {number} o.month Month value
+     * @param {number} o.date Date value
+     */
+    jsonToDate: function jsonToDate(o) {
+      return new Date(o.year, o.month, o.date);
+    },
+
+    /**
+     * Converts Date object to JSON
+     * @param {Date} date Date object
+     */
+    dateToJson: function dateToJson(date) {
+      return date ? {
+        year: date.getFullYear(),
+        month: date.getMonth(),
+        date: date.getDate()
+      } : null;
     }
+  };
+
+  /**
+   * Dictionary defaults
+   */
+
+  var DICT_DEFAULTS = {
+    btnOk: 'OK',
+    btnCancel: 'CANCEL',
+    btnClear: 'CLEAR'
+  };
+
+  var Locale =
+  /**
+   * Creates i18n locale
+   * @param {string[]} months List of month names
+   * @param {string[]} shortMonths List of shortened month names
+   * @param {string[]} days List of day names
+   * @param {string[]} shortDays List of 3-letter day names
+   * @param {string[]} shorterDays List of 2-letter day names
+   * @param {number} firstDay First day of the week (1 - 7; Monday - Sunday)
+   * @param {Object} dict Dictionary of words to be used on the UI
+   * @param {string} dict.btnOk OK button text
+   * @param {string} dict.btnCancel Cancel button text
+   * @param {string} dict.btnClear Clear button text
+   */
+  function Locale(months, shortMonths, days, shortDays, shorterDays, firstDay, dict) {
+    _classCallCheck(this, Locale);
+
+    this.months = months;
+    this.shortMonths = shortMonths || this.months.map(function (x) {
+      return x.substr(0, 3);
+    });
+    this.days = days;
+    this.shortDays = shortDays || this.days.map(function (x) {
+      return x.substr(0, 3);
+    });
+    this.shorterDays = shorterDays || this.days.map(function (x) {
+      return x.substr(0, 2);
+    });
+    this.firstDay = firstDay;
+    this.dict = hf.extend(DICT_DEFAULTS, dict);
+  };
+  /**
+   * Internationalization
+   */
+
+
+  var i18n = {
+    // expose Locale class
+    Locale: Locale,
+
+    /**
+     * English
+     */
+    en: new Locale('January_February_March_April_May_June_July_August_September_October_November_December'.split('_'), null, 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'), null, null, 7),
+
+    /**
+     * Russian
+     */
+    ru: new Locale('январь_февраль_март_апрель_май_июнь_июль_август_сентябрь_октябрь_ноябрь_декабрь'.split('_'), 'янв._февр._мар._апр._мая_июня_июля_авг._сент._окт._нояб._дек.'.split('_'), 'воскресенье_понедельник_вторник_среда_четверг_пятница_суббота'.split('_'), 'вс_пн_вт_ср_чт_пт_сб'.split('_'), 'вс_пн_вт_ср_чт_пт_сб'.split('_'), 1, {
+      btnCancel: 'Отменить',
+      btnClear: 'очищать'
+    }),
+
+    /**
+     * Spanish
+     */
+    es: new Locale('enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split('_'), null, 'domingo_lunes_martes_miércoles_jueves_viernes_sábado'.split('_'), 'dom._lun._mar._mié._jue._vie._sáb.'.split('_'), null, 1, {
+      btnCancel: 'Cancelar',
+      btnClear: 'Despejar'
+    }),
+
+    /**
+     * Turkish
+     */
+    tr: new Locale('Ocak_Şubat_Mart_Nisan_Mayıs_Haziran_Temmuz_Ağustos_Eylül_Ekim_Kasım_Aralık'.split('_'), null, 'Pazar_Pazartesi_Salı_Çarşamba_Perşembe_Cuma_Cumartesi'.split('_'), 'Paz_Pts_Sal_Çar_Per_Cum_Cts'.split('_'), 'Pz_Pt_Sa_Ça_Pe_Cu_Ct'.split('_'), 1),
+
+    /**
+     * Persian
+     */
+    fa: new Locale('ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر'.split('_'), 'ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر'.split('_'), "\u06CC\u06A9\u200C\u0634\u0646\u0628\u0647_\u062F\u0648\u0634\u0646\u0628\u0647_\u0633\u0647\u200C\u0634\u0646\u0628\u0647_\u0686\u0647\u0627\u0631\u0634\u0646\u0628\u0647_\u067E\u0646\u062C\u200C\u0634\u0646\u0628\u0647_\u062C\u0645\u0639\u0647_\u0634\u0646\u0628\u0647".split('_'), "\u06CC\u06A9\u200C\u0634\u0646\u0628\u0647_\u062F\u0648\u0634\u0646\u0628\u0647_\u0633\u0647\u200C\u0634\u0646\u0628\u0647_\u0686\u0647\u0627\u0631\u0634\u0646\u0628\u0647_\u067E\u0646\u062C\u200C\u0634\u0646\u0628\u0647_\u062C\u0645\u0639\u0647_\u0634\u0646\u0628\u0647".split('_'), 'ی_د_س_چ_پ_ج_ش'.split('_'), 1),
+
+    /**
+     * French
+     */
+    fr: new Locale('janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'), 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'), 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'), 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'), 'di_lu_ma_me_je_ve_sa'.split('_'), 1),
+
+    /**
+     * German
+     */
+    de: new Locale('Januar_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember'.split('_'), 'Jan._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split('_'), 'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split('_'), 'So._Mo._Di._Mi._Do._Fr._Sa.'.split('_'), 'So_Mo_Di_Mi_Do_Fr_Sa'.split('_'), 1, {
+      btnCancel: 'Stornieren',
+      btnClear: 'Löschen'
+    }),
+
+    /**
+     * Japanese
+     */
+    ja: new Locale('一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'), '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'), '日曜日_月曜日_火曜日_水曜日_木曜日_金曜日_土曜日'.split('_'), '日曜_月曜_火曜_水曜_木曜_金曜_土曜'.split('_'), '日_月_火_水_木_金_土'.split('_'), 7),
+
+    /**
+     * Portuguese
+     */
+    pt: new Locale('janeiro_fevereiro_março_abril_maio_junho_julho_agosto_setembro_outubro_novembro_dezembro'.split('_'), null, 'Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado'.split('_'), 'Dom_Seg_Ter_Qua_Qui_Sex_Sáb'.split('_'), 'Do_2ª_3ª_4ª_5ª_6ª_Sá'.split('_'), 1, {
+      btnCancel: 'Cancelar',
+      btnClear: 'Clarear'
+    }),
+
+    /**
+     * Vietnamese
+     */
+    vi: new Locale('tháng 1_tháng 2_tháng 3_tháng 4_tháng 5_tháng 6_tháng 7_tháng 8_tháng 9_tháng 10_tháng 11_tháng 12'.split('_'), 'Thg 01_Thg 02_Thg 03_Thg 04_Thg 05_Thg 06_Thg 07_Thg 08_Thg 09_Thg 10_Thg 11_Thg 12'.split('_'), 'chủ nhật_thứ hai_thứ ba_thứ tư_thứ năm_thứ sáu_thứ bảy'.split('_'), 'CN_T2_T3_T4_T5_T6_T7'.split('_'), 'CN_T2_T3_T4_T5_T6_T7'.split('_'), 1),
+
+    /**
+     * Chinese
+     */
+    zh: new Locale('一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'), '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'), '星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'), '周日_周一_周二_周三_周四_周五_周六'.split('_'), '日_一_二_三_四_五_六'.split('_'), 1)
+  };
+
+  /**
+   * Keydown excluded key codes
+   */
+
+  var EX_KEYS = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
+  /**
+   * Key name for the date picker data
+   */
+
+  var DATA_KEY = '_duDatepicker';
+  /**
+   * Default date picker query selector class
+   */
+
+  var DEFAULT_CLASS = '.duDatepicker-input';
+  /**
+   * Header selected date format
+   */
+
+  var SELECTED_FORMAT = 'D, mmm d';
+  /**
+   * Default date picker configurations
+   */
+
+  var DEFAULTS = {
+    // Default input value (should be formatted as specified in the 'format' configuration)
+    value: null,
+    // Determines the date format
+    format: 'mm/dd/yyyy',
+    // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
+    outFormat: null,
+    // Determines the color theme of the date picker
+    theme: 'blue',
+    // Determines if clicking the date will automatically select it; OK button will not be displayed if true
+    auto: false,
+    // Determines if date picker will be inline (popover) with the input (and not a dialog)
+    inline: false,
+    // Determines if Clear button is displayed
+    clearBtn: false,
+    // Determines if Cancel button is displayed
+    cancelBtn: false,
+    // Determines if clicking the overlay will close the date picker
+    overlayClose: true,
+    // Array of dates to be disabled (format should be the same as the specified format)
+    disabledDates: [],
+    // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
+    disabledDays: [],
+    // Determines if date picker range mode is on
+    range: false,
+    // Range string delimiter
+    rangeDelim: '-',
+    // Date from target input element (range mode)
+    fromTarget: null,
+    // Date to target input element (range mode)
+    toTarget: null,
+    // callback functions
+    events: {
+      // Callback function on date selection
+      dateChanged: null,
+      // Function call to execute custom date range format (displayed on the input) upon selection
+      onRangeFormat: null,
+      // Callback function when date picker is initialized
+      ready: null,
+      // Callback function when date picker is shown
+      shown: null,
+      // Callback function when date picker is hidden
+      hidden: null
+    },
+    // internationalization
+    i18n: i18n.en,
+    // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
+    firstDay: null
   };
 
   /**
@@ -509,8 +646,10 @@
     function _duDatePicker(el, options) {
       _classCallCheck(this, _duDatePicker);
 
-      var _ = this;
+      var _ = this,
+          i18n = options.i18n;
 
+      if (typeof i18n === 'string') options.i18n = duDatepicker.i18n[i18n];
       this.config = hf.extend(DEFAULTS, options);
       /**
        * Determines if date picker is animating
@@ -533,6 +672,7 @@
       this.toEl = document.querySelector(this.config.toTarget);
       this.input.hidden = this.config.range && (this.fromEl || this.toEl);
       this.viewMode = 'calendar';
+      this.dict = hf.extend(DICT_DEFAULTS, this.config.i18n.dict);
       /**
        * Date picker elements holder
        * @type {Object}
@@ -588,15 +728,15 @@
             btnClear: hf.createElem('span', {
               class: 'dudp__button clear',
               role: 'button'
-            }, 'Clear'),
+            }, _.dict.btnClear),
             btnCancel: hf.createElem('span', {
               class: 'dudp__button cancel',
               role: 'button'
-            }, 'Cancel'),
+            }, _.dict.btnCancel),
             btnOk: hf.createElem('span', {
               class: 'dudp__button ok',
               role: 'button'
-            }, 'Ok')
+            }, _.dict.btnOk)
           }
         }
       }; // set default value
@@ -630,10 +770,10 @@
 
         if (value) {
           var valueDisp = _.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : value,
-              formattedFrom = hf.formatDate(_from, _.config.format),
-              outFrom = hf.formatDate(_from, _.config.outFormat || _.config.format),
-              formattedTo = hf.formatDate(_to, _.config.format),
-              outTo = hf.formatDate(_to, _.config.outFormat || _.config.format);
+              formattedFrom = hf.formatDate.call(_, _from, _.config.format),
+              outFrom = hf.formatDate.call(_, _from, _.config.outFormat || _.config.format),
+              formattedTo = hf.formatDate.call(_, _to, _.config.format),
+              outTo = hf.formatDate.call(_, _to, _.config.outFormat || _.config.format);
           _.input.value = valueDisp;
           hf.setAttributes(_.input, {
             'value': valueDisp,
@@ -659,11 +799,7 @@
         }
       } else {
         this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date;
-        this.selected = {
-          year: _.date.getFullYear(),
-          month: _.date.getMonth(),
-          date: _.date.getDate()
-        };
+        this.selected = hf.dateToJson(_.date);
         this.viewMonth = _.selected.month;
         this.viewYear = _.selected.year;
       }
@@ -787,7 +923,7 @@
               class: 'dudp__month'
             });
             if (_month === _selected.month) monthElem.classList.add('selected');
-            monthElem.innerText = SHORT_MONTHS[_month];
+            monthElem.innerText = _.config.i18n.shortMonths[_month];
             monthElem.dataset.month = _month;
             hf.appendTo(monthElem, monthRow);
             hf.addEvent(monthElem, 'click', function (e) {
@@ -864,16 +1000,16 @@
           if (_.config.range) {
             if (!_.rangeFrom || !_.rangeTo) return;
 
-            var _from = new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date),
-                _to = new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date);
+            var _from = hf.jsonToDate(_.rangeFrom),
+                _to = hf.jsonToDate(_.rangeTo);
 
             if (_._dateDisabled(_from) || _._dateDisabled(_to)) return;
             _.dateFrom = _from;
             _.dateTo = _to;
 
-            _.setValue([hf.formatDate(_from, _.config.format), hf.formatDate(_to, _.config.format)].join(_.config.rangeDelim));
+            _.setValue([hf.formatDate.call(_, _from, _.config.format), hf.formatDate.call(_, _to, _.config.format)].join(_.config.rangeDelim));
           } else {
-            var _date = new Date(_.selected.year, _.selected.month, _.selected.date);
+            var _date = hf.jsonToDate(_.selected);
 
             if (_._dateDisabled(_date)) return;
             _.date = _date;
@@ -896,8 +1032,8 @@
         if (!this.config.range) return false;
 
         var _ = this,
-            _from = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-            _to = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null;
+            _from = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+            _to = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null;
 
         return _from && date > _from && _to && date < _to;
       }
@@ -920,9 +1056,7 @@
             _inDates = _dates.filter(function (x) {
           if (x.indexOf('-') >= 0) return date >= hf.parseDate.call(_, x.split('-')[0]).date && date <= hf.parseDate.call(_, x.split('-')[1]).date;else return hf.parseDate.call(_, x).date.getTime() === date.getTime();
         }).length > 0,
-            _inDays = _days.indexOf(DAYS_OF_WEEK[date.getDay()]) >= 0 || _days.indexOf(SHORT_DAYS[date.getDay()]) >= 0 || _days.indexOf(SHORT_DAYS.map(function (x) {
-          return x.substr(0, 2);
-        })[date.getDay()]) >= 0;
+            _inDays = _days.indexOf(_.config.i18n.days[date.getDay()]) >= 0 || _days.indexOf(_.config.i18n.shortDays[date.getDay()]) >= 0 || _days.indexOf(_.config.i18n.shorterDays[date.getDay()]) >= 0;
 
         if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
         if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
@@ -941,47 +1075,56 @@
             day = 1,
             now = new Date(),
             today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-            selected = _.config.range ? null : new Date(_.selected.year, _.selected.month, _.selected.date),
-            rangeFrom = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-            rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null,
+            selected = _.config.range ? null : hf.jsonToDate(_.selected),
+            rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+            rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null,
             date = new Date(year, month, day),
             totalDays = hf.getDaysCount(date),
             nmStartDay = 1,
-            weeks = [];
+            weeks = [],
+            firstDay = _.config.firstDay || _.config.i18n.firstDay,
+            lastDay = (firstDay + 6) % 7;
 
         for (var week = 1; week <= 6; week++) {
           var daysOfWeek = [];
 
-          for (var idx = 0; idx < 7; idx++) {
+          for (var idx = 0, dow = firstDay; idx < 7; idx++, dow++) {
             daysOfWeek.push(hf.createElem('span', {
-              class: 'dudp__date'
+              class: 'dudp__date',
+              'data-dow': dow % 7
             }));
           }
 
-          while (day <= totalDays) {
+          var _loop = function _loop() {
             date.setDate(day);
-            var dayOfWeek = date.getDay();
-            daysOfWeek[dayOfWeek].dataset.date = day;
-            daysOfWeek[dayOfWeek].dataset.month = month;
-            daysOfWeek[dayOfWeek].dataset.year = year;
-            if (date.getTime() === today.getTime()) daysOfWeek[dayOfWeek].classList.add('current');
-            if (_._dateDisabled(date)) daysOfWeek[dayOfWeek].classList.add('disabled');
-            if (_._inRange(date)) daysOfWeek[dayOfWeek].classList.add('in-range');
+            var dayOfWeek = date.getDay(),
+                dayEl = daysOfWeek.find(function (d) {
+              return parseInt(d.dataset.dow) === dayOfWeek;
+            });
+            dayEl.dataset.date = day;
+            dayEl.dataset.month = month;
+            dayEl.dataset.year = year;
+            if (date.getTime() === today.getTime()) dayEl.classList.add('current');
+            if (_._dateDisabled(date)) dayEl.classList.add('disabled');
+            if (_._inRange(date)) dayEl.classList.add('in-range');
+            if (!_.config.range && date.getTime() === selected.getTime()) dayEl.classList.add('selected');
+            if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
+            if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
 
-            if (week === 1 && dayOfWeek === 0) {
-              break;
-            } else if (dayOfWeek < 6) {
-              if (!_.config.range && date.getTime() === selected.getTime()) daysOfWeek[dayOfWeek].classList.add('selected');
-              if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime()) daysOfWeek[dayOfWeek].classList.add('range-from');
-              if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime()) daysOfWeek[dayOfWeek].classList.add('range-to');
-              daysOfWeek[dayOfWeek].innerText = day++;
+            if (week === 1 && dayOfWeek === firstDay % 7) {
+              return "break";
+            } else if (dayOfWeek !== lastDay) {
+              dayEl.innerText = day++;
             } else {
-              if (!_.config.range && date.getTime() === selected.getTime()) daysOfWeek[dayOfWeek].classList.add('selected');
-              if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime()) daysOfWeek[dayOfWeek].classList.add('range-from');
-              if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime()) daysOfWeek[dayOfWeek].classList.add('range-to');
-              daysOfWeek[dayOfWeek].innerText = day++;
-              break;
+              dayEl.innerText = day++;
+              return "break";
             }
+          };
+
+          while (day <= totalDays) {
+            var _ret = _loop();
+
+            if (_ret === "break") break;
           }
           /* For days of previous and next month */
 
@@ -989,57 +1132,68 @@
           if (week === 1 || week > 4) {
             // First week
             if (week === 1) {
-              var prevMonth = new Date(year, month - 1, 1),
-                  prevMonthDays = hf.getDaysCount(prevMonth);
+              (function () {
+                var pm = new Date(year, month - 1, 1),
+                    pmDays = hf.getDaysCount(pm);
 
-              for (var a = 6; a >= 0; a--) {
-                if (daysOfWeek[a].innerText !== '') continue;
-                daysOfWeek[a].dataset.date = prevMonthDays;
-                daysOfWeek[a].dataset.month = month - 1;
-                daysOfWeek[a].dataset.year = year;
-                prevMonth.setDate(prevMonthDays);
-                daysOfWeek[a].innerText = prevMonthDays--;
-                daysOfWeek[a].classList.add('dudp__pm');
-                if (_._dateDisabled(prevMonth)) daysOfWeek[a].classList.add('disabled');
-                if (_._inRange(prevMonth)) daysOfWeek[a].classList.add('in-range');
-                if (prevMonth.getTime() === today.getTime()) daysOfWeek[a].classList.add('current');
-                if (!_.config.range && prevMonth.getTime() === selected.getTime()) daysOfWeek[a].classList.add('selected');
-                if (_.config.range && rangeFrom && prevMonth.getTime() === rangeFrom.getTime()) daysOfWeek[a].classList.add('range-from');
-                if (_.config.range && rangeTo && prevMonth.getTime() === rangeTo.getTime()) daysOfWeek[a].classList.add('range-to');
-              }
+                for (var a = 1; a <= 7; a++) {
+                  pm.setDate(pmDays--);
+                  var dayEl = daysOfWeek.find(function (d) {
+                    return parseInt(d.dataset.dow) === pm.getDay();
+                  });
+                  if (dayEl.innerText !== '') continue;
+                  dayEl.dataset.date = pm.getDate();
+                  dayEl.dataset.month = pm.getMonth();
+                  dayEl.dataset.year = pm.getFullYear();
+                  dayEl.innerText = pm.getDate();
+                  dayEl.classList.add('dudp__pm');
+                  if (_._dateDisabled(pm)) dayEl.classList.add('disabled');
+                  if (_._inRange(pm)) dayEl.classList.add('in-range');
+                  if (pm.getTime() === today.getTime()) dayEl.classList.add('current');
+                  if (!_.config.range && pm.getTime() === selected.getTime()) dayEl.classList.add('selected');
+                  if (_.config.range && rangeFrom && pm.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
+                  if (_.config.range && rangeTo && pm.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+                }
+              })();
             } // Last week
             else if (week > 4) {
-                var nextMonth = new Date(year, month + 1, 1);
+                (function () {
+                  var nm = new Date(year, month + 1, 1);
 
-                for (var a = 0; a <= 6; a++) {
-                  if (daysOfWeek[a].innerText !== '') continue;
-                  daysOfWeek[a].dataset.date = nmStartDay;
-                  daysOfWeek[a].dataset.month = month + 1;
-                  daysOfWeek[a].dataset.year = year;
-                  nextMonth.setDate(nmStartDay);
-                  daysOfWeek[a].innerText = nmStartDay++;
-                  daysOfWeek[a].classList.add('dudp__nm');
-                  if (_._dateDisabled(nextMonth)) daysOfWeek[a].classList.add('disabled');
-                  if (_._inRange(nextMonth)) daysOfWeek[a].classList.add('in-range');
-                  if (nextMonth.getTime() === today.getTime()) daysOfWeek[a].classList.add('current');
-                  if (!_.config.range && nextMonth.getTime() === selected.getTime()) daysOfWeek[a].classList.add('selected');
-                  if (_.config.range && rangeFrom && nextMonth.getTime() === rangeFrom.getTime()) daysOfWeek[a].classList.add('range-from');
-                  if (_.config.range && rangeTo && nextMonth.getTime() === rangeTo.getTime()) daysOfWeek[a].classList.add('range-to');
-                }
+                  for (var a = 1; a <= 7; a++) {
+                    nm.setDate(nmStartDay);
+                    var dayEl = daysOfWeek.find(function (d) {
+                      return parseInt(d.dataset.dow) === nm.getDay();
+                    });
+                    if (dayEl.innerText !== '') continue;
+                    nmStartDay++;
+                    dayEl.dataset.date = nm.getDate();
+                    dayEl.dataset.month = nm.getMonth();
+                    dayEl.dataset.year = nm.getFullYear();
+                    dayEl.innerText = nm.getDate();
+                    dayEl.classList.add('dudp__nm');
+                    if (_._dateDisabled(nm)) dayEl.classList.add('disabled');
+                    if (_._inRange(nm)) dayEl.classList.add('in-range');
+                    if (nm.getTime() === today.getTime()) dayEl.classList.add('current');
+                    if (!_.config.range && nm.getTime() === selected.getTime()) dayEl.classList.add('selected');
+                    if (_.config.range && rangeFrom && nm.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
+                    if (_.config.range && rangeTo && nm.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+                  }
+                })();
               }
           }
 
           weeks.push(daysOfWeek);
         }
 
-        var calDates = [];
-        weeks.forEach(function (dow) {
-          var calWeek = hf.createElem('div', {
+        var datesDOM = [];
+        weeks.forEach(function (datesEl) {
+          var weekDOM = hf.createElem('div', {
             class: 'dudp__cal-week'
           });
 
-          for (var i = 0; i < dow.length; i++) {
-            var dateElem = dow[i]; // Attach click handler for dates
+          for (var i = 0; i < datesEl.length; i++) {
+            var dateElem = datesEl[i]; // Attach click handler for dates
 
             hf.addEvent(dateElem, 'click', function () {
               var _this = this,
@@ -1052,17 +1206,17 @@
               if (_._dateDisabled(_selected)) return;
 
               if (_.config.range) {
-                var rangeFrom = _.rangeFrom ? new Date(_.rangeFrom.year, _.rangeFrom.month, _.rangeFrom.date) : null,
-                    rangeTo = _.rangeTo ? new Date(_.rangeTo.year, _.rangeTo.month, _.rangeTo.date) : null;
+                var _rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+                    _rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null;
 
-                if (!_.rangeFrom || _.rangeFrom && _selected < rangeFrom || _.rangeFrom && _.rangeTo && hf.dateDiff(rangeFrom, _selected) <= hf.dateDiff(_selected, rangeTo) && hf.dateDiff(rangeFrom, _selected) !== 0 || _.rangeFrom && _.rangeTo && rangeTo.getTime() === _selected.getTime()) {
+                if (!_.rangeFrom || _.rangeFrom && _selected < _rangeFrom || _.rangeFrom && _.rangeTo && hf.dateDiff(_rangeFrom, _selected) <= hf.dateDiff(_selected, _rangeTo) && hf.dateDiff(_rangeFrom, _selected) !== 0 || _.rangeFrom && _.rangeTo && _rangeTo.getTime() === _selected.getTime()) {
                   _.rangeFrom = {
                     year: _year,
                     month: _month,
                     date: _date
                   };
                   isFrom = true;
-                } else if (!_.rangeTo || _.rangeTo && _selected > rangeTo || _.rangeFrom && _.rangeTo && hf.dateDiff(_selected, rangeTo) < hf.dateDiff(rangeFrom, _selected) && hf.dateDiff(_selected, rangeTo) !== 0 || _.rangeFrom && _.rangeTo && rangeFrom.getTime() === _selected.getTime()) {
+                } else if (!_.rangeTo || _.rangeTo && _selected > _rangeTo || _.rangeFrom && _.rangeTo && hf.dateDiff(_selected, _rangeTo) < hf.dateDiff(_rangeFrom, _selected) && hf.dateDiff(_selected, _rangeTo) !== 0 || _.rangeFrom && _.rangeTo && _rangeFrom.getTime() === _selected.getTime()) {
                   _.rangeTo = {
                     year: _year,
                     month: _month,
@@ -1112,12 +1266,12 @@
                 melem.classList[_meMonth === _month ? 'add' : 'remove']('selected');
               });
             });
-            hf.appendTo(dateElem, calWeek);
+            hf.appendTo(dateElem, weekDOM);
           }
 
-          calDates.push(calWeek);
+          datesDOM.push(weekDOM);
         });
-        return calDates;
+        return datesDOM;
       }
       /**
        * @returns {HTMLSpanElement[]} Returns years range for the years view
@@ -1179,7 +1333,7 @@
           }),
           weekDays: hf.createElem('div', {
             class: 'dudp__weekdays'
-          }, WEEK_DAYS_HTML, true),
+          }, hf.daysOfWeekDOM.call(_), true),
           datesHolder: hf.createElem('div', {
             class: 'dudp__dates-holder'
           })
@@ -1193,7 +1347,7 @@
           }),
           weekDays: hf.createElem('div', {
             class: 'dudp__weekdays'
-          }, WEEK_DAYS_HTML, true),
+          }, hf.daysOfWeekDOM.call(_), true),
           datesHolder: hf.createElem('div', {
             class: 'dudp__dates-holder'
           })
@@ -1207,7 +1361,7 @@
           }),
           weekDays: hf.createElem('div', {
             class: 'dudp__weekdays'
-          }, WEEK_DAYS_HTML, true),
+          }, hf.daysOfWeekDOM.call(_), true),
           datesHolder: hf.createElem('div', {
             class: 'dudp__dates-holder'
           })
@@ -1218,7 +1372,7 @@
             nextYear = _month === 11 ? _year + 1 : _year;
         hf.appendTo([hf.createElem('span', {
           class: 'cal-month'
-        }, MONTHS[prevMonth]), hf.createElem('span', {
+        }, _.config.i18n.months[prevMonth]), hf.createElem('span', {
           class: 'cal-year'
         }, prevYear)], prev.header);
         hf.appendTo(_._getDates(prevYear, prevMonth), prev.datesHolder);
@@ -1226,7 +1380,7 @@
         viewsHolder.calendars.push(prev);
         hf.appendTo([hf.createElem('span', {
           class: 'cal-month'
-        }, MONTHS[_month]), hf.createElem('span', {
+        }, _.config.i18n.months[_month]), hf.createElem('span', {
           class: 'cal-year'
         }, _year)], inView.header);
         hf.appendTo(_._getDates(_year, _month), inView.datesHolder);
@@ -1234,7 +1388,7 @@
         viewsHolder.calendars.push(inView);
         hf.appendTo([hf.createElem('span', {
           class: 'cal-month'
-        }, MONTHS[nextMonth]), hf.createElem('span', {
+        }, _.config.i18n.months[nextMonth]), hf.createElem('span', {
           class: 'cal-year'
         }, nextYear)], next.header);
         hf.appendTo(_._getDates(nextYear, nextMonth), next.datesHolder);
@@ -1258,8 +1412,11 @@
             monthsView = picker.calendarHolder.monthsView,
             yearsView = picker.calendarHolder.yearsView,
             calViews = picker.calendarHolder.calendarViews.wrapper,
+            buttons = picker.calendarHolder.buttons.wrapper,
             _animDuration = 250,
-            _oldView = _.viewMode;
+            _oldView = _.viewMode,
+            hc = 'dp__hidden'; // hidden class
+
 
         _.viewMode = view;
 
@@ -1269,34 +1426,36 @@
 
 
             calViews.classList.add('dp__animate-out');
-            calViews.classList.remove('dp__hidden');
+            calViews.classList.remove(hc);
             if (_oldView !== 'calendar') _calendar.classList.add('dp__zooming', 'dp__animate-zoom');
-            picker.calendarHolder.btnPrev.classList.remove('dp__hidden');
-            picker.calendarHolder.btnNext.classList.remove('dp__hidden');
+            picker.calendarHolder.btnPrev.classList.remove(hc);
+            picker.calendarHolder.btnNext.classList.remove(hc);
+            buttons.classList.remove(hc);
             setTimeout(function () {
               calViews.classList.remove('dp__animate-out');
               if (_oldView !== 'calendar') _calendar.classList.remove('dp__animate-zoom');
             }, 10);
             monthsView.classList.add('dp__animate-out');
-            yearsView.classList.add('dp__hidden');
+            yearsView.classList.add(hc);
             setTimeout(function () {
               if (_oldView !== 'calendar') _calendar.classList.remove('dp__zooming');
-              monthsView.classList.add('dp__hidden');
+              monthsView.classList.add(hc);
               monthsView.classList.remove('dp__animate-out');
             }, _animDuration);
             break;
 
           case 'months':
-            picker.calendarHolder.btnPrev.classList.add('dp__hidden');
-            picker.calendarHolder.btnNext.classList.add('dp__hidden');
+            picker.calendarHolder.btnPrev.classList.add(hc);
+            picker.calendarHolder.btnNext.classList.add(hc);
+            buttons.classList.add(hc);
             calViews.classList.add('dp__animate-out');
             monthsView.classList.add('dp__animate-out');
-            monthsView.classList.remove('dp__hidden');
+            monthsView.classList.remove(hc);
             setTimeout(function () {
               monthsView.classList.remove('dp__animate-out');
             }, 10);
             setTimeout(function () {
-              calViews.classList.add('dp__hidden');
+              calViews.classList.add(hc);
               calViews.classList.remove('dp__animate-out');
             }, _animDuration);
             break;
@@ -1308,15 +1467,16 @@
             var _selYear = yearsView.querySelector('.dudp__year.selected');
 
             yearsView.scrollTop = _selYear.offsetTop - 120;
-            picker.calendarHolder.btnPrev.classList.add('dp__hidden');
-            picker.calendarHolder.btnNext.classList.add('dp__hidden');
+            picker.calendarHolder.btnPrev.classList.add(hc);
+            picker.calendarHolder.btnNext.classList.add(hc);
+            buttons.classList.add(hc);
             monthsView.classList.add('dp__animate-out');
             calViews.classList.add('dp__animate-out');
-            yearsView.classList.remove('dp__hidden');
+            yearsView.classList.remove(hc);
             setTimeout(function () {
-              calViews.classList.add('dp__hidden');
+              calViews.classList.add(hc);
               calViews.classList.remove('dp__animate-out');
-              monthsView.classList.add('dp__hidden');
+              monthsView.classList.add(hc);
               monthsView.classList.remove('dp__animate-out');
             }, _animDuration);
             break;
@@ -1368,16 +1528,15 @@
           }),
           weekDays: hf.createElem('div', {
             class: 'dudp__weekdays'
-          }, WEEK_DAYS_HTML, true),
+          }, hf.daysOfWeekDOM.call(_), true),
           datesHolder: hf.createElem('div', {
             class: 'dudp__dates-holder'
           })
-        }; // newCalEl.header.innerText = fns.formatDate(new Date(_year, _month, 1), MONTH_HEAD_FORMAT)
-
+        };
 
         hf.appendTo([hf.createElem('span', {
           class: 'cal-month'
-        }, MONTHS[_month]), hf.createElem('span', {
+        }, _.config.i18n.months[_month]), hf.createElem('span', {
           class: 'cal-year'
         }, _year)], newCalEl.header);
         hf.appendTo(newCalDates, newCalEl.datesHolder);
@@ -1405,24 +1564,12 @@
         if (_.config.range) {
           var _date = _.dateFrom ? _.dateFrom : new Date();
 
-          _.rangeFrom = _.dateFrom ? {
-            year: _.dateFrom.getFullYear(),
-            month: _.dateFrom.getMonth(),
-            date: _.dateFrom.getDate()
-          } : null;
-          _.rangeTo = _.dateTo ? {
-            year: _.dateTo.getFullYear(),
-            month: _.dateTo.getMonth(),
-            date: _.dateTo.getDate()
-          } : null;
+          _.rangeFrom = hf.dateToJson(_.dateFrom);
+          _.rangeTo = hf.dateToJson(_.dateTo);
           _.viewYear = _date.getFullYear();
           _.viewMonth = _date.getMonth();
         } else {
-          _.selected = {
-            year: _.date.getFullYear(),
-            month: _.date.getMonth(),
-            date: _.date.getDate()
-          };
+          _.selected = hf.dateToJson(_.date);
           _.viewYear = _.selected.year;
           _.viewMonth = _.selected.month;
         }
@@ -1443,10 +1590,10 @@
       value: function _setSelection() {
         var _ = this,
             picker = _.datepicker,
-            selected = _.config.range ? new Date() : new Date(_.selected.year, _.selected.month, _.selected.date);
+            selected = _.config.range ? new Date() : hf.jsonToDate(_.selected);
 
         picker.header.selectedYear.innerText = selected.getFullYear();
-        picker.header.selectedDate.innerText = hf.formatDate(selected, SELECTED_FORMAT);
+        picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT);
       }
       /**
        * Sets the value of the input
@@ -1470,10 +1617,10 @@
           var now = new Date(),
               _from = _empty ? null : hf.parseDate.call(_, _range[0]).date,
               _to = _empty ? null : hf.parseDate.call(_, _range[1]).date,
-              formattedFrom = _empty ? '' : hf.formatDate(_from, _.config.format),
-              outFrom = _empty ? '' : hf.formatDate(_from, _.config.outFormat || _.config.format),
-              formattedTo = _empty ? '' : hf.formatDate(_to, _.config.format),
-              outTo = _empty ? '' : hf.formatDate(_to, _.config.outFormat || _.config.format),
+              formattedFrom = _empty ? '' : hf.formatDate.call(_, _from, _.config.format),
+              outFrom = _empty ? '' : hf.formatDate.call(_, _from, _.config.outFormat || _.config.format),
+              formattedTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.format),
+              outTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.outFormat || _.config.format),
               valueDisp = _empty ? '' : _.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value;
 
           _.dateFrom = _from;
@@ -1512,7 +1659,7 @@
           };
         } else {
           var date = typeof value === 'string' ? _empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date : value,
-              formatted = _empty ? '' : hf.formatDate(date, _.config.format);
+              formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format);
           _.date = date;
           _.viewYear = date.getFullYear();
           _.viewMonth = date.getMonth();
@@ -1522,7 +1669,7 @@
 
           changeData = {
             _date: _empty ? null : _.date,
-            date: _empty ? null : hf.formatDate(_.date, _.config.outFormat || _.config.format)
+            date: _empty ? null : hf.formatDate.call(_, _.date, _.config.outFormat || _.config.format)
           };
         }
 
@@ -1538,7 +1685,7 @@
     }, {
       key: "formatDate",
       value: function formatDate(date, format) {
-        return hf.formatDate(date, format);
+        return hf.formatDate.call(this, date, format);
       }
       /**
        * Formats specified date range to string (for display)
@@ -1668,6 +1815,10 @@
       }
     });
   }
+
+  Object.defineProperty(duDatepicker, 'i18n', {
+    value: i18n
+  });
 
   return duDatepicker;
 
