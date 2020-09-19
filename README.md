@@ -342,6 +342,7 @@ The date picker offers the following `i18n` presets:
 | Portuguese        | `duDatepicker.i18n.pt` or `'pt'`  |
 | Vietnamese        | `duDatepicker.i18n.vi` or `'vi'`  |
 | Chinese           | `duDatepicker.i18n.zh` or `'zh'`  |
+
 ***Disclaimer: As of writing, preset list is based on the top 11 [Languages used on the Internet](https://en.wikipedia.org/wiki/Languages_used_on_the_Internet#Content_languages_for_websites)***
 
 To use the above presets, you can access it via `duDatepicker.i18n` or use its code.
