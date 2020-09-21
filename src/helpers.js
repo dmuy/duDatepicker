@@ -350,5 +350,10 @@ export const hf = {
             month: date.getMonth(),
             date: date.getDate()
         } : null
-    }
+    },
+    /**
+     * Determines if object is an HTML element
+     * @returns `true` if the object is an instance of an HTML element; `false` otherwise
+     */
+    isElement: function (obj) { return obj instanceof Element }
 }

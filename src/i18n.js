@@ -85,7 +85,9 @@ export const i18n = {
         'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'),
         'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'), 
         'dim._lun._mar._mer._jeu._ven._sam.'.split('_'), 
-        'di_lu_ma_me_je_ve_sa'.split('_'), 1),
+        'di_lu_ma_me_je_ve_sa'.split('_'), 1, {
+            btnCancel: 'Abandonner', btnClear: 'Effacer'
+        }),
     /**
      * German
      */

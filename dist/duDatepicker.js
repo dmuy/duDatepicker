@@ -438,6 +438,14 @@
         month: date.getMonth(),
         date: date.getDate()
       } : null;
+    },
+
+    /**
+     * Determines if object is an HTML element
+     * @returns `true` if the object is an instance of an HTML element; `false` otherwise
+     */
+    isElement: function isElement(obj) {
+      return obj instanceof Element;
     }
   };
 
@@ -525,7 +533,10 @@
     /**
      * French
      */
-    fr: new Locale('janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'), 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'), 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'), 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'), 'di_lu_ma_me_je_ve_sa'.split('_'), 1),
+    fr: new Locale('janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'), 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'), 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'), 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'), 'di_lu_ma_me_je_ve_sa'.split('_'), 1, {
+      btnCancel: 'Abandonner',
+      btnClear: 'Effacer'
+    }),
 
     /**
      * German
@@ -630,7 +641,9 @@
     // internationalization
     i18n: i18n.en,
     // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
-    firstDay: null
+    firstDay: null,
+    // parent element where the date picker DOM will be added
+    root: document.body
   };
 
   /**
@@ -650,6 +663,7 @@
           i18n = options.i18n;
 
       if (typeof i18n === 'string') options.i18n = duDatepicker.i18n[i18n];
+      if (typeof options.root === 'string') options.root = document.querySelector(options.root);else if (!hf.isElement(options.root)) delete options.root;
       this.config = hf.extend(DEFAULTS, options);
       /**
        * Determines if date picker is animating
@@ -950,7 +964,7 @@
         hf.appendTo([calendarHolder.btnPrev, calendarHolder.btnNext, calendarHolder.calendarViews.wrapper, calendarHolder.monthsView, calendarHolder.yearsView, buttons.wrapper], calendarHolder.wrapper);
         hf.appendTo(calendarHolder.wrapper, picker.wrapper);
         hf.appendTo(picker.wrapper, picker.container);
-        hf.appendTo(picker.container, document.body);
+        hf.appendTo(picker.container, _.config.root);
         if (_.config.inline) picker.container.setAttribute('inline', true); // Setup theme
 
         picker.wrapper.dataset.theme = _.input.dataset.theme || _.config.theme;
@@ -1709,9 +1723,7 @@
         var _ = this;
 
         setTimeout(function () {
-          hf.setAttributes(document.body, {
-            'datepicker-display': 'on'
-          });
+          document.body.setAttribute('datepicker-display', 'on');
 
           _._resetSelection();
 
@@ -1787,7 +1799,7 @@
       value: function destroy() {
         this._unbindInput();
 
-        document.body.removeChild(this.datepicker.container);
+        this.config.root.removeChild(this.datepicker.container);
         delete this.input[DATA_KEY];
       }
     }]);
@@ -1803,7 +1815,7 @@
     var args = arguments,
         arg0 = args[0],
         arg0IsList = arg0 instanceof NodeList || Array.isArray(arg0),
-        arg0IsElem = arg0 instanceof Element,
+        arg0IsElem = hf.isElement(arg0),
         inputs = typeof arg0 === 'string' ? document.querySelectorAll(arg0) : arg0IsList ? arg0 : arg0IsElem ? [arg0] : document.querySelectorAll(DEFAULT_CLASS),
         options = _typeof(arg0) === 'object' && !arg0IsList && !arg0IsElem ? arg0 : args[1] && _typeof(args[1]) === 'object' ? args[1] : {};
     Array.from(inputs).forEach(function (el) {

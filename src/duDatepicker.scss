@@ -437,7 +437,7 @@ $calHdrSize: 48px;        // calendar header height
 	.dcalendarpicker .dudp__wrapper { bottom: 0; }
 }
 
-body[datepicker-display='on'] { overflow: hidden; }
+[datepicker-display='on'] { overflow: hidden; }
 
 // themes
 @import './themes/red.scss';

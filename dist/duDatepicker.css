@@ -472,7 +472,7 @@
   }
 }
 
-body[datepicker-display='on'] {
+[datepicker-display='on'] {
   overflow: hidden;
 }
 

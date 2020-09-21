@@ -17,6 +17,11 @@ class _duDatePicker {
 		if (typeof i18n === 'string')
 			options.i18n = duDatepicker.i18n[i18n]
 
+		if (typeof options.root === 'string')
+			options.root = document.querySelector(options.root)
+		else if (!hf.isElement(options.root))
+			delete options.root
+
 		this.config = hf.extend(DEFAULTS, options)
 		/**
 		 * Determines if date picker is animating
@@ -278,7 +283,7 @@ class _duDatePicker {
 		hf.appendTo(calendarHolder.wrapper, picker.wrapper)
 
 		hf.appendTo(picker.wrapper, picker.container)
-		hf.appendTo(picker.container, document.body)
+		hf.appendTo(picker.container, _.config.root)
 
 		if (_.config.inline)
 			picker.container.setAttribute('inline', true)
@@ -978,7 +983,7 @@ class _duDatePicker {
 	show() {
 		let _ = this
 		setTimeout(() => {
-			hf.setAttributes(document.body, { 'datepicker-display': 'on' })
+			document.body.setAttribute('datepicker-display', 'on')
 			_._resetSelection()
 			_._setSelection()
 			_._setupCalendar()
@@ -1038,7 +1043,7 @@ class _duDatePicker {
 	 */
 	destroy() {
 		this._unbindInput()
-		document.body.removeChild(this.datepicker.container)
+		this.config.root.removeChild(this.datepicker.container)
 		delete this.input[DATA_KEY]
 	}
 }
@@ -1048,7 +1053,7 @@ class _duDatePicker {
  */
 function duDatepicker() {
 	let args = arguments,
-		arg0 = args[0], arg0IsList = arg0 instanceof NodeList || Array.isArray(arg0), arg0IsElem = arg0 instanceof Element,
+		arg0 = args[0], arg0IsList = arg0 instanceof NodeList || Array.isArray(arg0), arg0IsElem = hf.isElement(arg0),
 		inputs = typeof arg0 === 'string' ? document.querySelectorAll(arg0) :
 			(arg0IsList ? arg0 : (arg0IsElem ? [arg0] : document.querySelectorAll(DEFAULT_CLASS))),
 		options = typeof arg0 === 'object' && !(arg0IsList) && !(arg0IsElem) ? arg0 : args[1] && typeof args[1] === 'object' ? args[1] : {}
