@@ -1,7 +1,7 @@
 duDatepicker
 =========
 [![jquery version](https://img.shields.io/npm/dt/@dmuy/jquery-datepicker?style=flat-square)](https://www.npmjs.com/package/@dmuy/jquery-datepicker)
-[![jquery version](https://img.shields.io/npm/dt/@dmuy/datepicker?style=flat-square)](https://www.npmjs.com/package/@dmuy/datepicker)
+[![vanilla js](https://img.shields.io/npm/dt/@dmuy/datepicker?style=flat-square)](https://www.npmjs.com/package/@dmuy/datepicker)
 
 This is the enhanced date picker extracted from [DCalendar plugin](https://github.com/dmuy/DCalendar).
 
