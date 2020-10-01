@@ -26,18 +26,7 @@ Include in your app
 import '@dmuy/datepicker/dist/duDatepicker.css'
 import duDatepicker from '@dmuy/datepicker'
 ```
-
-#### Old version (with jQuery dependency)
-```
-npm i @dmuy/jquery-datepicker
-```
-
-Include in your app
-```javascript
-import '@dmuy/jquery-datepicker/duDatepicker.css'
-import duDatepicker from '@dmuy/jquery-datepicker'
-```
-
+[Older version (with jQuery dependency)](https://www.npmjs.com/package/@dmuy/jquery-datepicker)
 
 ### CDN
 Use the following if you don't want to host the `js` and `css` files:
