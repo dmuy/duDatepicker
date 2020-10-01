@@ -36,7 +36,7 @@ class _duDatePicker {
 		 * @type {HTMLInputElement}
 		 */
 		this.input = el
-		this.input.readonly = true
+		this.input.readOnly = true
 		this.fromEl = document.querySelector(this.config.fromTarget)
 		this.toEl = document.querySelector(this.config.toTarget)
 		this.input.hidden = this.config.range && (this.fromEl || this.toEl)
@@ -162,18 +162,18 @@ class _duDatePicker {
 		 * Unbinds input `click` and `keydown` event handlers
 		 */
 		this._unbindInput = function () {
-			_.input.readonly = false
+			_.input.readOnly = false
 			_.input.removeEventListener('click', _inputClick)
 			_.input.removeEventListener('keydown', _inputKeydown)
 
 			if (_.fromEl) {
-				_.fromEl.readonly = false
+				_.fromEl.readOnly = false
 				_.fromEl.removeEventListener('click', _inputClick)
 				_.fromEl.removeEventListener('keydown', _inputKeydown)
 			}
 
 			if (_.toEl) {
-				_.toEl.readonly = false
+				_.toEl.readOnly = false
 				_.toEl.removeEventListener('click', _inputClick)
 				_.toEl.removeEventListener('keydown', _inputKeydown)
 			}
@@ -183,13 +183,13 @@ class _duDatePicker {
 		hf.addEvent(_.input, 'keydown', _inputKeydown)
 
 		if (_.fromEl) {
-			_.fromEl.readonly = true
+			_.fromEl.readOnly = true
 			hf.addEvent(_.fromEl, 'click', _inputClick)
 			hf.addEvent(_.fromEl, 'keydown', _inputKeydown)
 		}
 
 		if (_.toEl) {
-			_.toEl.readonly = true
+			_.toEl.readOnly = true
 			hf.addEvent(_.toEl, 'click', _inputClick)
 			hf.addEvent(_.toEl, 'keydown', _inputKeydown)
 		}

@@ -1,6 +1,6 @@
 {
     "name": "@dmuy/datepicker",
-    "version": "2.0.0-rc2",
+    "version": "2.0.0",
     "description": "Date picker plugin for input fields.",
     "keywords": [
         "date-picker",
@@ -18,7 +18,8 @@
     "homepage": "https://dmuy.github.io/duDatepicker/",
     "main": "dist/duDatepicker.js",
     "files": [
-        "dist"
+        "dist",
+        "vue-datepicker.js"
     ],
     "scripts": {
         "build": "npm run compile && npm run minify",
