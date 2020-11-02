@@ -17,12 +17,15 @@ class _duDatePicker {
 		if (typeof i18n === 'string')
 			options.i18n = duDatepicker.i18n[i18n]
 
-		if (typeof options.root === 'string')
-			options.root = document.querySelector(options.root)
-		else if (!hf.isElement(options.root))
-			delete options.root
-
 		this.config = hf.extend(DEFAULTS, options)
+
+		let dp_root = this.config.root
+
+		if (typeof dp_root === 'string')
+			this.config.root = document.querySelector(dp_root)
+		else if (!hf.isElement(dp_root))
+			delete this.config.root
+
 		/**
 		 * Determines if date picker is animating
 		 */

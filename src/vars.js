@@ -72,5 +72,5 @@ export const DEFAULTS = {
     // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
     firstDay: null,
     // parent element where the date picker DOM will be added
-    root: document.body
+    root: 'body'
 }

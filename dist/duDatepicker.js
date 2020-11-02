@@ -643,7 +643,7 @@
     // first day of the week (1 - 7; Monday - Sunday); default will be fetched from i18n.firstDay
     firstDay: null,
     // parent element where the date picker DOM will be added
-    root: document.body
+    root: 'body'
   };
 
   /**
@@ -663,8 +663,9 @@
           i18n = options.i18n;
 
       if (typeof i18n === 'string') options.i18n = duDatepicker.i18n[i18n];
-      if (typeof options.root === 'string') options.root = document.querySelector(options.root);else if (!hf.isElement(options.root)) delete options.root;
       this.config = hf.extend(DEFAULTS, options);
+      var dp_root = this.config.root;
+      if (typeof dp_root === 'string') this.config.root = document.querySelector(dp_root);else if (!hf.isElement(dp_root)) delete this.config.root;
       /**
        * Determines if date picker is animating
        */
