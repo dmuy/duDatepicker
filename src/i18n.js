@@ -61,7 +61,7 @@ export const i18n = {
     es: new Locale('enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split('_'), null, 
         'domingo_lunes_martes_miércoles_jueves_viernes_sábado'.split('_'), 
         'dom._lun._mar._mié._jue._vie._sáb.'.split('_'), null, 1, {
-            btnCancel: 'Cancelar', btnClear: 'Despejar'
+            btnCancel: 'Cancelar', btnClear: 'Vaciar'
         }),
     /**
      * Turkish
