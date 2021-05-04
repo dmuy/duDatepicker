@@ -5,7 +5,7 @@ layout: default
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
 <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.2.2-rc/duDatepicker.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@2.0.1-rc/dist/duDatepicker.min.css">
 <style type="text/css">
 </style>
 <h2>Demo</h2>
@@ -22,6 +22,9 @@ layout: default
         <div class="col">
             <p>mmm d, yyyy format</p>
             <div class="input-group"><input class="form-control" type="text" placeholder="click me" id="dpicker2"></div>
+            <br>
+            <p>i18n (Russian)</p>
+            <div class="input-group"><input class="form-control" type="text" placeholder="click me" id="dpicker3"></div>
         </div>
         <div class="col-12 col-md-6">
             <p>Date range mode (with rangeFormatter config)</p>
@@ -34,30 +37,34 @@ layout: default
 {% capture docu_file %}{% include_relative README.md %}{% endcapture %}
 {{ docu_file | markdownify }}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@1.2.2-rc/duDatepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dmuy/duDatepicker@2.0.1-rc/dist/duDatepicker.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('#dpicker1').duDatepicker();
-        $('#dpicker2').duDatepicker({ format: 'mmm d, yyyy', auto: true });
-        $('#dpicker-dark').duDatepicker({ auto: true });
-        $('#daterange').duDatepicker({
-            format: 'mmm d, yyyy', range: true,
-            rangeFormatter: function (from, to) {
-                var fromFormat = 'mmmm d, yyyy', toFormat = 'mmmm d, yyyy';
+	document.addEventListener("DOMContentLoaded", function() {
+		duDatepicker('#dpicker1');
+		duDatepicker('#dpicker2', { format: 'mmm d, yyyy', auto: true });
+		duDatepicker('#dpicker-dark', { auto: true });
+		duDatepicker('#dpicker3', { auto: true, i18n: 'ru' });
+		duDatepicker('#daterange', {
+            range: true,
+            events: {
+            	onRangeFormat: function (from, to) {
+            		var fromFormat = 'mmmm d, yyyy', toFormat = 'mmmm d, yyyy';
 
-                if (from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear()) {
-                    fromFormat = 'mmmm d'
-                    toFormat = 'd, yyyy'
-                } else if (from.getFullYear() === to.getFullYear()) {
-                    fromFormat = 'mmmm d'
-                    toFormat = 'mmmm d, yyyy'
-                }
+            		console.log(from, to);
 
-                return from.getTime() === to.getTime() ?
-                    this.formatDate(from, 'mmmm d, yyyy') :
-                    [this.formatDate(from, fromFormat), this.formatDate(to, toFormat)].join('-');
+            		if (from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear()) {
+						fromFormat = 'mmmm d'
+						toFormat = 'd, yyyy'
+					} else if (from.getFullYear() === to.getFullYear()) {
+						fromFormat = 'mmmm d'
+						toFormat = 'mmmm d, yyyy'
+					}
+
+					return from.getTime() === to.getTime() ?
+						this.formatDate(from, 'mmmm d, yyyy') :
+						[this.formatDate(from, fromFormat), this.formatDate(to, toFormat)].join('-');
+            	}
             }
         });
-    });
+	});
 </script>
