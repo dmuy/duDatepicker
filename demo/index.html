@@ -52,9 +52,9 @@
 		<h2>Date picker</h2>
 		<table id="mycalendar"></table>
 		<input type="text" id="datepicker1" data-maxdate="today">
-		<input type="text" id="datepicker2" data-theme="dark">
+		<input type="text" id="datepicker2">
 		<h3>Range</h3>
-		<input type="text" id="daterange" data-theme="dark">
+		<input type="text" id="daterange">
 		<input type="text" id="range-from">
 		<input type="text" id="range-to">
 		<input type="text" id="datepicker3">
@@ -68,6 +68,7 @@
 	</div>
 	<script type="text/javascript" src="../dist/duDatepicker.min.js"></script>
 	<script type="text/javascript">
+		duDatepicker.defaults({ auto: true, theme: 'dark', format: 'mmmm d, yyyy' });
 		function log (message) {
 			document.querySelector('#loggerTxt').value = message
 		}
@@ -81,7 +82,7 @@
 				days = 'domenica_lunedì_martedì_mercoledì_giovedì_venerdì_sabato'.split('_');
 
 			duDatepicker('#datepicker1', {
-				format: 'mmmm d, yyyy', range: true, clearBtn: true,
+				range: true, clearBtn: true,
 				// i18n: {
 				// 	months: months,
 				// 	shortMonths: months.map(function(m) { return m.substr(0, 3) }),
@@ -117,7 +118,6 @@
 			})
 
 			duDatepicker('#datepicker2, #datepicker3', {
-				auto: true, //inline: true,
 				format: 'DD mmmm d, yyyy', //range: true,
 				i18n: 'ru',
 				// firstDay: 2,
@@ -131,7 +131,7 @@
 			})
 
 			duDatepicker('#daterange', {
-				range: true, format: 'mmmm d, yyyy', outFormat: 'yyyy-mm-dd', fromTarget: '#range-from', toTarget: '#range-to',
+				range: true, outFormat: 'yyyy-mm-dd', fromTarget: '#range-from', toTarget: '#range-to',
 				clearBtn: true, theme: 'yellow', maxDate: 'today',
 				// i18n: 'fa',
 				// firstDay: 7,

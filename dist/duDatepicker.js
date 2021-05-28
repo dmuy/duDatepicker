@@ -49,6 +49,21 @@
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   /**
    * Helper functions
    */
@@ -652,6 +667,10 @@
 
   var _duDatePicker = /*#__PURE__*/function () {
     /**
+     * Default configurations
+     */
+
+    /**
      * Creates date picker
      * @param {HTMLInputElement} el Input element
      * @param {Object} options Date picker options
@@ -663,7 +682,7 @@
           i18n = options.i18n;
 
       if (typeof i18n === 'string') options.i18n = duDatepicker.i18n[i18n];
-      this.config = hf.extend(DEFAULTS, options);
+      this.config = hf.extend(_duDatePicker.default_configs || DEFAULTS, options);
       var dp_root = this.config.root;
       if (typeof dp_root === 'string') this.config.root = document.querySelector(dp_root);else if (!hf.isElement(dp_root)) delete this.config.root;
       /**
@@ -1812,6 +1831,8 @@
    */
 
 
+  _defineProperty(_duDatePicker, "default_configs", null);
+
   function duDatepicker() {
     var args = arguments,
         arg0 = args[0],
@@ -1832,6 +1853,10 @@
   Object.defineProperty(duDatepicker, 'i18n', {
     value: i18n
   });
+
+  duDatepicker.defaults = function (configs) {
+    _duDatePicker.default_configs = hf.extend(DEFAULTS, configs);
+  };
 
   return duDatepicker;
 

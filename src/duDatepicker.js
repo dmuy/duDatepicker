@@ -7,6 +7,10 @@ import { DICT_DEFAULTS, i18n } from './i18n'
  */
 class _duDatePicker {
 	/**
+	 * Default configurations
+	 */
+	static default_configs = null;
+	/**
 	 * Creates date picker
 	 * @param {HTMLInputElement} el Input element
 	 * @param {Object} options Date picker options
@@ -17,7 +21,7 @@ class _duDatePicker {
 		if (typeof i18n === 'string')
 			options.i18n = duDatepicker.i18n[i18n]
 
-		this.config = hf.extend(DEFAULTS, options)
+		this.config = hf.extend(_duDatePicker.default_configs || DEFAULTS, options)
 
 		let dp_root = this.config.root
 
@@ -1076,6 +1080,10 @@ function duDatepicker() {
 Object.defineProperty(duDatepicker, 'i18n', {
 	value: i18n
 })
+
+duDatepicker.defaults = function (configs) {
+	_duDatePicker.default_configs = hf.extend(DEFAULTS, configs)
+}
 
 export default duDatepicker
 
