@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="../dist/duDatepicker.min.css">
+	<link rel="stylesheet" type="text/css" href="../dist/duDatepicker.css">
 	<link rel="stylesheet" type="text/css" href="../dist/duDatepicker-theme.css">
 	<style type="text/css">
 		html,
@@ -58,6 +58,8 @@
 		<input type="text" id="range-from">
 		<input type="text" id="range-to">
 		<input type="text" id="datepicker3">
+		<h3>Multi select</h3>
+		<input type="text" id="multipicker" value="07/01/2021,06/01/2021">
 		<div id="logger">
 			<span>Logger:</span>
 			<textarea id="loggerTxt" rows="10" disabled></textarea>
@@ -66,7 +68,7 @@
 			duDatepicker root element
 		</div>
 	</div>
-	<script type="text/javascript" src="../dist/duDatepicker.min.js"></script>
+	<script type="text/javascript" src="../dist/duDatepicker.js"></script>
 	<script type="text/javascript">
 		duDatepicker.defaults({ auto: true, theme: 'dark', format: 'mmmm d, yyyy' });
 		function log (message) {
@@ -119,7 +121,7 @@
 
 			duDatepicker('#datepicker2, #datepicker3', {
 				format: 'DD mmmm d, yyyy', //range: true,
-				i18n: 'ru',
+				// i18n: 'ru',
 				// firstDay: 2,
 				events: {
 					dateChanged: function (data) {
@@ -147,6 +149,17 @@
 				}
 			})
 			// duDatepicker('#daterange', 'setValue', 'August 2, 2020-August 5, 2020')
+
+			duDatepicker('#multipicker', {
+				theme: 'blue', multiple: true, format: 'mm/dd/yyyy',
+				// value: '07/01/2021,06/01/2021',
+				value: ['06/01/2021','07/01/2021'],
+				events: {
+					dateChanged: function(data) {
+						console.log('multipicker.dateChanged', data)
+					}
+				}
+			})
 		})
 	</script>
 </body>

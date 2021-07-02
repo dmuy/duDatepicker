@@ -64,6 +64,39 @@
     return obj;
   }
 
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+  }
+
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+  }
+
+  function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
   /**
    * Helper functions
    */
@@ -640,6 +673,8 @@
     fromTarget: null,
     // Date to target input element (range mode)
     toTarget: null,
+    // Determines if date picker can select multiple dates
+    multiple: false,
     // callback functions
     events: {
       // Callback function on date selection
@@ -683,6 +718,7 @@
 
       if (typeof i18n === 'string') options.i18n = duDatepicker.i18n[i18n];
       this.config = hf.extend(_duDatePicker.default_configs || DEFAULTS, options);
+      if (this.config.multiple && this.config.format.indexOf(',') >= 0) throw new Error('For multiple dates mode, comma (,) should not be used in the format configuration.');
       var dp_root = this.config.root;
       if (typeof dp_root === 'string') this.config.root = document.querySelector(dp_root);else if (!hf.isElement(dp_root)) delete this.config.root;
       /**
@@ -775,7 +811,7 @@
         }
       }; // set default value
 
-      if (_.config.value) {
+      if (_.config.value && !_.config.range && !_.config.multiple) {
         _.input.value = _.config.value;
 
         _.input.setAttribute('value', _.config.value);
@@ -831,6 +867,31 @@
             });
           }
         }
+      } else if (_.config.multiple) {
+        var dates = [];
+
+        if (_.input.value) {
+          _.input.value.split(',').forEach(function (v) {
+            dates.push(hf.parseDate.call(_, v).date);
+          });
+        } else if (_.config.value) {
+          var isArray = Array.isArray(_.config.value),
+              values = isArray ? _.config.value : _.config.value.split(',');
+          values.forEach(function (v) {
+            dates.push(hf.parseDate.call(_, v).date);
+          });
+        }
+
+        dates = dates.sort(function (a, b) {
+          return a > b ? 1 : a < b ? -1 : 0;
+        });
+        this.dates = _toConsumableArray(dates);
+        this.selectedDates = _toConsumableArray(dates);
+        hf.setAttributes(_.input, {
+          'value': dates.map(function (d) {
+            return hf.formatDate.call(_, d, _.config.outFormat || _.config.format);
+          }).join(',')
+        }); // _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
       } else {
         this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date;
         this.selected = hf.dateToJson(_.date);
@@ -980,7 +1041,7 @@
         hf.appendTo(_._getYears(), calendarHolder.yearsView);
         if (_.config.clearBtn) hf.appendTo(buttons.btnClear, buttons.wrapper);
         if (_.config.cancelBtn) hf.appendTo(buttons.btnCancel, buttons.wrapper);
-        if (!_.config.auto || _.config.range) hf.appendTo(buttons.btnOk, buttons.wrapper);
+        if (!_.config.auto || _.config.range || _.config.multiple) hf.appendTo(buttons.btnOk, buttons.wrapper);
         hf.appendTo([calendarHolder.btnPrev, calendarHolder.btnNext, calendarHolder.calendarViews.wrapper, calendarHolder.monthsView, calendarHolder.yearsView, buttons.wrapper], calendarHolder.wrapper);
         hf.appendTo(calendarHolder.wrapper, picker.wrapper);
         hf.appendTo(picker.wrapper, picker.container);
@@ -995,25 +1056,28 @@
         });
         if (_.config.inline) hf.addEvent(picker.wrapper, 'blur', function () {
           _.hide();
-        });
+        }); // arrows click event
+
         hf.addEvent(calendarHolder.btnPrev, 'click', function () {
           _._move('prev');
         });
         hf.addEvent(calendarHolder.btnNext, 'click', function () {
           _._move('next');
-        });
+        }); // month & year click events
+
         hf.addEvent(calendarHolder.calendarViews.wrapper, 'click', function (e) {
           if (e.target.classList.contains('cal-year')) {
             _._switchView('years');
           } else if (e.target.classList.contains('cal-month')) {
             _._switchView('months');
           }
-        });
+        }); // clear button event
+
         if (_.config.clearBtn) hf.addEvent(buttons.btnClear, 'click', function () {
           _.setValue('');
 
           _.hide();
-        });
+        }); // overlay events
 
         if (_.config.overlayClose) {
           hf.addEvent(picker.container, 'click', function () {
@@ -1022,13 +1086,15 @@
           hf.addEvent(picker.wrapper, 'click', function (e) {
             e.stopPropagation();
           });
-        }
+        } // cancel button event
+
 
         if (_.config.cancelBtn) {
           hf.addEvent(buttons.btnCancel, 'click', function () {
             _.hide();
           });
-        }
+        } // ok button event
+
 
         hf.addEvent(buttons.btnOk, 'click', function () {
           if (_.config.range) {
@@ -1042,6 +1108,12 @@
             _.dateTo = _to;
 
             _.setValue([hf.formatDate.call(_, _from, _.config.format), hf.formatDate.call(_, _to, _.config.format)].join(_.config.rangeDelim));
+          } else if (_.config.multiple) {
+            _.dates = _toConsumableArray(_.selectedDates);
+
+            _.setValue(_.dates.map(function (d) {
+              return hf.formatDate.call(_, d, _.config.format);
+            }));
           } else {
             var _date = hf.jsonToDate(_.selected);
 
@@ -1109,7 +1181,7 @@
             day = 1,
             now = new Date(),
             today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-            selected = _.config.range ? null : hf.jsonToDate(_.selected),
+            selected = _.config.range || _.config.multiple ? null : hf.jsonToDate(_.selected),
             rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
             rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null,
             date = new Date(year, month, day),
@@ -1117,7 +1189,17 @@
             nmStartDay = 1,
             weeks = [],
             firstDay = _.config.firstDay || _.config.i18n.firstDay,
-            lastDay = (firstDay + 6) % 7;
+            lastDay = (firstDay + 6) % 7,
+            addClassToDayEl = function addClassToDayEl(dayEl, date) {
+          if (_._dateDisabled(date)) dayEl.classList.add('disabled');
+          if (_._inRange(date)) dayEl.classList.add('in-range');
+          if (date.getTime() === today.getTime()) dayEl.classList.add('current');
+          if (!_.config.range && !_.config.multiple && date.getTime() === selected.getTime() || _.config.multiple && _.dates.find(function (x) {
+            return x.getTime() === date.getTime();
+          })) dayEl.classList.add('selected');
+          if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
+          if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+        };
 
         for (var week = 1; week <= 6; week++) {
           var daysOfWeek = [];
@@ -1138,12 +1220,20 @@
             dayEl.dataset.date = day;
             dayEl.dataset.month = month;
             dayEl.dataset.year = year;
-            if (date.getTime() === today.getTime()) dayEl.classList.add('current');
-            if (_._dateDisabled(date)) dayEl.classList.add('disabled');
-            if (_._inRange(date)) dayEl.classList.add('in-range');
-            if (!_.config.range && date.getTime() === selected.getTime()) dayEl.classList.add('selected');
-            if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
-            if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+            /* if (date.getTime() === today.getTime())
+            	dayEl.classList.add('current')
+            		if (_._dateDisabled(date))
+            	dayEl.classList.add('disabled')
+            if (_._inRange(date))
+            	dayEl.classList.add('in-range')
+            		if (!_.config.range && date.getTime() === selected.getTime())
+            	dayEl.classList.add('selected')
+            if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime())
+            	dayEl.classList.add('range-from')
+            if (_.config.range && rangeTo && date.getTime() === rangeTo.getTime())
+            	dayEl.classList.add('range-to') */
+
+            addClassToDayEl(dayEl, date);
 
             if (week === 1 && dayOfWeek === firstDay % 7) {
               return "break";
@@ -1181,12 +1271,20 @@
                   dayEl.dataset.year = pm.getFullYear();
                   dayEl.innerText = pm.getDate();
                   dayEl.classList.add('dudp__pm');
-                  if (_._dateDisabled(pm)) dayEl.classList.add('disabled');
-                  if (_._inRange(pm)) dayEl.classList.add('in-range');
-                  if (pm.getTime() === today.getTime()) dayEl.classList.add('current');
-                  if (!_.config.range && pm.getTime() === selected.getTime()) dayEl.classList.add('selected');
-                  if (_.config.range && rangeFrom && pm.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
-                  if (_.config.range && rangeTo && pm.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+                  /* if (_._dateDisabled(pm))
+                  	dayEl.classList.add('disabled')
+                  if (_._inRange(pm))
+                  	dayEl.classList.add('in-range')
+                  		if (pm.getTime() === today.getTime())
+                  	dayEl.classList.add('current')
+                  if (!_.config.range && pm.getTime() === selected.getTime())
+                  	dayEl.classList.add('selected')
+                  if (_.config.range && rangeFrom && pm.getTime() === rangeFrom.getTime())
+                  	dayEl.classList.add('range-from')
+                  if (_.config.range && rangeTo && pm.getTime() === rangeTo.getTime())
+                  	dayEl.classList.add('range-to') */
+
+                  addClassToDayEl(dayEl, pm);
                 }
               })();
             } // Last week
@@ -1206,12 +1304,20 @@
                     dayEl.dataset.year = nm.getFullYear();
                     dayEl.innerText = nm.getDate();
                     dayEl.classList.add('dudp__nm');
-                    if (_._dateDisabled(nm)) dayEl.classList.add('disabled');
-                    if (_._inRange(nm)) dayEl.classList.add('in-range');
-                    if (nm.getTime() === today.getTime()) dayEl.classList.add('current');
-                    if (!_.config.range && nm.getTime() === selected.getTime()) dayEl.classList.add('selected');
-                    if (_.config.range && rangeFrom && nm.getTime() === rangeFrom.getTime()) dayEl.classList.add('range-from');
-                    if (_.config.range && rangeTo && nm.getTime() === rangeTo.getTime()) dayEl.classList.add('range-to');
+                    /* if (_._dateDisabled(nm))
+                    	dayEl.classList.add('disabled')
+                    if (_._inRange(nm))
+                    	dayEl.classList.add('in-range')
+                    		if (nm.getTime() === today.getTime())
+                    	dayEl.classList.add('current')
+                    if (!_.config.range && nm.getTime() === selected.getTime())
+                    	dayEl.classList.add('selected')
+                    if (_.config.range && rangeFrom && nm.getTime() === rangeFrom.getTime())
+                    	dayEl.classList.add('range-from')
+                    if (_.config.range && rangeTo && nm.getTime() === rangeTo.getTime())
+                    	dayEl.classList.add('range-to') */
+
+                    addClassToDayEl(dayEl, nm);
                   }
                 })();
               }
@@ -1269,29 +1375,39 @@
                   delem.classList[_inRange ? 'add' : 'remove']('in-range');
                 });
               } else {
-                _.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
-                  var _deYear = delem.dataset.year,
-                      _deMonth = delem.dataset.month,
-                      _deDate = delem.dataset.date;
-                  delem.classList[_year === _deYear && _month === _deMonth && _date === _deDate ? 'add' : 'remove']('selected');
-                });
+                if (_.config.multiple) {
+                  var isSelected = _this.classList.contains('selected');
 
-                _this.classList.add('selected');
+                  _this.classList[isSelected ? 'remove' : 'add']('selected');
 
-                _.selected = {
-                  year: _year,
-                  month: _month,
-                  date: _date
-                };
+                  if (isSelected) _.selectedDates = _.selectedDates.filter(function (sd) {
+                    return sd.getTime() !== _selected.getTime();
+                  });else _.selectedDates.push(_selected);
 
-                _._setSelection();
+                  _._setSelection();
+                } else {
+                  _.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
+                    var _deYear = delem.dataset.year,
+                        _deMonth = delem.dataset.month,
+                        _deDate = delem.dataset.date;
+                    delem.classList[_year === _deYear && _month === _deMonth && _date === _deDate ? 'add' : 'remove']('selected');
+                  });
 
-                if (_.config.auto) {
-                  _.date = _selected;
+                  _.selected = {
+                    year: _year,
+                    month: _month,
+                    date: _date
+                  };
 
-                  _.setValue(_.date);
+                  _._setSelection();
 
-                  _.hide();
+                  if (_.config.auto) {
+                    _.date = _selected;
+
+                    _.setValue(_.date);
+
+                    _.hide();
+                  }
                 }
               }
 
@@ -1602,6 +1718,13 @@
           _.rangeTo = hf.dateToJson(_.dateTo);
           _.viewYear = _date.getFullYear();
           _.viewMonth = _date.getMonth();
+        } else if (_.config.multiple) {
+          var _date2 = _.dates.length > 0 ? _.dates.reduce(function (a, b) {
+            return a < b ? a : b;
+          }) : new Date();
+
+          _.viewYear = _date2.getFullYear();
+          _.viewMonth = _date2.getMonth();
         } else {
           _.selected = hf.dateToJson(_.date);
           _.viewYear = _.selected.year;
@@ -1610,7 +1733,9 @@
 
         _.datepicker.calendarHolder.monthsView.querySelectorAll('.dudp__month').forEach(function (melem) {
           var _meMonth = parseInt(melem.dataset.month),
-              _month = _.config.range ? _.dateFrom ? _.dateFrom.getMonth() : null : _.selected.month;
+              _month = _.config.range ? _.dateFrom ? _.dateFrom.getMonth() : null : _.config.multiple ? _.dates.length > 0 ? _.dates.reduce(function (a, b) {
+            return a < b ? a : b;
+          }) : null : _.selected.month;
 
           melem.classList[_meMonth === _month ? 'add' : 'remove']('selected');
         });
@@ -1624,7 +1749,9 @@
       value: function _setSelection() {
         var _ = this,
             picker = _.datepicker,
-            selected = _.config.range ? new Date() : hf.jsonToDate(_.selected);
+            selected = _.config.range ? new Date() : _.config.multiple ? _.selectedDates.length > 0 ? _.selectedDates.reduce(function (a, b) {
+          return a < b ? a : b;
+        }) : new Date() : hf.jsonToDate(_.selected);
 
         picker.header.selectedYear.innerText = selected.getFullYear();
         picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT);
@@ -1690,6 +1817,34 @@
             _dateTo: _to,
             dateTo: _empty ? null : formattedTo,
             value: valueDisp
+          };
+        } else if (_.config.multiple) {
+          var dates = [],
+              isArray = Array.isArray(value),
+              values = isArray ? value : value.split(',');
+          values.forEach(function (v) {
+            dates.push(hf.parseDate.call(_, v).date);
+          });
+          var starting = dates.length > 0 ? dates.reduce(function (a, b) {
+            return a < b ? a : b;
+          }) : new Date();
+          if (dates.length > 0) dates = dates.sort(function (a, b) {
+            return a > b ? 1 : a < b ? -1 : 0;
+          });
+          _.dates = _toConsumableArray(dates);
+          _.viewYear = starting.getFullYear();
+          _.viewMonth = starting.getMonth();
+          hf.setAttributes(_.input, {
+            'value': dates.map(function (d) {
+              return hf.formatDate.call(_, d, _.config.outFormat || _.config.format);
+            }).join(',')
+          }); // _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
+
+          changeData = {
+            _dates: _empty ? [] : _.dates,
+            dates: _empty ? [] : _.dates.map(function (d) {
+              return hf.formatDate.call(_, d, _.config.outFormat || _.config.format);
+            })
           };
         } else {
           var date = typeof value === 'string' ? _empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date : value,
