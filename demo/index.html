@@ -70,12 +70,12 @@
 	</div>
 	<script type="text/javascript" src="../dist/duDatepicker.js"></script>
 	<script type="text/javascript">
-		duDatepicker.defaults({ auto: true, theme: 'dark', format: 'mmmm d, yyyy' });
 		function log (message) {
 			document.querySelector('#loggerTxt').value = message
 		}
 
 		document.addEventListener("DOMContentLoaded", function() {
+			duDatepicker.defaults({ auto: true, theme: 'dark', format: 'mmmm d, yyyy' });
 			document.querySelector('#datepicker1').addEventListener('datechanged', function(e) {
 				console.log('New date', e.data, this.value)
 			})

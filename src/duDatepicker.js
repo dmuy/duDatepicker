@@ -1096,7 +1096,7 @@ class _duDatePicker {
 		document.body.removeAttribute('datepicker-display')
 		setTimeout(() => {
 			_._switchView('calendar') // Reset view to calendar
-			_.datepicker.container.classList.remove('dp__closing', 'dp__open')
+			hf.removeClass(_.datepicker.container, ['dp__closing', 'dp__open'])
 
 			if (_.config.events && _.config.events.hidden)
 				_.config.events.hidden.call(_, _)

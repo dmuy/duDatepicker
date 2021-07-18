@@ -7,9 +7,9 @@ export const hf = {
      * @param {Element|Element[]} elem Element(s) to append to parent
      * @param {Element} to Parent element
      */
-    appendTo: function (elem, to, idx) {
+    appendTo (elem, to, idx) {
         if (Array.isArray(elem)) {
-            elem.forEach(function (el) {
+            elem.forEach(el => {
                 if (idx === 0) to.insertBefore(el, to.childNodes[idx] || null)
                 else to.appendChild(el)
             })
@@ -24,15 +24,13 @@ export const hf = {
      * @param {string} event Event name
      * @param {Function} handler Event handler
      */
-    addEvent: function (elem, event, handler) {
+    addEvent (elem, event, handler) {
         function listenEvent(el, evt, fn) {
             el.addEventListener(evt, fn, false)
         }
 
         if (Array.isArray(elem)) {
-            elem.forEach(function (e) {
-                listenEvent(e, event, handler)
-            })
+            elem.forEach(e => listenEvent(e, event, handler))
         } else listenEvent(elem, event, handler)
     },
     /**
@@ -41,20 +39,20 @@ export const hf = {
      * @param {string} event Event name
      * @param {Function} handler Event handler
      */
-    removeEvent: function (elem, event, handler) {
+    removeEvent (elem, event, handler) {
         function delEvent(el, evt, fn) {
             el.removeEventListener(evt, fn, false)
         }
 
         if (Array.isArray(elem)) {
-            elem.forEach(function (e) { delEvent(e, event, handler) })
+            elem.forEach(e => delEvent(e, event, handler))
         } else delEvent(elem, event, handler)
     },
     /**
      * Removes child nodes
      * @param {Element} elem Html element to empty
      */
-    empty: function (elem) {
+    empty (elem) {
         while (elem.firstChild) { elem.removeChild(elem.firstChild) }
     },
     /**
@@ -65,7 +63,7 @@ export const hf = {
      * @param {string|Element} content Element content: text or HTML element(s)
      * @param {Boolean} isHtml Determines if `content` specified should added as an html element
      */
-    createElem: function (tag, attributes, content, isHtml) {
+    createElem (tag, attributes, content, isHtml) {
         let el = document.createElement(tag)
 
         if (typeof content !== 'undefined')
@@ -81,7 +79,7 @@ export const hf = {
      * @param {Element} el Html element
      * @param {Object} attrs Attribute object
      */
-    setAttributes: function (el, attrs) {
+    setAttributes (el, attrs) {
         for(let attr in attrs) { el.setAttribute(attr, attrs[attr]) }
     },
     /**
@@ -89,20 +87,42 @@ export const hf = {
      * @param {Element} el HTML element
      * @param {Object} styles Styles object
      */
-    setStyles: function (el, styles) {
+    setStyles (el, styles) {
         for (let style in styles) { el.style[style] = styles[style] }
+    },
+    /**
+     * Adds class name(s) to the element
+     * @param {Element} el HTML element
+     * @param {string|string[]} className Class name to remove
+     */
+    addClass (el, className) {
+        if (Array.isArray(className)) {
+            className.forEach(cn => el.classList.add(cn))
+        }
+        else el.classList.add(className)
+    },
+    /**
+     * Removes class name(s) of an element
+     * @param {Element} el HTML element
+     * @param {string|string[]} className Class name to remove
+     */
+    removeClass (el, className) {
+        if (Array.isArray(className)) {
+            className.forEach(cn => el.classList.remove(cn))
+        }
+        else el.classList.remove(className)
     },
     /**
      * Gets the number of days based on the month of the given date
      * @param {Date} date Date object
      */
-    getDaysCount: function (date) { return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() },
+    getDaysCount (date) { return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() },
     /**
      * Calculates date difference
      * @param {Date} from Date from
      * @param {Date} to Date to
      */
-    dateDiff: function (from, to) {
+    dateDiff (from, to) {
         // Take the difference between the dates and divide by milliseconds per day.
         // Round to nearest whole number to deal with DST.
         return Math.round((to - from) / (1000 * 60 * 60 * 24))
@@ -110,7 +130,7 @@ export const hf = {
     /**
      * Returns the document width and height
      */
-    screenDim: function () {
+    screenDim () {
         let doc = document.documentElement
 
         return {
@@ -122,7 +142,7 @@ export const hf = {
      * Calculates the offset of the given html element
      * @param {Element} el HTML element
      */
-    calcOffset: function (el) {
+    calcOffset (el) {
         let doc = document.documentElement || document.body,
             rect = el.getBoundingClientRect(),
             offset = {
@@ -146,7 +166,7 @@ export const hf = {
     * Vanilla JavaScript version of jQuery.extend()
     * @see {@link https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/}
     */
-    extend: function () {
+    extend () {
         // Variables
         let extended = {}
         let deep = false
@@ -186,12 +206,12 @@ export const hf = {
      * @param {Date} date Date to format
      * @param {string} format Date format pattern
      */
-    formatDate: function (date, format) {
+    formatDate (date, format) {
         let d = new Date(date), day = d.getDate(), m = d.getMonth(), y = d.getFullYear(),
             i18n = this.config.i18n,
             mVal = m + 1
 
-        return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|DD|D|dd|d)/g, function (e) {
+        return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|DD|D|dd|d)/g, (e) => {
             switch (e) {
                 case 'd':
                     return day
@@ -221,7 +241,7 @@ export const hf = {
      * @param {string} date Date string to parse
      * @param {string=} dateFormat Format of the date string; `config.format` will be used if not specified
      */
-    parseDate: function (date, format) {
+    parseDate (date, format) {
         let _ = this, _format = typeof format === 'undefined' ? _.config.format : format,
             dayLength = (_format.match(/d/g) || []).length,
             monthLength = (_format.match(/m/g) || []).length,
@@ -300,24 +320,31 @@ export const hf = {
      * @param {HTMLInputElement} el HTML input element
      * @param {Object} data Event data
      */
-    triggerChange: function (el, data) {
-        el.dispatchEvent(new Event('change'))
-        el.dispatchEvent(new Event('onchange'))
+    triggerChange (el, data) {
+        let change = document.createEvent('Event')
+        let onChange = document.createEvent('Event')
+        
+        change.initEvent('change', false, false)
+        onChange.initEvent('onchange', false, false)
+
+        el.dispatchEvent(change)
+        el.dispatchEvent(onChange)
 
         function CustomEvent(data) {
             let changeEvt = document.createEvent('CustomEvent')
 
-            changeEvt.initCustomEvent('datechanged', false, false)
+            changeEvt.initCustomEvent('datechanged', false, false, null)
             changeEvt.data = data
 
             return changeEvt
         }
+
         el.dispatchEvent(new CustomEvent(data))
     },
     /**
      * Creates HTML for the days of the week
      */
-    daysOfWeekDOM: function() {
+    daysOfWeekDOM () {
         let config = this.config,
             locale = config.i18n,
             firstDay = config.firstDay || locale.firstDay
@@ -337,14 +364,14 @@ export const hf = {
      * @param {number} o.month Month value
      * @param {number} o.date Date value
      */
-    jsonToDate: function(o) {
+    jsonToDate (o) {
         return new Date(o.year, o.month, o.date)
     },
     /**
      * Converts Date object to JSON
      * @param {Date} date Date object
      */
-    dateToJson: function(date) {
+    dateToJson (date) {
         return date ? {
             year: date.getFullYear(),
             month: date.getMonth(),
@@ -355,5 +382,5 @@ export const hf = {
      * Determines if object is an HTML element
      * @returns `true` if the object is an instance of an HTML element; `false` otherwise
      */
-    isElement: function (obj) { return obj instanceof Element }
+    isElement (obj) { return obj instanceof Element }
 }
