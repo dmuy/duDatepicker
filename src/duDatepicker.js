@@ -468,8 +468,9 @@ class _duDatePicker {
 					dayEl.classList.add('current')
 
 				if ((!_.config.range && !_.config.multiple && date.getTime() === selected.getTime()) ||
-					(_.config.multiple && _.dates.find(x => x.getTime() === date.getTime())))
+					(_.config.multiple && _.dates.find(x => x.getTime() === date.getTime()))) {
 					dayEl.classList.add('selected')
+				}
 
 				if (_.config.range && rangeFrom && date.getTime() === rangeFrom.getTime())
 					dayEl.classList.add('range-from')
@@ -494,13 +495,13 @@ class _duDatePicker {
 				dayEl.dataset.month = month
 				dayEl.dataset.year = year
 
-				addClassToDayEl(dayEl, date)
-
 				if (week === 1 && dayOfWeek === firstDay % 7) {
 					break
 				} else if (dayOfWeek !== lastDay) {
+					addClassToDayEl(dayEl, date)
 					dayEl.innerText = day++
 				} else {
+					addClassToDayEl(dayEl, date)
 					dayEl.innerText = day++
 					break
 				}
@@ -513,23 +514,23 @@ class _duDatePicker {
 					let pm = new Date(year, month - 1, 1), pmDays = hf.getDaysCount(pm)
 
 					for (let a = 1; a <= 7; a++) {
-						pm.setDate(pmDays--)
+						pm.setDate(pmDays)
 
 						let dayEl = daysOfWeek.find(d => parseInt(d.dataset.dow) === pm.getDay())
 
 						if (dayEl.innerText !== '')
 							continue
 
+						pmDays--
 						dayEl.dataset.date = pm.getDate()
 						dayEl.dataset.month = pm.getMonth()
 						dayEl.dataset.year = pm.getFullYear()
 						dayEl.innerText = pm.getDate()
 						dayEl.classList.add('dudp__pm')
-
+						
 						addClassToDayEl(dayEl, pm)
 					}
 				}
-
 				// Last week
 				else if (week > 4) {
 					let nm = new Date(year, month + 1, 1)
@@ -565,8 +566,7 @@ class _duDatePicker {
 
 				// Attach click handler for dates
 				hf.addEvent(dateElem, 'click', function () {
-					let _this = this, _year = _this.dataset.year, _month = _this.dataset.month,
-						_date = _this.dataset.date,
+					let _this = this, _year = _this.dataset.year, _month = _this.dataset.month, _date = _this.dataset.date,
 						_selected = new Date(_year, _month, _date),
 						isFrom = false
 
@@ -600,7 +600,12 @@ class _duDatePicker {
 						if (_.config.multiple) {
 							let isSelected = _this.classList.contains('selected')
 
-							_this.classList[isSelected ? 'remove' : 'add']('selected')
+							_.datepicker.calendarHolder.calendarViews.wrapper
+								.querySelectorAll('.dudp__date[data-date="' + _date + '"][data-month="'+ _month +'"][data-year="'+ _year +'"]')
+								.forEach(function (delem) {
+									delem.classList[isSelected ? 'remove' : 'add']('selected')
+								})
+
 							if (isSelected) _.selectedDates = _.selectedDates.filter(sd => sd.getTime() !== _selected.getTime())
 							else _.selectedDates.push(_selected)
 							_._setSelection()
