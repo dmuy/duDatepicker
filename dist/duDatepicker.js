@@ -4292,7 +4292,7 @@
       }
       /**
        * Sets the value of the input
-       * @param {(string|Date)} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
+       * @param {(string|Date|string[])} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
        */
 
     }, {
