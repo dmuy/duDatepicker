@@ -1,6 +1,5 @@
 duDatepicker
 =========
-[![jquery version](https://img.shields.io/npm/dt/@dmuy/jquery-datepicker?style=flat-square)](https://www.npmjs.com/package/@dmuy/jquery-datepicker)
 [![vanilla js](https://img.shields.io/npm/dt/@dmuy/datepicker?style=flat-square)](https://www.npmjs.com/package/@dmuy/datepicker)
 
 [![Buy Me A Coffee](https://i.imgur.com/PbiWKn8.png)](https://www.buymeacoffee.com/dmuy)
