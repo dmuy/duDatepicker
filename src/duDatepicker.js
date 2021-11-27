@@ -421,6 +421,7 @@ class _duDatePicker {
 	 */
 	_dateDisabled(date) {
 		let _ = this, min = null, max = null,
+			dateYear = date.getFullYear(),
 			now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
 			_dates = _.config.disabledDates,
 			_days = _.config.disabledDays,
@@ -431,16 +432,22 @@ class _duDatePicker {
 				else
 					return hf.parseDate.call(_, x).date.getTime() === date.getTime()
 			}).length > 0,
-			_inDays = _days.indexOf(_.config.i18n.days[date.getDay()]) >= 0 ||
-				_days.indexOf(_.config.i18n.shortDays[date.getDay()]) >= 0 ||
-				_days.indexOf(_.config.i18n.shorterDays[date.getDay()]) >= 0
+			day = date.getDay(),
+			dayName = _.config.i18n.days[day],
+			dayNameShort = _.config.i18n.shortDays[day],
+			dayNameShorter = _.config.i18n.shorterDays[day],
+			_inDays = _days.indexOf(dayName) >= 0 ||
+				_days.indexOf(dayNameShort) >= 0 ||
+				_days.indexOf(dayNameShorter) >= 0,
+			minYearCap = _.config.minYear && dateYear < _.config.minYear,
+			maxYearCap = _.config.maxYear && dateYear > _.config.maxYear
 
 		if (_.minDate)
 			min = _.minDate === "today" ? today : new Date(_.minDate)
 		if (_.maxDate)
 			max = _.maxDate === "today" ? today : new Date(_.maxDate)
 
-		return (min && date < min) || (max && date > max) || (_inDates || _inDays)
+		return (min && date < min) || (max && date > max) || (_inDates || _inDays) || minYearCap || maxYearCap
 	}
 	/**
 	 * @param {number} year Year
@@ -648,7 +655,9 @@ class _duDatePicker {
 	 * @returns {HTMLSpanElement[]} Returns years range for the years view
 	 */
 	_getYears() {
-		let _ = this, _minYear = _.viewYear - 50, _maxYear = _.viewYear + 25,
+		let _ = this, 
+			_minYear = _.viewYear - _.config.priorYears,
+			_maxYear = _.viewYear + _.config.laterYears,
 			_years = []
 
 		for (let y = _minYear; y <= _maxYear; y++) {
@@ -835,7 +844,10 @@ class _duDatePicker {
 		if (_.animating)
 			return
 
-		let picker = _.datepicker, viewsHolder = picker.calendarHolder.calendarViews, _animDuration = 250, _isNext = direction === 'next'
+		let picker = _.datepicker, 
+			viewsHolder = picker.calendarHolder.calendarViews, 
+			_animDuration = 250, 
+			_isNext = direction === 'next'
 
 		if (_isNext ? _.viewMonth + 1 > 11 : _.viewMonth - 1 < 0)
 			_.viewYear += (_isNext ? 1 : -1)
@@ -952,8 +964,7 @@ class _duDatePicker {
 				outFrom = _empty ? '' : hf.formatDate.call(_, _from, _.config.outFormat || _.config.format),
 				formattedTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.format),
 				outTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.outFormat || _.config.format),
-				valueDisp = _empty ? '' : (
-					_.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value)
+				valueDisp = _empty ? '' : (_.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value)
 
 			_.dateFrom = _from
 			_.dateTo = _to
@@ -992,9 +1003,7 @@ class _duDatePicker {
 				isArray = Array.isArray(value),
 				values = isArray ? value : value.split(',')
 
-			values.forEach(v => {
-				dates.push(hf.parseDate.call(_, v).date)
-			})
+			values.forEach(v => dates.push(hf.parseDate.call(_, v).date))
 
 			let starting = dates.length > 0 ? dates.reduce((a, b) => { return a < b ? a : b; }) : new Date()
 
@@ -1012,8 +1021,7 @@ class _duDatePicker {
 				dates: _empty ? [] : _.dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format))
 			}
 		} else {
-			let date = typeof value === 'string' ? (
-				_empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date) : value,
+			let date = typeof value === 'string' ? (_empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date) : value,
 				formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format)
 
 			_.date = date
@@ -1047,10 +1055,61 @@ class _duDatePicker {
 	 */
 	formatRange(from, to) { return this.config.events.onRangeFormat.call(this, from, to, this) }
 	/**
+	 * Sets the minimum date configuration
+	 * @param {string} date Minimum selectable date
+	 */
+	setMinDate(date) { this.config.minDate = date }
+	/**
+	 * Sets the maximum date configuration
+	 * @param {string} date Maximum selectable date
+	 */
+	setMaxDate(date) { this.config.maxDate = date }
+	/**
+	 * Sets the minimum year configuration
+	 * @param {Number} year Minimum year
+	 */
+	setMinYear(year) { this.config.minYear = year }
+	/**
+	 * Sets the maximum year configuration
+	 * @param {Number} year Maximum year
+	 */
+	setMaxYear(year) { this.config.maxYear = year }
+	/**
+	 * Sets the prior years configuration
+	 * @param {Number} years Number of years
+	 */
+	setPriorYears(years) { this.config.priorYears = years }
+	/**
+	 * Sets the later years configuration
+	 * @param {Number} years Number of years
+	 */
+	 setLaterYears(years) { this.config.laterYears = years }
+	/**
+	 * Sets the date picker theme configuration
+	 * @param {string} theme Theme name
+	 */
+	setTheme(theme) { this.config.theme = theme }
+	/**
+	 * Sets the disabled dates configuration
+	 * @param {string[]} dates List of disabled dates
+	 */
+	setDisabled(dates) { this.config.disabledDates = dates }
+	/**
+	 * Sets the disabled days configuration
+	 * @param {string[]} days List of disabled days
+	 */
+	setDisabledDays(days) { this.config.disabledDays = days }
+	/**
 	 * Shows the date picker
 	 */
 	show() {
 		let _ = this
+
+		// refresh config
+		_.minDate = _.input.dataset.mindate || _.config.minDate
+		_.maxDate = _.input.dataset.maxdate || _.config.maxDate
+		_.datepicker.wrapper.dataset.theme = _.input.dataset.theme || _.config.theme
+
 		setTimeout(() => {
 			document.body.setAttribute('datepicker-display', 'on')
 			_._resetSelection()
@@ -1133,8 +1192,15 @@ function duDatepicker() {
 		if (!picker)
 			el[DATA_KEY] = (picker = new _duDatePicker(el, options))
 
-		if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && (args[1] && typeof args[1] === 'string')) {
-			picker[args[1]].apply(picker, Array.prototype.slice.call(args).slice(2))
+		if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && (args[1] && typeof args[1] === 'string' && args[1] != 'set')) {
+			let params = Array.prototype.slice.call(args).slice(2)
+			picker[args[1]].apply(picker, params)
+		}
+		else if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && args[1] == 'set' && (args[2] && typeof args[2] === 'object' && !Array.isArray(args[2]))) {
+			Object.keys(args[2]).forEach(key => {
+				let params = args[2][key]
+				picker[key].apply(picker, [params])
+			})
 		}
 	})
 }

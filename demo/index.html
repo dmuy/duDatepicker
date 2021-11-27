@@ -85,6 +85,7 @@
 
 			duDatepicker('#datepicker1', {
 				range: true, clearBtn: true,
+				format: 'mm/dd/yyyy',
 				// i18n: {
 				// 	months: months,
 				// 	shortMonths: months.map(function(m) { return m.substr(0, 3) }),
@@ -96,6 +97,7 @@
 				i18n: new duDatepicker.i18n.Locale(months, null, days, null, null, 1),
 				// firstDay: 7,
 				// disabledDays: ['Sat', 'Sun'],
+				// disabledDates: ['11/10/2021', '11/20/2021'],
 				events: {
 					dateChanged: function (data) {
 						log('From: ' + data.dateFrom + '\nTo: ' + data.dateTo)
@@ -118,6 +120,15 @@
 					}
 				}
 			})
+			// duDatepicker('#datepicker1', 'setTheme', 'blue')
+			// duDatepicker('#datepicker1', 'setDisabled', ['11/10/2021', '11/20/2021'])
+			duDatepicker('#datepicker1', 'set', {
+				setValue: '11/15/2021-11/18/2021',
+				setTheme: 'blue',
+				setDisabled: ['11/10/2021', '11/20/2021'],
+				setDisabledDays: ['domenica'],
+				setMinYear: 1990
+			})
 
 			duDatepicker('#datepicker2, #datepicker3', {
 				format: 'DD mmmm d, yyyy', //range: true,
@@ -130,6 +141,13 @@
 					}
 				},
 				root: '#dp-holder'
+			})
+
+			duDatepicker('#datepicker2', 'set', {
+				setPriorYears: 10,
+				setLaterYears: 5,
+				setMinYear: 2000,
+				setMaxYear: 2020
 			})
 
 			duDatepicker('#daterange', {

@@ -116,7 +116,7 @@
 
   var objectGetOwnPropertyDescriptor = {};
 
-  var fails$h = function (exec) {
+  var fails$i = function (exec) {
     try {
       return !!exec();
     } catch (error) {
@@ -124,10 +124,10 @@
     }
   };
 
-  var fails$g = fails$h;
+  var fails$h = fails$i;
 
   // Detect IE8's incomplete defineProperty implementation
-  var descriptors = !fails$g(function () {
+  var descriptors = !fails$h(function () {
     // eslint-disable-next-line es/no-object-defineproperty -- required for testing
     return Object.defineProperty({}, 1, { get: function () { return 7; } })[1] != 7;
   });
@@ -163,13 +163,13 @@
     return toString$1.call(it).slice(8, -1);
   };
 
-  var fails$f = fails$h;
+  var fails$g = fails$i;
   var classof$6 = classofRaw$1;
 
   var split = ''.split;
 
   // fallback for non-array-like ES3 and non-enumerable old V8 strings
-  var indexedObject = fails$f(function () {
+  var indexedObject = fails$g(function () {
     // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
     // eslint-disable-next-line no-prototype-builtins -- safe
     return !Object('z').propertyIsEnumerable(0);
@@ -215,16 +215,16 @@
 
   // `ToObject` abstract operation
   // https://tc39.es/ecma262/#sec-toobject
-  var toObject$6 = function (argument) {
+  var toObject$7 = function (argument) {
     return Object(requireObjectCoercible$4(argument));
   };
 
-  var toObject$5 = toObject$6;
+  var toObject$6 = toObject$7;
 
   var hasOwnProperty = {}.hasOwnProperty;
 
   var has$9 = Object.hasOwn || function hasOwn(it, key) {
-    return hasOwnProperty.call(toObject$5(it), key);
+    return hasOwnProperty.call(toObject$6(it), key);
   };
 
   var global$c = global$d;
@@ -239,11 +239,11 @@
   };
 
   var DESCRIPTORS$4 = descriptors;
-  var fails$e = fails$h;
+  var fails$f = fails$i;
   var createElement = documentCreateElement$1;
 
   // Thank's IE8 for his funny defineProperty
-  var ie8DomDefine = !DESCRIPTORS$4 && !fails$e(function () {
+  var ie8DomDefine = !DESCRIPTORS$4 && !fails$f(function () {
     // eslint-disable-next-line es/no-object-defineproperty -- requied for testing
     return Object.defineProperty(createElement('div'), 'a', {
       get: function () { return 7; }
@@ -651,7 +651,7 @@
     }
   };
 
-  var fails$d = fails$h;
+  var fails$e = fails$i;
 
   var replacement = /#|\.prototype\./;
 
@@ -659,7 +659,7 @@
     var value = data[normalize(feature)];
     return value == POLYFILL ? true
       : value == NATIVE ? false
-      : typeof detection == 'function' ? fails$d(detection)
+      : typeof detection == 'function' ? fails$e(detection)
       : !!detection;
   };
 
@@ -746,20 +746,20 @@
 
   var regexpStickyHelpers = {};
 
-  var fails$c = fails$h;
+  var fails$d = fails$i;
 
   // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError,
   var RE = function (s, f) {
     return RegExp(s, f);
   };
 
-  regexpStickyHelpers.UNSUPPORTED_Y = fails$c(function () {
+  regexpStickyHelpers.UNSUPPORTED_Y = fails$d(function () {
     var re = RE('a', 'y');
     re.lastIndex = 2;
     return re.exec('abcd') != null;
   });
 
-  regexpStickyHelpers.BROKEN_CARET = fails$c(function () {
+  regexpStickyHelpers.BROKEN_CARET = fails$d(function () {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=773687
     var re = RE('^r', 'gy');
     re.lastIndex = 2;
@@ -877,17 +877,17 @@
     return Properties === undefined ? result : defineProperties(result, Properties);
   };
 
-  var fails$b = fails$h;
+  var fails$c = fails$i;
 
-  var regexpUnsupportedDotAll = fails$b(function () {
+  var regexpUnsupportedDotAll = fails$c(function () {
     // babel-minify transpiles RegExp('.', 's') -> /./s and it causes SyntaxError
     var re = RegExp('.', (typeof '').charAt(0));
     return !(re.dotAll && re.exec('\n') && re.flags === 's');
   });
 
-  var fails$a = fails$h;
+  var fails$b = fails$i;
 
-  var regexpUnsupportedNcg = fails$a(function () {
+  var regexpUnsupportedNcg = fails$b(function () {
     // babel-minify transpiles RegExp('.', 'g') -> /./g and it causes SyntaxError
     var re = RegExp('(?<a>b)', (typeof '').charAt(5));
     return re.exec('b').groups.a !== 'b' ||
@@ -1005,12 +1005,12 @@
 
   var regexpExec$3 = patchedExec;
 
-  var $$9 = _export;
+  var $$a = _export;
   var exec = regexpExec$3;
 
   // `RegExp.prototype.exec` method
   // https://tc39.es/ecma262/#sec-regexp.prototype.exec
-  $$9({ target: 'RegExp', proto: true, forced: /./.exec !== exec }, {
+  $$a({ target: 'RegExp', proto: true, forced: /./.exec !== exec }, {
     exec: exec
   });
 
@@ -1042,10 +1042,10 @@
   /* eslint-disable es/no-symbol -- required for testing */
 
   var V8_VERSION$1 = engineV8Version;
-  var fails$9 = fails$h;
+  var fails$a = fails$i;
 
   // eslint-disable-next-line es/no-object-getownpropertysymbols -- required for testing
-  var nativeSymbol = !!Object.getOwnPropertySymbols && !fails$9(function () {
+  var nativeSymbol = !!Object.getOwnPropertySymbols && !fails$a(function () {
     var symbol = Symbol();
     // Chrome 38 Symbol has incorrect toString conversion
     // `get-own-property-symbols` polyfill symbols converted to object are not Symbol instances
@@ -1087,7 +1087,7 @@
 
   var redefine$3 = redefine$5.exports;
   var regexpExec$2 = regexpExec$3;
-  var fails$8 = fails$h;
+  var fails$9 = fails$i;
   var wellKnownSymbol$f = wellKnownSymbol$g;
   var createNonEnumerableProperty$3 = createNonEnumerableProperty$8;
 
@@ -1097,14 +1097,14 @@
   var fixRegexpWellKnownSymbolLogic = function (KEY, exec, FORCED, SHAM) {
     var SYMBOL = wellKnownSymbol$f(KEY);
 
-    var DELEGATES_TO_SYMBOL = !fails$8(function () {
+    var DELEGATES_TO_SYMBOL = !fails$9(function () {
       // String methods call symbol-named RegEp methods
       var O = {};
       O[SYMBOL] = function () { return 7; };
       return ''[KEY](O) != 7;
     });
 
-    var DELEGATES_TO_EXEC = DELEGATES_TO_SYMBOL && !fails$8(function () {
+    var DELEGATES_TO_EXEC = DELEGATES_TO_SYMBOL && !fails$9(function () {
       // Symbol-named RegExp methods call .exec
       var execCalled = false;
       var re = /a/;
@@ -1256,7 +1256,7 @@
   var callRegExpExec = regexpExecAbstract;
   var regexpExec = regexpExec$3;
   var stickyHelpers = regexpStickyHelpers;
-  var fails$7 = fails$h;
+  var fails$8 = fails$i;
 
   var UNSUPPORTED_Y = stickyHelpers.UNSUPPORTED_Y;
   var arrayPush = [].push;
@@ -1265,7 +1265,7 @@
 
   // Chrome 51 has a buggy "split" implementation when RegExp#exec !== nativeExec
   // Weex JS has frozen built-in prototypes, so use try / catch wrapper
-  var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = !fails$7(function () {
+  var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = !fails$8(function () {
     // eslint-disable-next-line regexp/no-empty-group -- required for testing
     var re = /(?:)/;
     var originalExec = re.exec;
@@ -1485,7 +1485,7 @@
 
   var bind$1 = functionBindContext;
   var IndexedObject$1 = indexedObject;
-  var toObject$4 = toObject$6;
+  var toObject$5 = toObject$7;
   var toLength$5 = toLength$8;
   var arraySpeciesCreate = arraySpeciesCreate$1;
 
@@ -1501,7 +1501,7 @@
     var IS_FILTER_OUT = TYPE == 7;
     var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
     return function ($this, callbackfn, that, specificCreate) {
-      var O = toObject$4($this);
+      var O = toObject$5($this);
       var self = IndexedObject$1(O);
       var boundFunction = bind$1(callbackfn, that, 3);
       var length = toLength$5(self.length);
@@ -1556,11 +1556,11 @@
     filterOut: createMethod(7)
   };
 
-  var fails$6 = fails$h;
+  var fails$7 = fails$i;
 
   var arrayMethodIsStrict$3 = function (METHOD_NAME, argument) {
     var method = [][METHOD_NAME];
-    return !!method && fails$6(function () {
+    return !!method && fails$7(function () {
       // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
       method.call(null, argument || function () { throw 1; }, 1);
     });
@@ -1656,11 +1656,11 @@
 
   var engineWebkitVersion = !!webkit && +webkit[1];
 
-  var $$8 = _export;
+  var $$9 = _export;
   var aFunction = aFunction$3;
-  var toObject$3 = toObject$6;
+  var toObject$4 = toObject$7;
   var toLength$4 = toLength$8;
-  var fails$5 = fails$h;
+  var fails$6 = fails$i;
   var internalSort = arraySort;
   var arrayMethodIsStrict$1 = arrayMethodIsStrict$3;
   var FF = engineFfVersion;
@@ -1672,17 +1672,17 @@
   var nativeSort = test$1.sort;
 
   // IE8-
-  var FAILS_ON_UNDEFINED = fails$5(function () {
+  var FAILS_ON_UNDEFINED = fails$6(function () {
     test$1.sort(undefined);
   });
   // V8 bug
-  var FAILS_ON_NULL = fails$5(function () {
+  var FAILS_ON_NULL = fails$6(function () {
     test$1.sort(null);
   });
   // Old WebKit
   var STRICT_METHOD$1 = arrayMethodIsStrict$1('sort');
 
-  var STABLE_SORT = !fails$5(function () {
+  var STABLE_SORT = !fails$6(function () {
     // feature detection can be too slow, so check engines versions
     if (V8) return V8 < 70;
     if (FF && FF > 3) return;
@@ -1730,11 +1730,11 @@
 
   // `Array.prototype.sort` method
   // https://tc39.es/ecma262/#sec-array.prototype.sort
-  $$8({ target: 'Array', proto: true, forced: FORCED }, {
+  $$9({ target: 'Array', proto: true, forced: FORCED }, {
     sort: function sort(comparefn) {
       if (comparefn !== undefined) aFunction(comparefn);
 
-      var array = toObject$3(this);
+      var array = toObject$4(this);
 
       if (STABLE_SORT) return comparefn === undefined ? nativeSort.call(array) : nativeSort.call(array, comparefn);
 
@@ -1757,7 +1757,7 @@
     }
   });
 
-  var $$7 = _export;
+  var $$8 = _export;
   var IndexedObject = indexedObject;
   var toIndexedObject$1 = toIndexedObject$5;
   var arrayMethodIsStrict = arrayMethodIsStrict$3;
@@ -1769,13 +1769,13 @@
 
   // `Array.prototype.join` method
   // https://tc39.es/ecma262/#sec-array.prototype.join
-  $$7({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
+  $$8({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject$1(this), separator === undefined ? ',' : separator);
     }
   });
 
-  var fails$4 = fails$h;
+  var fails$5 = fails$i;
   var wellKnownSymbol$b = wellKnownSymbol$g;
   var V8_VERSION = engineV8Version;
 
@@ -1785,7 +1785,7 @@
     // We can't use this feature detection in V8 since it causes
     // deoptimization and serious performance degradation
     // https://github.com/zloirock/core-js/issues/677
-    return V8_VERSION >= 51 || !fails$4(function () {
+    return V8_VERSION >= 51 || !fails$5(function () {
       var array = [];
       var constructor = array.constructor = {};
       constructor[SPECIES$1] = function () {
@@ -1795,7 +1795,7 @@
     });
   };
 
-  var $$6 = _export;
+  var $$7 = _export;
   var $map = arrayIteration.map;
   var arrayMethodHasSpeciesSupport$2 = arrayMethodHasSpeciesSupport$3;
 
@@ -1804,13 +1804,13 @@
   // `Array.prototype.map` method
   // https://tc39.es/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  $$6({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
+  $$7({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
   });
 
-  var $$5 = _export;
+  var $$6 = _export;
   var $filter = arrayIteration.filter;
   var arrayMethodHasSpeciesSupport$1 = arrayMethodHasSpeciesSupport$3;
 
@@ -1819,7 +1819,7 @@
   // `Array.prototype.filter` method
   // https://tc39.es/ecma262/#sec-array.prototype.filter
   // with adding support of @@species
-  $$5({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
+  $$6({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
     filter: function filter(callbackfn /* , thisArg */) {
       return $filter(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -1846,7 +1846,7 @@
     ArrayPrototype$1[UNSCOPABLES][key] = true;
   };
 
-  var $$4 = _export;
+  var $$5 = _export;
   var $find = arrayIteration.find;
   var addToUnscopables$1 = addToUnscopables$2;
 
@@ -1858,7 +1858,7 @@
 
   // `Array.prototype.find` method
   // https://tc39.es/ecma262/#sec-array.prototype.find
-  $$4({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
+  $$5({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -1961,7 +1961,7 @@
   };
 
   var bind = functionBindContext;
-  var toObject$2 = toObject$6;
+  var toObject$3 = toObject$7;
   var callWithSafeIterationClosing = callWithSafeIterationClosing$1;
   var isArrayIteratorMethod = isArrayIteratorMethod$1;
   var toLength$3 = toLength$8;
@@ -1971,7 +1971,7 @@
   // `Array.from` method implementation
   // https://tc39.es/ecma262/#sec-array.from
   var arrayFrom = function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
-    var O = toObject$2(arrayLike);
+    var O = toObject$3(arrayLike);
     var C = typeof this == 'function' ? this : Array;
     var argumentsLength = arguments.length;
     var mapfn = argumentsLength > 1 ? arguments[1] : undefined;
@@ -2040,7 +2040,7 @@
     return ITERATION_SUPPORT;
   };
 
-  var $$3 = _export;
+  var $$4 = _export;
   var from = arrayFrom;
   var checkCorrectnessOfIteration = checkCorrectnessOfIteration$1;
 
@@ -2051,13 +2051,13 @@
 
   // `Array.from` method
   // https://tc39.es/ecma262/#sec-array.from
-  $$3({ target: 'Array', stat: true, forced: INCORRECT_ITERATION }, {
+  $$4({ target: 'Array', stat: true, forced: INCORRECT_ITERATION }, {
     from: from
   });
 
-  var fails$3 = fails$h;
+  var fails$4 = fails$i;
 
-  var correctPrototypeGetter = !fails$3(function () {
+  var correctPrototypeGetter = !fails$4(function () {
     function F() { /* empty */ }
     F.prototype.constructor = null;
     // eslint-disable-next-line es/no-object-getprototypeof -- required for testing
@@ -2065,7 +2065,7 @@
   });
 
   var has$2 = has$9;
-  var toObject$1 = toObject$6;
+  var toObject$2 = toObject$7;
   var sharedKey = sharedKey$3;
   var CORRECT_PROTOTYPE_GETTER = correctPrototypeGetter;
 
@@ -2076,14 +2076,14 @@
   // https://tc39.es/ecma262/#sec-object.getprototypeof
   // eslint-disable-next-line es/no-object-getprototypeof -- safe
   var objectGetPrototypeOf = CORRECT_PROTOTYPE_GETTER ? Object.getPrototypeOf : function (O) {
-    O = toObject$1(O);
+    O = toObject$2(O);
     if (has$2(O, IE_PROTO)) return O[IE_PROTO];
     if (typeof O.constructor == 'function' && O instanceof O.constructor) {
       return O.constructor.prototype;
     } return O instanceof Object ? ObjectPrototype : null;
   };
 
-  var fails$2 = fails$h;
+  var fails$3 = fails$i;
   var getPrototypeOf$1 = objectGetPrototypeOf;
   var createNonEnumerableProperty$1 = createNonEnumerableProperty$8;
   var has$1 = has$9;
@@ -2109,7 +2109,7 @@
     }
   }
 
-  var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$2 == undefined || fails$2(function () {
+  var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$2 == undefined || fails$3(function () {
     var test = {};
     // FF44- legacy iterators case
     return IteratorPrototype$2[ITERATOR$1].call(test) !== test;
@@ -2192,7 +2192,7 @@
     };
   }() : undefined);
 
-  var $$2 = _export;
+  var $$3 = _export;
   var createIteratorConstructor = createIteratorConstructor$1;
   var getPrototypeOf = objectGetPrototypeOf;
   var setPrototypeOf = objectSetPrototypeOf;
@@ -2274,7 +2274,7 @@
         if (BUGGY_SAFARI_ITERATORS || INCORRECT_VALUES_NAME || !(KEY in IterablePrototype)) {
           redefine$2(IterablePrototype, KEY, methods[KEY]);
         }
-      } else $$2({ target: NAME, proto: true, forced: BUGGY_SAFARI_ITERATORS || INCORRECT_VALUES_NAME }, methods);
+      } else $$3({ target: NAME, proto: true, forced: BUGGY_SAFARI_ITERATORS || INCORRECT_VALUES_NAME }, methods);
     }
 
     return methods;
@@ -2309,7 +2309,7 @@
     return { value: point, done: false };
   });
 
-  var $$1 = _export;
+  var $$2 = _export;
   var isObject = isObject$8;
   var isArray = isArray$2;
   var toAbsoluteIndex = toAbsoluteIndex$2;
@@ -2328,7 +2328,7 @@
   // `Array.prototype.slice` method
   // https://tc39.es/ecma262/#sec-array.prototype.slice
   // fallback for not array-like ES3 strings and DOM objects
-  $$1({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+  $$2({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
     slice: function slice(start, end) {
       var O = toIndexedObject(this);
       var length = toLength$2(O.length);
@@ -2356,6 +2356,21 @@
     }
   });
 
+  var $$1 = _export;
+  var toObject$1 = toObject$7;
+  var nativeKeys = objectKeys$1;
+  var fails$2 = fails$i;
+
+  var FAILS_ON_PRIMITIVES = fails$2(function () { nativeKeys(1); });
+
+  // `Object.keys` method
+  // https://tc39.es/ecma262/#sec-object.keys
+  $$1({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES }, {
+    keys: function keys(it) {
+      return nativeKeys(toObject$1(it));
+    }
+  });
+
   var TO_STRING_TAG_SUPPORT$1 = toStringTagSupport;
   var classof = classof$2;
 
@@ -2375,7 +2390,7 @@
     redefine$1(Object.prototype, 'toString', toString, { unsafe: true });
   }
 
-  var toObject = toObject$6;
+  var toObject = toObject$7;
 
   var floor = Math.floor;
   var replace = ''.replace;
@@ -2418,7 +2433,7 @@
   };
 
   var fixRegExpWellKnownSymbolLogic$1 = fixRegexpWellKnownSymbolLogic;
-  var fails$1 = fails$h;
+  var fails$1 = fails$i;
   var anObject$2 = anObject$d;
   var toLength$1 = toLength$8;
   var toInteger = toInteger$4;
@@ -2544,7 +2559,7 @@
 
   var redefine = redefine$5.exports;
   var anObject$1 = anObject$d;
-  var fails = fails$h;
+  var fails = fails$i;
   var flags = regexpFlags$1;
 
   var TO_STRING = 'toString';
@@ -3226,6 +3241,18 @@
     cancelBtn: false,
     // Determines if clicking the overlay will close the date picker
     overlayClose: true,
+    // Determines the minimum selectable date
+    minDate: null,
+    // Determines the maximum selectable date
+    maxDate: null,
+    // Determines the minimum year of selectable date
+    minYear: null,
+    // Determines the maximum year of selectable date
+    maxYear: null,
+    // Determines how many years (earlier than currently selected year) to display
+    priorYears: 50,
+    // Determines how many years (later than currently selected year) to display
+    laterYears: 25,
     // Array of dates to be disabled (format should be the same as the specified format)
     disabledDates: [],
     // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
@@ -3720,6 +3747,7 @@
         var _ = this,
             min = null,
             max = null,
+            dateYear = date.getFullYear(),
             now = new Date(),
             today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
             _dates = _.config.disabledDates,
@@ -3727,11 +3755,17 @@
             _inDates = _dates.filter(function (x) {
           if (x.indexOf('-') >= 0) return date >= hf.parseDate.call(_, x.split('-')[0]).date && date <= hf.parseDate.call(_, x.split('-')[1]).date;else return hf.parseDate.call(_, x).date.getTime() === date.getTime();
         }).length > 0,
-            _inDays = _days.indexOf(_.config.i18n.days[date.getDay()]) >= 0 || _days.indexOf(_.config.i18n.shortDays[date.getDay()]) >= 0 || _days.indexOf(_.config.i18n.shorterDays[date.getDay()]) >= 0;
+            day = date.getDay(),
+            dayName = _.config.i18n.days[day],
+            dayNameShort = _.config.i18n.shortDays[day],
+            dayNameShorter = _.config.i18n.shorterDays[day],
+            _inDays = _days.indexOf(dayName) >= 0 || _days.indexOf(dayNameShort) >= 0 || _days.indexOf(dayNameShorter) >= 0,
+            minYearCap = _.config.minYear && dateYear < _.config.minYear,
+            maxYearCap = _.config.maxYear && dateYear > _.config.maxYear;
 
         if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
         if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
-        return min && date < min || max && date > max || _inDates || _inDays;
+        return min && date < min || max && date > max || _inDates || _inDays || minYearCap || maxYearCap;
       }
       /**
        * @param {number} year Year
@@ -3965,8 +3999,8 @@
       key: "_getYears",
       value: function _getYears() {
         var _ = this,
-            _minYear = _.viewYear - 50,
-            _maxYear = _.viewYear + 25,
+            _minYear = _.viewYear - _.config.priorYears,
+            _maxYear = _.viewYear + _.config.laterYears,
             _years = [];
 
         for (var y = _minYear; y <= _maxYear; y++) {
@@ -4357,7 +4391,7 @@
               isArray = Array.isArray(value),
               values = isArray ? value : value.split(',');
           values.forEach(function (v) {
-            dates.push(hf.parseDate.call(_, v).date);
+            return dates.push(hf.parseDate.call(_, v).date);
           });
           var starting = dates.length > 0 ? dates.reduce(function (a, b) {
             return a < b ? a : b;
@@ -4423,14 +4457,108 @@
         return this.config.events.onRangeFormat.call(this, from, to, this);
       }
       /**
+       * Sets the minimum date configuration
+       * @param {string} date Minimum selectable date
+       */
+
+    }, {
+      key: "setMinDate",
+      value: function setMinDate(date) {
+        this.config.minDate = date;
+      }
+      /**
+       * Sets the maximum date configuration
+       * @param {string} date Maximum selectable date
+       */
+
+    }, {
+      key: "setMaxDate",
+      value: function setMaxDate(date) {
+        this.config.maxDate = date;
+      }
+      /**
+       * Sets the minimum year configuration
+       * @param {Number} year Minimum year
+       */
+
+    }, {
+      key: "setMinYear",
+      value: function setMinYear(year) {
+        this.config.minYear = year;
+      }
+      /**
+       * Sets the maximum year configuration
+       * @param {Number} year Maximum year
+       */
+
+    }, {
+      key: "setMaxYear",
+      value: function setMaxYear(year) {
+        this.config.maxYear = year;
+      }
+      /**
+       * Sets the prior years configuration
+       * @param {Number} years Number of years
+       */
+
+    }, {
+      key: "setPriorYears",
+      value: function setPriorYears(years) {
+        this.config.priorYears = years;
+      }
+      /**
+       * Sets the later years configuration
+       * @param {Number} years Number of years
+       */
+
+    }, {
+      key: "setLaterYears",
+      value: function setLaterYears(years) {
+        this.config.laterYears = years;
+      }
+      /**
+       * Sets the date picker theme configuration
+       * @param {string} theme Theme name
+       */
+
+    }, {
+      key: "setTheme",
+      value: function setTheme(theme) {
+        this.config.theme = theme;
+      }
+      /**
+       * Sets the disabled dates configuration
+       * @param {string[]} dates List of disabled dates
+       */
+
+    }, {
+      key: "setDisabled",
+      value: function setDisabled(dates) {
+        this.config.disabledDates = dates;
+      }
+      /**
+       * Sets the disabled days configuration
+       * @param {string[]} days List of disabled days
+       */
+
+    }, {
+      key: "setDisabledDays",
+      value: function setDisabledDays(days) {
+        this.config.disabledDays = days;
+      }
+      /**
        * Shows the date picker
        */
 
     }, {
       key: "show",
       value: function show() {
-        var _ = this;
+        var _ = this; // refresh config
 
+
+        _.minDate = _.input.dataset.mindate || _.config.minDate;
+        _.maxDate = _.input.dataset.maxdate || _.config.maxDate;
+        _.datepicker.wrapper.dataset.theme = _.input.dataset.theme || _.config.theme;
         setTimeout(function () {
           document.body.setAttribute('datepicker-display', 'on');
 
@@ -4532,8 +4660,14 @@
       var picker = el[DATA_KEY];
       if (!picker) el[DATA_KEY] = picker = new _duDatePicker(el, options);
 
-      if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && args[1] && typeof args[1] === 'string') {
-        picker[args[1]].apply(picker, Array.prototype.slice.call(args).slice(2));
+      if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && args[1] && typeof args[1] === 'string' && args[1] != 'set') {
+        var params = Array.prototype.slice.call(args).slice(2);
+        picker[args[1]].apply(picker, params);
+      } else if ((typeof arg0 === 'string' || arg0IsList || arg0IsElem) && args[1] == 'set' && args[2] && _typeof(args[2]) === 'object' && !Array.isArray(args[2])) {
+        Object.keys(args[2]).forEach(function (key) {
+          var params = args[2][key];
+          picker[key].apply(picker, [params]);
+        });
       }
     });
   }

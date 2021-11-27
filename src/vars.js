@@ -42,6 +42,18 @@ export const DEFAULTS = {
     cancelBtn: false,
     // Determines if clicking the overlay will close the date picker
     overlayClose: true,
+    // Determines the minimum selectable date
+    minDate: null,
+    // Determines the maximum selectable date
+    maxDate: null,
+    // Determines the minimum year of selectable date
+    minYear: null,
+    // Determines the maximum year of selectable date
+    maxYear: null,
+    // Determines how many years (earlier than currently selected year) to display
+    priorYears: 50,
+    // Determines how many years (later than currently selected year) to display
+    laterYears: 25,
     // Array of dates to be disabled (format should be the same as the specified format)
     disabledDates: [],
     // Array of days of the week to be disabled (i.e. Monday, Tuesday, Mon, Tue, Mo, Tu)
