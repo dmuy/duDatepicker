@@ -239,7 +239,7 @@ export const hf = {
     /**
      * Parses date string using default or specified format
      * @param {string} date Date string to parse
-     * @param {string=} dateFormat Format of the date string; `config.format` will be used if not specified
+     * @param {string=} format Format of the date string; `config.format` will be used if not specified
      */
     parseDate (date, format) {
         let _ = this, _format = typeof format === 'undefined' ? _.config.format : format,

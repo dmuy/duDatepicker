@@ -2918,7 +2918,7 @@
     /**
      * Parses date string using default or specified format
      * @param {string} date Date string to parse
-     * @param {string=} dateFormat Format of the date string; `config.format` will be used if not specified
+     * @param {string=} format Format of the date string; `config.format` will be used if not specified
      */
     parseDate: function parseDate(date, format) {
       var _ = this,
@@ -3415,10 +3415,10 @@
       var _date = new Date();
 
       if (_.config.range) {
-        var value = _.input.value,
-            _range = value.split(_.config.rangeDelim);
+        var value = _.input.value || _.config.value || '',
+            _range = value ? value.split(_.config.rangeDelim) : [];
 
-        if (value !== '' && _range.length < 2) throw new Error('duDatePicker: Invalid date range value');
+        if (value !== '' && _range.length < 2) throw new Error('Invalid date range value.');
 
         var _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
             _to = value === '' ? null : hf.parseDate.call(_, _range[1]).date;
@@ -3437,6 +3437,8 @@
               formattedTo = hf.formatDate.call(_, _to, _.config.format),
               outTo = hf.formatDate.call(_, _to, _.config.outFormat || _.config.format);
           _.input.value = valueDisp;
+          _.rangeFrom = hf.dateToJson(_from);
+          _.rangeTo = hf.dateToJson(_to);
           hf.setAttributes(_.input, {
             'value': valueDisp,
             'data-range-from': outFrom,
@@ -3571,8 +3573,7 @@
             picker = _.datepicker,
             header = picker.header,
             calendarHolder = picker.calendarHolder,
-            buttons = calendarHolder.buttons,
-            _selected = _.selected ? _.selected : new Date(); // Setup header
+            buttons = calendarHolder.buttons; // Setup header
 
 
         if (!_.config.inline) {
@@ -3598,36 +3599,7 @@
         } // Setup months view
 
 
-        var _month = 0;
-
-        for (var r = 1; r < 4; r++) {
-          var monthRow = hf.createElem('div', {
-            class: 'dudp__month-row'
-          });
-
-          for (var i = 0; i < 4; i++) {
-            var monthElem = hf.createElem('span', {
-              class: 'dudp__month'
-            });
-            if (_month === _selected.month) monthElem.classList.add('selected');
-            monthElem.innerText = _.config.i18n.shortMonths[_month];
-            monthElem.dataset.month = _month;
-            hf.appendTo(monthElem, monthRow);
-            hf.addEvent(monthElem, 'click', function (e) {
-              var _this = this,
-                  _data = _this.dataset.month;
-
-              _.viewMonth = _data;
-
-              _._setupCalendar();
-
-              _._switchView('calendar');
-            });
-            _month++;
-          }
-
-          hf.appendTo(monthRow, calendarHolder.monthsView);
-        } // Setup years view
+        _._setupMonths(); // Setup years view
 
 
         hf.appendTo(_._getYears(), calendarHolder.yearsView);
@@ -4029,6 +4001,45 @@
 
         return _years;
       }
+    }, {
+      key: "_setupMonths",
+      value: function _setupMonths() {
+        var _ = this,
+            calendarHolder = _.datepicker.calendarHolder,
+            _month = 0,
+            _selected = _.selected ? _.selected : new Date();
+
+        hf.empty(calendarHolder.monthsView);
+
+        for (var r = 1; r < 4; r++) {
+          var monthRow = hf.createElem('div', {
+            class: 'dudp__month-row'
+          });
+
+          for (var i = 0; i < 4; i++) {
+            var monthElem = hf.createElem('span', {
+              class: 'dudp__month'
+            });
+            if (_month === _selected.month) monthElem.classList.add('selected');
+            monthElem.innerText = _.config.i18n.shortMonths[_month];
+            monthElem.dataset.month = _month;
+            hf.appendTo(monthElem, monthRow);
+            hf.addEvent(monthElem, 'click', function (e) {
+              var _this = this,
+                  _data = _this.dataset.month;
+
+              _.viewMonth = _data;
+
+              _._setupCalendar();
+
+              _._switchView('calendar');
+            });
+            _month++;
+          }
+
+          hf.appendTo(monthRow, calendarHolder.monthsView);
+        }
+      }
       /**
        * Sets up the calendar views
        */
@@ -4327,11 +4338,13 @@
       /**
        * Sets the value of the input
        * @param {(string|Date|string[])} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
+       * @param {Boolean} triggerEvt Determines if change events should be triggered
        */
 
     }, {
       key: "setValue",
       value: function setValue(value) {
+        var triggerEvt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         if (typeof value === 'undefined') throw new Error('Expecting a value.');
 
         var _ = this,
@@ -4430,8 +4443,10 @@
           };
         }
 
-        hf.triggerChange(_.input, changeData);
-        if (_.config.events && _.config.events.dateChanged) _.config.events.dateChanged.call(_, changeData, _);
+        if (triggerEvt) {
+          hf.triggerChange(_.input, changeData);
+          if (_.config.events && _.config.events.dateChanged) _.config.events.dateChanged.call(_, changeData, _);
+        }
       }
       /**
        * Returns formatted string representation of specified date
@@ -4545,6 +4560,50 @@
       key: "setDisabledDays",
       value: function setDisabledDays(days) {
         this.config.disabledDays = days;
+      }
+      /**
+       * Sets the internationalization configuration
+       * @param {(string|Object)} i18n Internationalization name or instance
+       */
+
+    }, {
+      key: "setI18n",
+      value: function setI18n(i18n) {
+        var _ = this;
+
+        if (typeof i18n === 'string') _.config.i18n = duDatepicker.i18n[i18n];else if (_typeof(i18n) == 'object') _.config.i18n = i18n; // refresh UI
+
+        var i18nConfig = _.config.i18n,
+            picker = _.datepicker;
+
+        if (i18nConfig.dict) {
+          _.dict = hf.extend(_.dict, i18nConfig.dict);
+          picker.calendarHolder.buttons.btnClear.innerText = _.dict.btnClear;
+          picker.calendarHolder.buttons.btnOk.innerText = _.dict.btnOk;
+          picker.calendarHolder.buttons.btnCancel.innerText = _.dict.btnCancel;
+        } // reset selected value
+
+
+        var format = _.config.format;
+
+        if (_.config.range && _.rangeFrom && _.input.value) {
+          var rangeFrom = hf.jsonToDate(_.rangeFrom),
+              rangeTo = hf.jsonToDate(_.rangeTo);
+
+          _.setValue([hf.formatDate.call(_, rangeFrom, format), hf.formatDate.call(_, rangeTo, format)].join(_.config.rangeDelim), false);
+        } else if (_.config.multiple && _.selectedDates.length > 0 && _.input.value) {
+          _.setValue(_.selectedDates.map(function (sd) {
+            return hf.formatDate.call(_, sd, format);
+          }), false);
+        } else if (_.selected && _.input.value) {
+          var sd = _.selected;
+
+          _.setValue(new Date(sd.year, sd.month, sd.date), false);
+        }
+
+        _._setupMonths();
+
+        _._setupCalendar();
       }
       /**
        * Shows the date picker

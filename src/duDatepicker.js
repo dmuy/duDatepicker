@@ -97,10 +97,10 @@ class _duDatePicker {
 		let _date = new Date()
 
 		if (_.config.range) {
-			let value = _.input.value, _range = value.split(_.config.rangeDelim)
+			let value = (_.input.value || _.config.value) || '', _range = value ? value.split(_.config.rangeDelim) : []
 
 			if (value !== '' && _range.length < 2)
-				throw new Error('duDatePicker: Invalid date range value')
+				throw new Error('Invalid date range value.')
 
 			let _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
 				_to = value === '' ? null : hf.parseDate.call(_, _range[1]).date
@@ -122,6 +122,8 @@ class _duDatePicker {
 					outTo = hf.formatDate.call(_, _to, _.config.outFormat || _.config.format)
 
 				_.input.value = valueDisp
+				_.rangeFrom = hf.dateToJson(_from)
+				_.rangeTo = hf.dateToJson(_to)
 				hf.setAttributes(_.input, {
 					'value': valueDisp,
 					'data-range-from': outFrom,
@@ -238,8 +240,7 @@ class _duDatePicker {
 			picker = _.datepicker,
 			header = picker.header,
 			calendarHolder = picker.calendarHolder,
-			buttons = calendarHolder.buttons,
-			_selected = _.selected ? _.selected : new Date()
+			buttons = calendarHolder.buttons
 
 		// Setup header
 		if (!_.config.inline) {
@@ -266,32 +267,7 @@ class _duDatePicker {
 		}
 
 		// Setup months view
-		let _month = 0
-		for (let r = 1; r < 4; r++) {
-			let monthRow = hf.createElem('div', { class: 'dudp__month-row' })
-
-			for (let i = 0; i < 4; i++) {
-				let monthElem = hf.createElem('span', { class: 'dudp__month' })
-
-				if (_month === _selected.month)
-					monthElem.classList.add('selected')
-
-				monthElem.innerText = _.config.i18n.shortMonths[_month]
-				monthElem.dataset.month = _month
-				hf.appendTo(monthElem, monthRow)
-				hf.addEvent(monthElem, 'click', function (e) {
-					let _this = this, _data = _this.dataset.month
-
-					_.viewMonth = _data
-
-					_._setupCalendar()
-					_._switchView('calendar')
-				})
-
-				_month++
-			}
-			hf.appendTo(monthRow, calendarHolder.monthsView)
-		}
+		_._setupMonths()
 
 		// Setup years view
 		hf.appendTo(_._getYears(), calendarHolder.yearsView)
@@ -684,6 +660,40 @@ class _duDatePicker {
 
 		return _years
 	}
+	_setupMonths() {
+		let _ = this,
+			calendarHolder = _.datepicker.calendarHolder,
+			_month = 0,
+			_selected = _.selected ? _.selected : new Date()
+
+		hf.empty(calendarHolder.monthsView)
+
+		for (let r = 1; r < 4; r++) {
+			let monthRow = hf.createElem('div', { class: 'dudp__month-row' })
+
+			for (let i = 0; i < 4; i++) {
+				let monthElem = hf.createElem('span', { class: 'dudp__month' })
+
+				if (_month === _selected.month)
+					monthElem.classList.add('selected')
+
+				monthElem.innerText = _.config.i18n.shortMonths[_month]
+				monthElem.dataset.month = _month
+				hf.appendTo(monthElem, monthRow)
+				hf.addEvent(monthElem, 'click', function (e) {
+					let _this = this, _data = _this.dataset.month
+
+					_.viewMonth = _data
+
+					_._setupCalendar()
+					_._switchView('calendar')
+				})
+
+				_month++
+			}
+			hf.appendTo(monthRow, calendarHolder.monthsView)
+		}
+	}
 	/**
 	 * Sets up the calendar views
 	 */
@@ -945,8 +955,9 @@ class _duDatePicker {
 	/**
 	 * Sets the value of the input
 	 * @param {(string|Date|string[])} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
+	 * @param {Boolean} triggerEvt Determines if change events should be triggered
 	 */
-	setValue(value) {
+	setValue(value, triggerEvt = true) {
 		if (typeof value === 'undefined')
 			throw new Error('Expecting a value.')
 		let _ = this, _empty = typeof value === 'string' && value === '', changeData = null
@@ -1036,10 +1047,12 @@ class _duDatePicker {
 			}
 		}
 
-		hf.triggerChange(_.input, changeData)
+		if (triggerEvt) {
+			hf.triggerChange(_.input, changeData)
 
-		if (_.config.events && _.config.events.dateChanged)
-			_.config.events.dateChanged.call(_, changeData, _)
+			if (_.config.events && _.config.events.dateChanged)
+				_.config.events.dateChanged.call(_, changeData, _)
+		}
 	}
 	/**
 	 * Returns formatted string representation of specified date
@@ -1083,7 +1096,7 @@ class _duDatePicker {
 	 * Sets the later years configuration
 	 * @param {Number} years Number of years
 	 */
-	 setLaterYears(years) { this.config.laterYears = years }
+	setLaterYears(years) { this.config.laterYears = years }
 	/**
 	 * Sets the date picker theme configuration
 	 * @param {string} theme Theme name
@@ -1099,6 +1112,50 @@ class _duDatePicker {
 	 * @param {string[]} days List of disabled days
 	 */
 	setDisabledDays(days) { this.config.disabledDays = days }
+	/**
+	 * Sets the internationalization configuration
+	 * @param {(string|Object)} i18n Internationalization name or instance
+	 */
+	setI18n(i18n) {
+		let _ = this
+
+		if (typeof i18n === 'string')
+			_.config.i18n = duDatepicker.i18n[i18n]
+		else if (typeof i18n == 'object') 
+			_.config.i18n = i18n
+
+		// refresh UI
+		let i18nConfig = _.config.i18n,
+			picker = _.datepicker
+
+		if (i18nConfig.dict) {
+			_.dict = hf.extend(_.dict, i18nConfig.dict)
+
+			picker.calendarHolder.buttons.btnClear.innerText = _.dict.btnClear
+			picker.calendarHolder.buttons.btnOk.innerText = _.dict.btnOk
+			picker.calendarHolder.buttons.btnCancel.innerText = _.dict.btnCancel
+		}
+
+		// reset selected value
+		let format = _.config.format
+
+		if (_.config.range && _.rangeFrom && _.input.value) {
+			let rangeFrom = hf.jsonToDate(_.rangeFrom),
+				rangeTo = hf.jsonToDate(_.rangeTo)
+
+			_.setValue([hf.formatDate.call(_, rangeFrom, format), hf.formatDate.call(_, rangeTo, format)].join(_.config.rangeDelim), false)
+		}
+		else if (_.config.multiple && _.selectedDates.length > 0 && _.input.value) {
+			_.setValue(_.selectedDates.map(sd => hf.formatDate.call(_, sd, format)), false)
+		}
+		else if (_.selected && _.input.value) {
+			let sd = _.selected
+			_.setValue(new Date(sd.year, sd.month, sd.date), false)
+		}
+
+		_._setupMonths()
+		_._setupCalendar()
+	}
 	/**
 	 * Shows the date picker
 	 */
