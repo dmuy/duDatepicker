@@ -29,10 +29,21 @@ export default {
                 hidden: { type: Function }
             },
             methods: {
-                setValue(value) { duDatepicker(this.$el, 'setValue', value) },
                 show() { duDatepicker(this.$el, 'show') },
                 hide() { duDatepicker(this.$el, 'hide') },
-                destroy() { duDatepicker(this.$el, 'destroy') }
+                destroy() { duDatepicker(this.$el, 'destroy') },
+                setValue(value) { duDatepicker(this.$el, 'setValue', value) },
+                setTheme(theme) { duDatepicker(this.$el, 'setTheme', theme) },
+                setMinDate(date) { duDatepicker(this.$el, 'setMinDate', date) },
+                setMaxDate(date) { duDatepicker(this.$el, 'setMaxDate', date) },
+                setMinYear(year) { duDatepicker(this.$el, 'setMinYear', year) },
+                setMaxYear(year) { duDatepicker(this.$el, 'setMaxYear', year) },
+                setPriorYears(years) { duDatepicker(this.$el, 'setPriorYears', years) },
+                setLaterYears(years) { duDatepicker(this.$el, 'setLaterYears', years) },
+                setDisabled(dates) { duDatepicker(this.$el, 'setDisabled', dates) },
+                setDisabledDays(days) { duDatepicker(this.$el, 'setDisabledDays', days) },
+                setI18n(i18n) { duDatepicker(this.$el, 'setI18n', i18n) },
+                set(setters) { duDatepicker(this.$el, 'set', setters) }
             },
             mounted() {
                 let evtProps = {
