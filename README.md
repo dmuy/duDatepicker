@@ -1,3 +1,5 @@
+<a href='https://ko-fi.com/dionleeuy' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 ## Documentation
 * [Installation](https://github.com/dmuy/duDatepicker/wiki/Installation)
 * [Options](https://github.com/dmuy/duDatepicker/wiki/Options)
@@ -14,6 +16,3 @@
   * [Themes](https://github.com/dmuy/duDatepicker/wiki/Usage#themes)
 * [Usage (Vue)](https://github.com/dmuy/duDatepicker/wiki/Usage-(Vue))
   * [Nuxt](https://github.com/dmuy/duDatepicker/wiki/Usage-(Vue)#nuxt)
-
-
-[![Buy Me A Coffee](https://i.imgur.com/PbiWKn8.png)](https://www.buymeacoffee.com/dmuy)
