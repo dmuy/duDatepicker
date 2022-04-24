@@ -167,7 +167,6 @@ class _duDatePicker {
 			this.selectedDates = [...dates]
 
 			hf.setAttributes(_.input, { 'value': dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',') })
-			// _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
 		} else {
 			this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date
 			this.selected = hf.dateToJson(_.date)
@@ -351,8 +350,7 @@ class _duDatePicker {
 				let _from = hf.jsonToDate(_.rangeFrom),
 					_to = hf.jsonToDate(_.rangeTo)
 
-				if (_._dateDisabled(_from) || _._dateDisabled(_to))
-					return
+				if (_._rangeHasDisabled()) return
 
 				_.dateFrom = _from
 				_.dateTo = _to
@@ -404,7 +402,6 @@ class _duDatePicker {
 			_inDates = _dates.filter(function (x) {
 				if (x.indexOf('-') >= 0)
 					return (date >= hf.parseDate.call(_, x.split('-')[0]).date && date <= hf.parseDate.call(_, x.split('-')[1]).date)
-
 				else
 					return hf.parseDate.call(_, x).date.getTime() === date.getTime()
 			}).length > 0,
@@ -424,6 +421,24 @@ class _duDatePicker {
 			max = _.maxDate === "today" ? today : new Date(_.maxDate)
 
 		return (min && date < min) || (max && date > max) || (_inDates || _inDays) || minYearCap || maxYearCap
+	}
+	/**
+	 * Determines if selected date range has a disabled date
+	 */
+	_rangeHasDisabled() {
+		let _ = this,
+			_from = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+			_to = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
+
+		if (_from == null || _to == null) return false
+
+		let _start = hf.jsonToDate(_.rangeFrom)
+		while (_start <= _to) {
+			if (_._dateDisabled(_start)) return true
+
+			_start.setDate(_start.getDate() + 1)
+		}
+		return false
 	}
 	/**
 	 * @param {number} year Year
@@ -1025,7 +1040,6 @@ class _duDatePicker {
 			_.viewMonth = starting.getMonth()
 
 			hf.setAttributes(_.input, { 'value': dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',') })
-			// _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
 
 			changeData = {
 				_dates: _empty ? [] : _.dates,

@@ -149,20 +149,22 @@
 				setI18n: 'ru',
 				setPriorYears: 10,
 				setLaterYears: 5,
-				setMinYear: 2000,
-				setMaxYear: 2020
+				setMinYear: 2021,
+				setMaxYear: 2022
 			})
 
 			duDatepicker('#daterange', {
 				range: true, outFormat: 'yyyy-mm-dd', fromTarget: '#range-from', toTarget: '#range-to',
 				clearBtn: true, theme: 'yellow', maxDate: 'today',
+				disabledDates: ['April 12, 2022-April 13, 2022'],
+				// disabledDays: ['Wed','Fri'],
 				// i18n: 'fa',
 				// firstDay: 7,
 				// inline: true,
 				events: {
-					// ready: function () {
-					// 	console.log('duDatepicker', this)
-					// },
+					ready: function () {
+						console.log('#daterange', this)
+					},
 					dateChanged: function (data) {
 						console.log('new date', data)
 						log('From: ' + data.dateFrom + '\nTo: ' + data.dateTo)
