@@ -59,7 +59,8 @@
 		<input type="text" id="range-to">
 		<input type="text" id="datepicker3">
 		<h3>Multi select</h3>
-		<input type="text" id="multipicker" value="07/01/2021,06/01/2021">
+		<!-- <input type="text" id="multipicker" value="07/01/2021,06/01/2021"> -->
+		<input type="text" id="multipicker">
 		<div id="logger">
 			<span>Logger:</span>
 			<textarea id="loggerTxt" rows="10" disabled></textarea>
@@ -86,7 +87,7 @@
 			duDatepicker('#datepicker1', {
 				range: true, clearBtn: true,
 				format: 'mm/dd/yyyy',
-				// value: '11/15/2021-11/18/2021',
+				// value: '11/15/2022-11/18/2022',
 				// i18n: {
 				// 	months: months,
 				// 	shortMonths: months.map(function(m) { return m.substr(0, 3) }),
@@ -146,11 +147,11 @@
 			})
 
 			duDatepicker('#datepicker2', 'set', {
-				setI18n: 'ru',
+				// setI18n: 'ru',
 				setPriorYears: 10,
 				setLaterYears: 5,
 				setMinYear: 2021,
-				setMaxYear: 2022
+				setMaxYear: 2025
 			})
 
 			duDatepicker('#daterange', {
@@ -172,16 +173,18 @@
 				}
 			})
 			// duDatepicker('#daterange', 'setValue', 'August 2, 2020-August 5, 2020')
-
+			tmp_values = ['06/01/2021','07/01/2021']
 			duDatepicker('#multipicker', {
 				theme: 'blue', multiple: true, format: 'mm/dd/yyyy',
-				value: ['06/01/2021','07/01/2021'],
+				// value: ['06/01/2021','07/01/2021'],
 				events: {
 					dateChanged: function(data) {
 						console.log('multipicker.dateChanged', data)
 					}
 				}
 			})
+			duDatepicker('#multipicker', 'setValue', tmp_values)
+			// duDatepicker('#multipicker', 'show')
 		})
 	</script>
 </body>

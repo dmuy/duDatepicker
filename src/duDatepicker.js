@@ -105,6 +105,11 @@ class _duDatePicker {
 			let _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
 				_to = value === '' ? null : hf.parseDate.call(_, _range[1]).date
 
+			let canSet = _._canSetValue('range', { from: _from, to: _to })
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
+
 			this.dateFrom = _from
 			this.dateTo = _to
 			this.rangeFrom = null
@@ -162,13 +167,29 @@ class _duDatePicker {
 			}
 			
 			dates = dates.sort((a, b) => { return a > b ? 1 : a < b ? -1 : 0 })
+			
+			let canSet = _._canSetValue('multiple', dates)
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
+
+			let starting = dates.length > 0 ? dates.reduce((a, b) => { return a < b ? a : b; }) : new Date()
 
 			this.dates = [...dates]
 			this.selectedDates = [...dates]
+			this.viewYear = starting.getFullYear()
+			this.viewMonth = starting.getMonth()
 
 			hf.setAttributes(_.input, { 'value': dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',') })
 		} else {
-			this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date
+			let date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date
+			
+			let canSet = _._canSetValue('default', date)
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
+
+			this.date = date
 			this.selected = hf.dateToJson(_.date)
 
 			this.viewMonth = _.selected.month
@@ -375,6 +396,13 @@ class _duDatePicker {
 			_.config.events.ready.call(_, _)
 	}
 	/**
+	 * Gets the current date
+	 */
+	_getToday() {
+		let now = new Date()
+		return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+	}
+	/**
 	 * Determines if date is in the selected date range
 	 * @param {Date} date Date object
 	 */
@@ -389,14 +417,31 @@ class _duDatePicker {
 		return (_from && date > _from) && (_to && date < _to)
 	}
 	/**
+	 * Determines if date is beyond the minDate, maxDate, minYear or maxYear configurations (if any)
+	 * @param {Date} date Date object
+	 */
+	_beyondMinMax(date) {
+		let _ = this, config = _.config,
+			min = null, max = null,
+			dateYear = date.getFullYear(),
+			today = _._getToday(),
+			minYearCap = config.minYear && dateYear < config.minYear,
+			maxYearCap = config.maxYear && dateYear > config.maxYear
+
+		if (_.minDate)
+			min = _.minDate === "today" ? today : new Date(_.minDate)
+		if (_.maxDate)
+			max = _.maxDate === "today" ? today : new Date(_.maxDate)
+
+		return (min && date < min) || (max && date > max) || minYearCap || maxYearCap
+	}
+	/**
 	 * Determines if date is disabled
 	 * @param {Date} date Date object
 	 * @returns {Boolean} `true` if specified date should be disabled, `false` otherwise
 	 */
 	_dateDisabled(date) {
-		let _ = this, min = null, max = null,
-			dateYear = date.getFullYear(),
-			now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+		let _ = this,
 			_dates = _.config.disabledDates,
 			_days = _.config.disabledDays,
 			_inDates = _dates.filter(function (x) {
@@ -411,16 +456,9 @@ class _duDatePicker {
 			dayNameShorter = _.config.i18n.shorterDays[day],
 			_inDays = _days.indexOf(dayName) >= 0 ||
 				_days.indexOf(dayNameShort) >= 0 ||
-				_days.indexOf(dayNameShorter) >= 0,
-			minYearCap = _.config.minYear && dateYear < _.config.minYear,
-			maxYearCap = _.config.maxYear && dateYear > _.config.maxYear
+				_days.indexOf(dayNameShorter) >= 0
 
-		if (_.minDate)
-			min = _.minDate === "today" ? today : new Date(_.minDate)
-		if (_.maxDate)
-			max = _.maxDate === "today" ? today : new Date(_.maxDate)
-
-		return (min && date < min) || (max && date > max) || (_inDates || _inDays) || minYearCap || maxYearCap
+		return (_inDates || _inDays) || _._beyondMinMax(date)
 	}
 	/**
 	 * Determines if selected date range has a disabled date
@@ -446,8 +484,8 @@ class _duDatePicker {
 	 * @returns {HTMLSpanElement[]} Returns the dates of the specified month and year
 	 */
 	_getDates(year, month) {
-		let _ = this, day = 1, now = new Date(),
-			today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+		let _ = this, day = 1, 
+			today = _._getToday(),
 			selected = _.config.range || _.config.multiple ? null : hf.jsonToDate(_.selected),
 			rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
 			rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null,
@@ -643,12 +681,32 @@ class _duDatePicker {
 		return datesDOM
 	}
 	/**
+	 * Gets the year limits (min and max)
+	 * @param {boolean} yearsView Determines limits will be used for years selection view
+	 */
+	_getYearLimits(yearsView = false) {
+		let _ = this, 
+			minDate = null, maxDate = null,
+			today = _._getToday()
+
+		if (_.minDate) minDate = _.minDate === "today" ? today : new Date(_.minDate)
+		if (_.maxDate) maxDate = _.maxDate === "today" ? today : new Date(_.maxDate)
+		
+		let _minCandidates = [yearsView ? _.viewYear - _.config.priorYears : null, _.config.minYear, minDate ? minDate.getFullYear() : null].filter(x => x != null),
+			_maxCandidates = [yearsView ? _.viewYear + _.config.laterYears : null, _.config.maxYear, maxDate ? maxDate.getFullYear() : null].filter(x => x != null),
+			minYear = _minCandidates.length > 0 ? Math.max(..._minCandidates) : null,
+			maxYear = _maxCandidates.length > 0 ? Math.min(..._maxCandidates) : null
+
+		return { minYear, maxYear }
+	}
+	/**
 	 * @returns {HTMLSpanElement[]} Returns years range for the years view
 	 */
 	_getYears() {
-		let _ = this, 
-			_minYear = _.viewYear - _.config.priorYears,
-			_maxYear = _.viewYear + _.config.laterYears,
+		let _ = this,
+			limits = _._getYearLimits(true),
+			_minYear = limits.minYear,
+			_maxYear = limits.maxYear,
 			_years = []
 
 		for (let y = _minYear; y <= _maxYear; y++) {
@@ -663,7 +721,7 @@ class _duDatePicker {
 				let _this = this, _data = parseInt(_this.dataset.year)
 
 				_.viewYear = _data
-				if (!_.config.range)
+				if (!_.config.range && !_.config.multiple)
 					_.selected.year = _data
 				_._setSelection()
 				_._setupCalendar()
@@ -675,6 +733,9 @@ class _duDatePicker {
 
 		return _years
 	}
+	/**
+	 * Sets up the months DOM
+	 */
 	_setupMonths() {
 		let _ = this,
 			calendarHolder = _.datepicker.calendarHolder,
@@ -696,7 +757,7 @@ class _duDatePicker {
 				monthElem.dataset.month = _month
 				hf.appendTo(monthElem, monthRow)
 				hf.addEvent(monthElem, 'click', function (e) {
-					let _this = this, _data = _this.dataset.month
+					let _this = this, _data = parseInt(_this.dataset.month)
 
 					_.viewMonth = _data
 
@@ -732,10 +793,10 @@ class _duDatePicker {
 			header: hf.createElem('div', { class: 'dudp__cal-month-year' }),
 			weekDays: hf.createElem('div', { class: 'dudp__weekdays' }, hf.daysOfWeekDOM.call(_), true),
 			datesHolder: hf.createElem('div', { class: 'dudp__dates-holder' })
-		}, prevMonth = _month === 0 ? 11 : _month - 1,
-			nextMonth = _month === 11 ? 0 : _month + 1,
-			prevYear = _month === 0 ? _year - 1 : _year,
-			nextYear = _month === 11 ? _year + 1 : _year
+		}, prevMonth = _month == 0 ? 11 : _month - 1,
+			nextMonth = _month == 11 ? 0 : _month + 1,
+			prevYear = _month == 0 ? _year - 1 : _year,
+			nextYear = _month == 11 ? _year + 1 : _year
 
 		hf.appendTo([
 			hf.createElem('span', { class: 'cal-month' }, _.config.i18n.months[prevMonth]),
@@ -874,10 +935,22 @@ class _duDatePicker {
 			_animDuration = 250, 
 			_isNext = direction === 'next'
 
-		if (_isNext ? _.viewMonth + 1 > 11 : _.viewMonth - 1 < 0)
-			_.viewYear += (_isNext ? 1 : -1)
-		_.viewMonth = _isNext ? (_.viewMonth + 1 > 11 ? 0 : _.viewMonth + 1) : (_.viewMonth - 1 < 0 ? 11 : _.viewMonth - 1)
+		let viewYear = parseInt(_.viewYear)
+		let viewMonth = parseInt(_.viewMonth)
 
+		if (_isNext ? viewMonth + 1 > 11 : viewMonth - 1 < 0)
+			viewYear += (_isNext ? 1 : -1)
+		viewMonth = _isNext ? (viewMonth + 1 > 11 ? 0 : viewMonth + 1) : (viewMonth - 1 < 0 ? 11 : viewMonth - 1)
+		
+		// Check min/max year
+		let yearLimits = _._getYearLimits()
+		let minYear = yearLimits.minYear
+		let maxYear = yearLimits.maxYear
+		if (_isNext && maxYear && viewYear > maxYear) return
+		else if (!_isNext && minYear && viewYear < minYear) return
+
+		_.viewYear = viewYear
+		_.viewMonth = viewMonth
 		_.animating = true
 
 		//Start animation
@@ -887,13 +960,14 @@ class _duDatePicker {
 			cal.classList.add(animateClass)
 		})
 
-		//Setup new (previos or next) month calendar
+		//Setup new (previous or next) month calendar
 		let _year = _.viewYear, _month = _isNext ? _.viewMonth + 1 : _.viewMonth - 1
 
 		if (_isNext ? _month > 11 : _month < 0) {
 			_month = _isNext ? 0 : 11
 			_year += _isNext ? 1 : -1
 		}
+
 		let newCalDates = _._getDates(_year, _month),
 			newCalEl = {
 				wrapper: hf.createElem('div', { class: 'dudp__calendar' }),
@@ -936,10 +1010,11 @@ class _duDatePicker {
 			_.viewYear = _date.getFullYear()
 			_.viewMonth = _date.getMonth()
 		} else if (_.config.multiple) {
-			let _date = _.dates.length > 0 ? _.dates.reduce((a, b) => { return a < b ? a : b; }) : new Date()
+			let starting = _.dates.length > 0 ? _.dates.reduce((a, b) => { return a < b ? a : b; }) : new Date()
 
-			_.viewYear = _date.getFullYear()
-			_.viewMonth = _date.getMonth()
+			_.selectedDates = [..._.dates]
+			_.viewYear = starting.getFullYear()
+			_.viewMonth = starting.getMonth()
 		} else {
 			_.selected = hf.dateToJson(_.date)
 			_.viewYear = _.selected.year
@@ -968,6 +1043,51 @@ class _duDatePicker {
 		picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT)
 	}
 	/**
+	 * Determines if the value(s) given can be set as the date picker's value (constraint check on minDate, maxDate, minYear, maxYear)
+	 * @param {string} mode Mode of the date picker (i.e. range, multiple)
+	 * @param {(Date|Date[]|Object)} value Value to be set
+	 * @param {Date} value.from Date from value (for range mode)
+	 * * @param {Date} value.to Date to value (for range mode)
+	 */
+	_canSetValue(mode, value) {
+		if (mode != 'range' && mode != 'multiple' && mode != 'default') return false
+
+		let _ = this, config = _.config,
+			canSet = true,
+			invalidDate = ''
+
+		if (mode == 'range' && value.from && value.to) {
+			if (_._beyondMinMax(value.from)) {
+				canSet = false
+				invalidDate = hf.formatDate.call(_, value.from, config.format)
+			}
+			else if (_._beyondMinMax(value.to)) {
+				canSet = false
+				invalidDate = hf.formatDate.call(_, value.to, config.format)
+			}
+		}
+		else if (mode == 'multiple') {
+			for (let i = 0; i < value.length; i++) {
+				const date = value[i]
+				
+				if (_._beyondMinMax(date)) {
+					canSet = false
+					invalidDate = hf.formatDate.call(_, date, config.format)
+					break;
+				}
+			}
+		}
+		else if (mode == 'default' && _._beyondMinMax(value)) {
+			canSet = false
+			invalidDate = hf.formatDate.call(_, value, config.format)
+		}
+
+		return {
+			canSet,
+			remarks: `"${invalidDate}" is beyond the selectable date(s). Kindly check minDate, maxDate, minYear or maxYear configurations.`
+		}
+	}
+	/**
 	 * Sets the value of the input
 	 * @param {(string|Date|string[])} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
 	 * @param {Boolean} triggerEvt Determines if change events should be triggered
@@ -991,6 +1111,11 @@ class _duDatePicker {
 				formattedTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.format),
 				outTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.outFormat || _.config.format),
 				valueDisp = _empty ? '' : (_.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value)
+
+			let canSet = _._canSetValue('range', { from: _from, to: _to })
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
 
 			_.dateFrom = _from
 			_.dateTo = _to
@@ -1035,6 +1160,11 @@ class _duDatePicker {
 
 			if (dates.length > 0) dates = dates.sort((a, b) => { return a > b ? 1 : a < b ? -1 : 0 })
 
+			let canSet = _._canSetValue('multiple', dates)
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
+
 			_.dates = [...dates]
 			_.viewYear = starting.getFullYear()
 			_.viewMonth = starting.getMonth()
@@ -1048,6 +1178,11 @@ class _duDatePicker {
 		} else {
 			let date = typeof value === 'string' ? (_empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date) : value,
 				formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format)
+			
+			let canSet = _._canSetValue('default', date)
+			if (!canSet.canSet) {
+				throw new Error(canSet.remarks)
+			}
 
 			_.date = date
 			_.viewYear = date.getFullYear()

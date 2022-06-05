@@ -2618,7 +2618,84 @@
     }
   });
 
+  // https://github.com/tc39/proposal-iterator-helpers
   var $$g = _export;
+  var global$6 = global$H;
+  var call$7 = functionCall;
+  var aCallable$8 = aCallable$e;
+  var anObject$d = anObject$r;
+  var getBuiltIn$1 = getBuiltIn$8;
+
+  var Promise$2 = getBuiltIn$1('Promise');
+  var TypeError$3 = global$6.TypeError;
+
+  $$g({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
+    reduce: function reduce(reducer /* , initialValue */) {
+      var iterator = anObject$d(this);
+      var next = aCallable$8(iterator.next);
+      var noInitial = arguments.length < 2;
+      var accumulator = noInitial ? undefined : arguments[1];
+      aCallable$8(reducer);
+
+      return new Promise$2(function (resolve, reject) {
+        var loop = function () {
+          try {
+            Promise$2.resolve(anObject$d(call$7(next, iterator))).then(function (step) {
+              try {
+                if (anObject$d(step).done) {
+                  noInitial ? reject(TypeError$3('Reduce of empty iterator with no initial value')) : resolve(accumulator);
+                } else {
+                  var value = step.value;
+                  if (noInitial) {
+                    noInitial = false;
+                    accumulator = value;
+                    loop();
+                  } else {
+                    Promise$2.resolve(reducer(accumulator, value)).then(function (result) {
+                      accumulator = result;
+                      loop();
+                    }, reject);
+                  }
+                }
+              } catch (err) { reject(err); }
+            }, reject);
+          } catch (error) { reject(error); }
+        };
+
+        loop();
+      });
+    }
+  });
+
+  // https://github.com/tc39/proposal-iterator-helpers
+  var $$f = _export;
+  var global$5 = global$H;
+  var iterate$1 = iterate$3;
+  var aCallable$7 = aCallable$e;
+  var anObject$c = anObject$r;
+
+  var TypeError$2 = global$5.TypeError;
+
+  $$f({ target: 'Iterator', proto: true, real: true, forced: true }, {
+    reduce: function reduce(reducer /* , initialValue */) {
+      anObject$c(this);
+      aCallable$7(reducer);
+      var noInitial = arguments.length < 2;
+      var accumulator = noInitial ? undefined : arguments[1];
+      iterate$1(this, function (value) {
+        if (noInitial) {
+          noInitial = false;
+          accumulator = value;
+        } else {
+          accumulator = reducer(accumulator, value);
+        }
+      }, { IS_ITERATOR: true });
+      if (noInitial) throw TypeError$2('Reduce of empty iterator with no initial value');
+      return accumulator;
+    }
+  });
+
+  var $$e = _export;
   var uncurryThis$4 = functionUncurryThis;
   var IndexedObject = indexedObject;
   var toIndexedObject$1 = toIndexedObject$6;
@@ -2631,7 +2708,7 @@
 
   // `Array.prototype.join` method
   // https://tc39.es/ecma262/#sec-array.prototype.join
-  $$g({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
+  $$e({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
     join: function join(separator) {
       return un$Join(toIndexedObject$1(this), separator === undefined ? ',' : separator);
     }
@@ -2657,7 +2734,7 @@
     });
   };
 
-  var $$f = _export;
+  var $$d = _export;
   var $map = arrayIteration.map;
   var arrayMethodHasSpeciesSupport$2 = arrayMethodHasSpeciesSupport$3;
 
@@ -2666,7 +2743,7 @@
   // `Array.prototype.map` method
   // https://tc39.es/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  $$f({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
+  $$d({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -2679,7 +2756,7 @@
     return target;
   };
 
-  var global$6 = global$H;
+  var global$4 = global$H;
   var shared = sharedStore;
   var isCallable$3 = isCallable$j;
   var getPrototypeOf$1 = objectGetPrototypeOf;
@@ -2688,7 +2765,7 @@
 
   var USE_FUNCTION_CONSTRUCTOR = 'USE_FUNCTION_CONSTRUCTOR';
   var ASYNC_ITERATOR = wellKnownSymbol$8('asyncIterator');
-  var AsyncIterator = global$6.AsyncIterator;
+  var AsyncIterator = global$4.AsyncIterator;
   var PassedAsyncIteratorPrototype = shared.AsyncIteratorPrototype;
   var AsyncIteratorPrototype$1, prototype;
 
@@ -2696,7 +2773,7 @@
     AsyncIteratorPrototype$1 = PassedAsyncIteratorPrototype;
   } else if (isCallable$3(AsyncIterator)) {
     AsyncIteratorPrototype$1 = AsyncIterator.prototype;
-  } else if (shared[USE_FUNCTION_CONSTRUCTOR] || global$6[USE_FUNCTION_CONSTRUCTOR]) {
+  } else if (shared[USE_FUNCTION_CONSTRUCTOR] || global$4[USE_FUNCTION_CONSTRUCTOR]) {
     try {
       // eslint-disable-next-line no-new-func -- we have no alternatives without usage of modern syntax
       prototype = getPrototypeOf$1(getPrototypeOf$1(getPrototypeOf$1(Function('return async function*(){}()')())));
@@ -2714,19 +2791,19 @@
 
   var asyncIteratorPrototype = AsyncIteratorPrototype$1;
 
-  var call$7 = functionCall;
-  var aCallable$8 = aCallable$e;
-  var anObject$d = anObject$r;
+  var call$6 = functionCall;
+  var aCallable$6 = aCallable$e;
+  var anObject$b = anObject$r;
   var create$3 = objectCreate;
   var createNonEnumerableProperty$2 = createNonEnumerableProperty$9;
   var redefineAll$1 = redefineAll$2;
   var wellKnownSymbol$7 = wellKnownSymbol$l;
   var InternalStateModule$2 = internalState;
-  var getBuiltIn$1 = getBuiltIn$8;
+  var getBuiltIn = getBuiltIn$8;
   var getMethod$3 = getMethod$9;
   var AsyncIteratorPrototype = asyncIteratorPrototype;
 
-  var Promise$2 = getBuiltIn$1('Promise');
+  var Promise$1 = getBuiltIn('Promise');
 
   var ASYNC_ITERATOR_PROXY = 'AsyncIteratorProxy';
   var setInternalState$2 = InternalStateModule$2.set;
@@ -2737,7 +2814,7 @@
   var asyncIteratorCreateProxy = function (nextHandler, IS_ITERATOR) {
     var AsyncIteratorProxy = function AsyncIterator(state) {
       state.type = ASYNC_ITERATOR_PROXY;
-      state.next = aCallable$8(state.iterator.next);
+      state.next = aCallable$6(state.iterator.next);
       state.done = false;
       state.ignoreArgument = !IS_ITERATOR;
       setInternalState$2(this, state);
@@ -2747,36 +2824,36 @@
       next: function next(arg) {
         var that = this;
         var hasArgument = !!arguments.length;
-        return new Promise$2(function (resolve) {
+        return new Promise$1(function (resolve) {
           var state = getInternalState$2(that);
           var args = hasArgument ? [state.ignoreArgument ? undefined : arg] : IS_ITERATOR ? [] : [undefined];
           state.ignoreArgument = false;
-          resolve(state.done ? { done: true, value: undefined } : anObject$d(call$7(nextHandler, state, Promise$2, args)));
+          resolve(state.done ? { done: true, value: undefined } : anObject$b(call$6(nextHandler, state, Promise$1, args)));
         });
       },
       'return': function (value) {
         var that = this;
-        return new Promise$2(function (resolve, reject) {
+        return new Promise$1(function (resolve, reject) {
           var state = getInternalState$2(that);
           var iterator = state.iterator;
           state.done = true;
           var $$return = getMethod$3(iterator, 'return');
           if ($$return === undefined) return resolve({ done: true, value: value });
-          Promise$2.resolve(call$7($$return, iterator, value)).then(function (result) {
-            anObject$d(result);
+          Promise$1.resolve(call$6($$return, iterator, value)).then(function (result) {
+            anObject$b(result);
             resolve({ done: true, value: value });
           }, reject);
         });
       },
       'throw': function (value) {
         var that = this;
-        return new Promise$2(function (resolve, reject) {
+        return new Promise$1(function (resolve, reject) {
           var state = getInternalState$2(that);
           var iterator = state.iterator;
           state.done = true;
           var $$throw = getMethod$3(iterator, 'throw');
           if ($$throw === undefined) return reject(value);
-          resolve(call$7($$throw, iterator, value));
+          resolve(call$6($$throw, iterator, value));
         });
       }
     });
@@ -2789,18 +2866,18 @@
   };
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$e = _export;
+  var $$c = _export;
   var apply$4 = functionApply;
-  var aCallable$7 = aCallable$e;
-  var anObject$c = anObject$r;
+  var aCallable$5 = aCallable$e;
+  var anObject$a = anObject$r;
   var createAsyncIteratorProxy$1 = asyncIteratorCreateProxy;
 
   var AsyncIteratorProxy$1 = createAsyncIteratorProxy$1(function (Promise, args) {
     var state = this;
     var mapper = state.mapper;
 
-    return Promise.resolve(anObject$c(apply$4(state.next, state.iterator, args))).then(function (step) {
-      if (anObject$c(step).done) {
+    return Promise.resolve(anObject$a(apply$4(state.next, state.iterator, args))).then(function (step) {
+      if (anObject$a(step).done) {
         state.done = true;
         return { done: true, value: undefined };
       }
@@ -2810,18 +2887,18 @@
     });
   });
 
-  $$e({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
+  $$c({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
     map: function map(mapper) {
       return new AsyncIteratorProxy$1({
-        iterator: anObject$c(this),
-        mapper: aCallable$7(mapper)
+        iterator: anObject$a(this),
+        mapper: aCallable$5(mapper)
       });
     }
   });
 
-  var call$6 = functionCall;
-  var aCallable$6 = aCallable$e;
-  var anObject$b = anObject$r;
+  var call$5 = functionCall;
+  var aCallable$4 = aCallable$e;
+  var anObject$9 = anObject$r;
   var create$2 = objectCreate;
   var createNonEnumerableProperty$1 = createNonEnumerableProperty$9;
   var redefineAll = redefineAll$2;
@@ -2839,7 +2916,7 @@
   var iteratorCreateProxy = function (nextHandler, IS_ITERATOR) {
     var IteratorProxy = function Iterator(state) {
       state.type = ITERATOR_PROXY;
-      state.next = aCallable$6(state.iterator.next);
+      state.next = aCallable$4(state.iterator.next);
       state.done = false;
       state.ignoreArg = !IS_ITERATOR;
       setInternalState$1(this, state);
@@ -2850,7 +2927,7 @@
         var state = getInternalState$1(this);
         var args = arguments.length ? [state.ignoreArg ? undefined : arg] : IS_ITERATOR ? [] : [undefined];
         state.ignoreArg = false;
-        var result = state.done ? undefined : call$6(nextHandler, state, args);
+        var result = state.done ? undefined : call$5(nextHandler, state, args);
         return { done: state.done, value: result };
       },
       'return': function (value) {
@@ -2858,14 +2935,14 @@
         var iterator = state.iterator;
         state.done = true;
         var $$return = getMethod$2(iterator, 'return');
-        return { done: true, value: $$return ? anObject$b(call$6($$return, iterator, value)).value : value };
+        return { done: true, value: $$return ? anObject$9(call$5($$return, iterator, value)).value : value };
       },
       'throw': function (value) {
         var state = getInternalState$1(this);
         var iterator = state.iterator;
         state.done = true;
         var $$throw = getMethod$2(iterator, 'throw');
-        if ($$throw) return call$6($$throw, iterator, value);
+        if ($$throw) return call$5($$throw, iterator, value);
         throw value;
       }
     });
@@ -2877,43 +2954,43 @@
     return IteratorProxy;
   };
 
-  var anObject$a = anObject$r;
+  var anObject$8 = anObject$r;
   var iteratorClose = iteratorClose$2;
 
   // call something on iterator step with safe closing on error
   var callWithSafeIterationClosing$3 = function (iterator, fn, value, ENTRIES) {
     try {
-      return ENTRIES ? fn(anObject$a(value)[0], value[1]) : fn(value);
+      return ENTRIES ? fn(anObject$8(value)[0], value[1]) : fn(value);
     } catch (error) {
       iteratorClose(iterator, 'throw', error);
     }
   };
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$d = _export;
+  var $$b = _export;
   var apply$3 = functionApply;
-  var aCallable$5 = aCallable$e;
-  var anObject$9 = anObject$r;
+  var aCallable$3 = aCallable$e;
+  var anObject$7 = anObject$r;
   var createIteratorProxy$1 = iteratorCreateProxy;
   var callWithSafeIterationClosing$2 = callWithSafeIterationClosing$3;
 
   var IteratorProxy$1 = createIteratorProxy$1(function (args) {
     var iterator = this.iterator;
-    var result = anObject$9(apply$3(this.next, iterator, args));
+    var result = anObject$7(apply$3(this.next, iterator, args));
     var done = this.done = !!result.done;
     if (!done) return callWithSafeIterationClosing$2(iterator, this.mapper, result.value);
   });
 
-  $$d({ target: 'Iterator', proto: true, real: true, forced: true }, {
+  $$b({ target: 'Iterator', proto: true, real: true, forced: true }, {
     map: function map(mapper) {
       return new IteratorProxy$1({
-        iterator: anObject$9(this),
-        mapper: aCallable$5(mapper)
+        iterator: anObject$7(this),
+        mapper: aCallable$3(mapper)
       });
     }
   });
 
-  var $$c = _export;
+  var $$a = _export;
   var $filter = arrayIteration.filter;
   var arrayMethodHasSpeciesSupport$1 = arrayMethodHasSpeciesSupport$3;
 
@@ -2922,17 +2999,17 @@
   // `Array.prototype.filter` method
   // https://tc39.es/ecma262/#sec-array.prototype.filter
   // with adding support of @@species
-  $$c({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
+  $$a({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
     filter: function filter(callbackfn /* , thisArg */) {
       return $filter(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
   });
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$b = _export;
+  var $$9 = _export;
   var apply$2 = functionApply;
-  var aCallable$4 = aCallable$e;
-  var anObject$8 = anObject$r;
+  var aCallable$2 = aCallable$e;
+  var anObject$6 = anObject$r;
   var createAsyncIteratorProxy = asyncIteratorCreateProxy;
 
   var AsyncIteratorProxy = createAsyncIteratorProxy(function (Promise, args) {
@@ -2942,9 +3019,9 @@
     return new Promise(function (resolve, reject) {
       var loop = function () {
         try {
-          Promise.resolve(anObject$8(apply$2(state.next, state.iterator, args))).then(function (step) {
+          Promise.resolve(anObject$6(apply$2(state.next, state.iterator, args))).then(function (step) {
             try {
-              if (anObject$8(step).done) {
+              if (anObject$6(step).done) {
                 state.done = true;
                 resolve({ done: true, value: undefined });
               } else {
@@ -2962,20 +3039,20 @@
     });
   });
 
-  $$b({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
+  $$9({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
     filter: function filter(filterer) {
       return new AsyncIteratorProxy({
-        iterator: anObject$8(this),
-        filterer: aCallable$4(filterer)
+        iterator: anObject$6(this),
+        filterer: aCallable$2(filterer)
       });
     }
   });
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$a = _export;
+  var $$8 = _export;
   var apply$1 = functionApply;
-  var aCallable$3 = aCallable$e;
-  var anObject$7 = anObject$r;
+  var aCallable$1 = aCallable$e;
+  var anObject$5 = anObject$r;
   var createIteratorProxy = iteratorCreateProxy;
   var callWithSafeIterationClosing$1 = callWithSafeIterationClosing$3;
 
@@ -2985,7 +3062,7 @@
     var next = this.next;
     var result, done, value;
     while (true) {
-      result = anObject$7(apply$1(next, iterator, args));
+      result = anObject$5(apply$1(next, iterator, args));
       done = this.done = !!result.done;
       if (done) return;
       value = result.value;
@@ -2993,11 +3070,11 @@
     }
   });
 
-  $$a({ target: 'Iterator', proto: true, real: true, forced: true }, {
+  $$8({ target: 'Iterator', proto: true, real: true, forced: true }, {
     filter: function filter(filterer) {
       return new IteratorProxy({
-        iterator: anObject$7(this),
-        filterer: aCallable$3(filterer)
+        iterator: anObject$5(this),
+        filterer: aCallable$1(filterer)
       });
     }
   });
@@ -3023,7 +3100,7 @@
     ArrayPrototype[UNSCOPABLES][key] = true;
   };
 
-  var $$9 = _export;
+  var $$7 = _export;
   var $find$1 = arrayIteration.find;
   var addToUnscopables$1 = addToUnscopables$2;
 
@@ -3035,7 +3112,7 @@
 
   // `Array.prototype.find` method
   // https://tc39.es/ecma262/#sec-array.prototype.find
-  $$9({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
+  $$7({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find$1(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3045,105 +3122,28 @@
   addToUnscopables$1(FIND);
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$8 = _export;
+  var $$6 = _export;
   var $find = asyncIteratorIteration.find;
 
-  $$8({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
+  $$6({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
     find: function find(fn) {
       return $find(this, fn);
     }
   });
 
   // https://github.com/tc39/proposal-iterator-helpers
-  var $$7 = _export;
-  var iterate$1 = iterate$3;
-  var aCallable$2 = aCallable$e;
-  var anObject$6 = anObject$r;
-
-  $$7({ target: 'Iterator', proto: true, real: true, forced: true }, {
-    find: function find(fn) {
-      anObject$6(this);
-      aCallable$2(fn);
-      return iterate$1(this, function (value, stop) {
-        if (fn(value)) return stop(value);
-      }, { IS_ITERATOR: true, INTERRUPTED: true }).result;
-    }
-  });
-
-  // https://github.com/tc39/proposal-iterator-helpers
-  var $$6 = _export;
-  var global$5 = global$H;
-  var call$5 = functionCall;
-  var aCallable$1 = aCallable$e;
-  var anObject$5 = anObject$r;
-  var getBuiltIn = getBuiltIn$8;
-
-  var Promise$1 = getBuiltIn('Promise');
-  var TypeError$3 = global$5.TypeError;
-
-  $$6({ target: 'AsyncIterator', proto: true, real: true, forced: true }, {
-    reduce: function reduce(reducer /* , initialValue */) {
-      var iterator = anObject$5(this);
-      var next = aCallable$1(iterator.next);
-      var noInitial = arguments.length < 2;
-      var accumulator = noInitial ? undefined : arguments[1];
-      aCallable$1(reducer);
-
-      return new Promise$1(function (resolve, reject) {
-        var loop = function () {
-          try {
-            Promise$1.resolve(anObject$5(call$5(next, iterator))).then(function (step) {
-              try {
-                if (anObject$5(step).done) {
-                  noInitial ? reject(TypeError$3('Reduce of empty iterator with no initial value')) : resolve(accumulator);
-                } else {
-                  var value = step.value;
-                  if (noInitial) {
-                    noInitial = false;
-                    accumulator = value;
-                    loop();
-                  } else {
-                    Promise$1.resolve(reducer(accumulator, value)).then(function (result) {
-                      accumulator = result;
-                      loop();
-                    }, reject);
-                  }
-                }
-              } catch (err) { reject(err); }
-            }, reject);
-          } catch (error) { reject(error); }
-        };
-
-        loop();
-      });
-    }
-  });
-
-  // https://github.com/tc39/proposal-iterator-helpers
   var $$5 = _export;
-  var global$4 = global$H;
   var iterate = iterate$3;
   var aCallable = aCallable$e;
   var anObject$4 = anObject$r;
 
-  var TypeError$2 = global$4.TypeError;
-
   $$5({ target: 'Iterator', proto: true, real: true, forced: true }, {
-    reduce: function reduce(reducer /* , initialValue */) {
+    find: function find(fn) {
       anObject$4(this);
-      aCallable(reducer);
-      var noInitial = arguments.length < 2;
-      var accumulator = noInitial ? undefined : arguments[1];
-      iterate(this, function (value) {
-        if (noInitial) {
-          noInitial = false;
-          accumulator = value;
-        } else {
-          accumulator = reducer(accumulator, value);
-        }
-      }, { IS_ITERATOR: true });
-      if (noInitial) throw TypeError$2('Reduce of empty iterator with no initial value');
-      return accumulator;
+      aCallable(fn);
+      return iterate(this, function (value, stop) {
+        if (fn(value)) return stop(value);
+      }, { IS_ITERATOR: true, INTERRUPTED: true }).result;
     }
   });
 
@@ -4577,6 +4577,15 @@
         var _from = value === '' ? null : hf.parseDate.call(_, _range[0]).date,
             _to = value === '' ? null : hf.parseDate.call(_, _range[1]).date;
 
+        var canSet = _._canSetValue('range', {
+          from: _from,
+          to: _to
+        });
+
+        if (!canSet.canSet) {
+          throw new Error(canSet.remarks);
+        }
+
         this.dateFrom = _from;
         this.dateTo = _to;
         this.rangeFrom = null;
@@ -4633,15 +4642,35 @@
         dates = dates.sort(function (a, b) {
           return a > b ? 1 : a < b ? -1 : 0;
         });
+
+        var _canSet = _._canSetValue('multiple', dates);
+
+        if (!_canSet.canSet) {
+          throw new Error(_canSet.remarks);
+        }
+
+        var starting = dates.length > 0 ? dates.reduce(function (a, b) {
+          return a < b ? a : b;
+        }) : new Date();
         this.dates = _toConsumableArray(dates);
         this.selectedDates = _toConsumableArray(dates);
+        this.viewYear = starting.getFullYear();
+        this.viewMonth = starting.getMonth();
         hf.setAttributes(_.input, {
           'value': dates.map(function (d) {
             return hf.formatDate.call(_, d, _.config.outFormat || _.config.format);
           }).join(',')
-        }); // _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
+        });
       } else {
-        this.date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date;
+        var date = _.input.value === '' ? _date : hf.parseDate.call(_, _.input.value).date;
+
+        var _canSet2 = _._canSetValue('default', date);
+
+        if (!_canSet2.canSet) {
+          throw new Error(_canSet2.remarks);
+        }
+
+        this.date = date;
         this.selected = hf.dateToJson(_.date);
         this.viewMonth = _.selected.month;
         this.viewYear = _.selected.year;
@@ -4819,8 +4848,7 @@
             if (!_.rangeFrom || !_.rangeTo) return;
 
             var _from = hf.jsonToDate(_.rangeFrom),
-                _to = hf.jsonToDate(_.rangeTo); // if (_._dateDisabled(_from) || _._dateDisabled(_to)) return
-
+                _to = hf.jsonToDate(_.rangeTo);
 
             if (_._rangeHasDisabled()) return;
             _.dateFrom = _from;
@@ -4847,6 +4875,16 @@
         if (_.config.events && _.config.events.ready) _.config.events.ready.call(_, _);
       }
       /**
+       * Gets the current date
+       */
+
+    }, {
+      key: "_getToday",
+      value: function _getToday() {
+        var now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      }
+      /**
        * Determines if date is in the selected date range
        * @param {Date} date Date object
        */
@@ -4863,6 +4901,27 @@
         return _from && date > _from && _to && date < _to;
       }
       /**
+       * Determines if date is beyond the minDate, maxDate, minYear or maxYear configurations (if any)
+       * @param {Date} date Date object
+       */
+
+    }, {
+      key: "_beyondMinMax",
+      value: function _beyondMinMax(date) {
+        var _ = this,
+            config = _.config,
+            min = null,
+            max = null,
+            dateYear = date.getFullYear(),
+            today = _._getToday(),
+            minYearCap = config.minYear && dateYear < config.minYear,
+            maxYearCap = config.maxYear && dateYear > config.maxYear;
+
+        if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
+        if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
+        return min && date < min || max && date > max || minYearCap || maxYearCap;
+      }
+      /**
        * Determines if date is disabled
        * @param {Date} date Date object
        * @returns {Boolean} `true` if specified date should be disabled, `false` otherwise
@@ -4872,11 +4931,6 @@
       key: "_dateDisabled",
       value: function _dateDisabled(date) {
         var _ = this,
-            min = null,
-            max = null,
-            dateYear = date.getFullYear(),
-            now = new Date(),
-            today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
             _dates = _.config.disabledDates,
             _days = _.config.disabledDays,
             _inDates = _dates.filter(function (x) {
@@ -4886,13 +4940,9 @@
             dayName = _.config.i18n.days[day],
             dayNameShort = _.config.i18n.shortDays[day],
             dayNameShorter = _.config.i18n.shorterDays[day],
-            _inDays = _days.indexOf(dayName) >= 0 || _days.indexOf(dayNameShort) >= 0 || _days.indexOf(dayNameShorter) >= 0,
-            minYearCap = _.config.minYear && dateYear < _.config.minYear,
-            maxYearCap = _.config.maxYear && dateYear > _.config.maxYear;
+            _inDays = _days.indexOf(dayName) >= 0 || _days.indexOf(dayNameShort) >= 0 || _days.indexOf(dayNameShorter) >= 0;
 
-        if (_.minDate) min = _.minDate === "today" ? today : new Date(_.minDate);
-        if (_.maxDate) max = _.maxDate === "today" ? today : new Date(_.maxDate);
-        return min && date < min || max && date > max || _inDates || _inDays || minYearCap || maxYearCap;
+        return _inDates || _inDays || _._beyondMinMax(date);
       }
       /**
        * Determines if selected date range has a disabled date
@@ -4928,8 +4978,7 @@
       value: function _getDates(year, month) {
         var _ = this,
             day = 1,
-            now = new Date(),
-            today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+            today = _._getToday(),
             selected = _.config.range || _.config.multiple ? null : hf.jsonToDate(_.selected),
             rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
             rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null,
@@ -5142,6 +5191,38 @@
         return datesDOM;
       }
       /**
+       * Gets the year limits (min and max)
+       * @param {boolean} yearsView Determines limits will be used for years selection view
+       */
+
+    }, {
+      key: "_getYearLimits",
+      value: function _getYearLimits() {
+        var yearsView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+        var _ = this,
+            minDate = null,
+            maxDate = null,
+            today = _._getToday();
+
+        if (_.minDate) minDate = _.minDate === "today" ? today : new Date(_.minDate);
+        if (_.maxDate) maxDate = _.maxDate === "today" ? today : new Date(_.maxDate);
+
+        var _minCandidates = [yearsView ? _.viewYear - _.config.priorYears : null, _.config.minYear, minDate ? minDate.getFullYear() : null].filter(function (x) {
+          return x != null;
+        }),
+            _maxCandidates = [yearsView ? _.viewYear + _.config.laterYears : null, _.config.maxYear, maxDate ? maxDate.getFullYear() : null].filter(function (x) {
+          return x != null;
+        }),
+            minYear = _minCandidates.length > 0 ? Math.max.apply(Math, _toConsumableArray(_minCandidates)) : null,
+            maxYear = _maxCandidates.length > 0 ? Math.min.apply(Math, _toConsumableArray(_maxCandidates)) : null;
+
+        return {
+          minYear: minYear,
+          maxYear: maxYear
+        };
+      }
+      /**
        * @returns {HTMLSpanElement[]} Returns years range for the years view
        */
 
@@ -5149,8 +5230,9 @@
       key: "_getYears",
       value: function _getYears() {
         var _ = this,
-            _minYear = _.viewYear - _.config.priorYears,
-            _maxYear = _.viewYear + _.config.laterYears,
+            limits = _._getYearLimits(true),
+            _minYear = limits.minYear,
+            _maxYear = limits.maxYear,
             _years = [];
 
         for (var y = _minYear; y <= _maxYear; y++) {
@@ -5165,7 +5247,7 @@
                 _data = parseInt(_this.dataset.year);
 
             _.viewYear = _data;
-            if (!_.config.range) _.selected.year = _data;
+            if (!_.config.range && !_.config.multiple) _.selected.year = _data;
 
             _._setSelection();
 
@@ -5179,6 +5261,10 @@
 
         return _years;
       }
+      /**
+       * Sets up the months DOM
+       */
+
     }, {
       key: "_setupMonths",
       value: function _setupMonths() {
@@ -5204,7 +5290,7 @@
             hf.appendTo(monthElem, monthRow);
             hf.addEvent(monthElem, 'click', function (e) {
               var _this = this,
-                  _data = _this.dataset.month;
+                  _data = parseInt(_this.dataset.month);
 
               _.viewMonth = _data;
 
@@ -5273,10 +5359,10 @@
             class: 'dudp__dates-holder'
           })
         },
-            prevMonth = _month === 0 ? 11 : _month - 1,
-            nextMonth = _month === 11 ? 0 : _month + 1,
-            prevYear = _month === 0 ? _year - 1 : _year,
-            nextYear = _month === 11 ? _year + 1 : _year;
+            prevMonth = _month == 0 ? 11 : _month - 1,
+            nextMonth = _month == 11 ? 0 : _month + 1,
+            prevYear = _month == 0 ? _year - 1 : _year,
+            nextYear = _month == 11 ? _year + 1 : _year;
         hf.appendTo([hf.createElem('span', {
           class: 'cal-month'
         }, _.config.i18n.months[prevMonth]), hf.createElem('span', {
@@ -5408,14 +5494,24 @@
             _animDuration = 250,
             _isNext = direction === 'next';
 
-        if (_isNext ? _.viewMonth + 1 > 11 : _.viewMonth - 1 < 0) _.viewYear += _isNext ? 1 : -1;
-        _.viewMonth = _isNext ? _.viewMonth + 1 > 11 ? 0 : _.viewMonth + 1 : _.viewMonth - 1 < 0 ? 11 : _.viewMonth - 1;
+        var viewYear = parseInt(_.viewYear);
+        var viewMonth = parseInt(_.viewMonth);
+        if (_isNext ? viewMonth + 1 > 11 : viewMonth - 1 < 0) viewYear += _isNext ? 1 : -1;
+        viewMonth = _isNext ? viewMonth + 1 > 11 ? 0 : viewMonth + 1 : viewMonth - 1 < 0 ? 11 : viewMonth - 1; // Check min/max year
+
+        var yearLimits = _._getYearLimits();
+
+        var minYear = yearLimits.minYear;
+        var maxYear = yearLimits.maxYear;
+        if (_isNext && maxYear && viewYear > maxYear) return;else if (!_isNext && minYear && viewYear < minYear) return;
+        _.viewYear = viewYear;
+        _.viewMonth = viewMonth;
         _.animating = true; //Start animation
 
         var animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right');
         viewsHolder.wrapper.querySelectorAll('.dudp__calendar').forEach(function (cal) {
           cal.classList.add(animateClass);
-        }); //Setup new (previos or next) month calendar
+        }); //Setup new (previous or next) month calendar
 
         var _year = _.viewYear,
             _month = _isNext ? _.viewMonth + 1 : _.viewMonth - 1;
@@ -5476,12 +5572,12 @@
           _.viewYear = _date.getFullYear();
           _.viewMonth = _date.getMonth();
         } else if (_.config.multiple) {
-          var _date2 = _.dates.length > 0 ? _.dates.reduce(function (a, b) {
+          var starting = _.dates.length > 0 ? _.dates.reduce(function (a, b) {
             return a < b ? a : b;
           }) : new Date();
-
-          _.viewYear = _date2.getFullYear();
-          _.viewMonth = _date2.getMonth();
+          _.selectedDates = _toConsumableArray(_.dates);
+          _.viewYear = starting.getFullYear();
+          _.viewMonth = starting.getMonth();
         } else {
           _.selected = hf.dateToJson(_.date);
           _.viewYear = _.selected.year;
@@ -5514,6 +5610,52 @@
         picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT);
       }
       /**
+       * Determines if the value(s) given can be set as the date picker's value (constraint check on minDate, maxDate, minYear, maxYear)
+       * @param {string} mode Mode of the date picker (i.e. range, multiple)
+       * @param {(Date|Date[]|Object)} value Value to be set
+       * @param {Date} value.from Date from value (for range mode)
+       * * @param {Date} value.to Date to value (for range mode)
+       */
+
+    }, {
+      key: "_canSetValue",
+      value: function _canSetValue(mode, value) {
+        if (mode != 'range' && mode != 'multiple' && mode != 'default') return false;
+
+        var _ = this,
+            config = _.config,
+            canSet = true,
+            invalidDate = '';
+
+        if (mode == 'range' && value.from && value.to) {
+          if (_._beyondMinMax(value.from)) {
+            canSet = false;
+            invalidDate = hf.formatDate.call(_, value.from, config.format);
+          } else if (_._beyondMinMax(value.to)) {
+            canSet = false;
+            invalidDate = hf.formatDate.call(_, value.to, config.format);
+          }
+        } else if (mode == 'multiple') {
+          for (var i = 0; i < value.length; i++) {
+            var date = value[i];
+
+            if (_._beyondMinMax(date)) {
+              canSet = false;
+              invalidDate = hf.formatDate.call(_, date, config.format);
+              break;
+            }
+          }
+        } else if (mode == 'default' && _._beyondMinMax(value)) {
+          canSet = false;
+          invalidDate = hf.formatDate.call(_, value, config.format);
+        }
+
+        return {
+          canSet: canSet,
+          remarks: "\"".concat(invalidDate, "\" is beyond the selectable date(s). Kindly check minDate, maxDate, minYear or maxYear configurations.")
+        };
+      }
+      /**
        * Sets the value of the input
        * @param {(string|Date|string[])} value The new input value. If the value specified is a string, it will be parsed using `config.format`.
        * @param {Boolean} triggerEvt Determines if change events should be triggered
@@ -5542,6 +5684,15 @@
               formattedTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.format),
               outTo = _empty ? '' : hf.formatDate.call(_, _to, _.config.outFormat || _.config.format),
               valueDisp = _empty ? '' : _.config.events && _.config.events.onRangeFormat ? _.formatRange(_from, _to) : _range[0] === _range[1] ? _range[0] : value;
+
+          var canSet = _._canSetValue('range', {
+            from: _from,
+            to: _to
+          });
+
+          if (!canSet.canSet) {
+            throw new Error(canSet.remarks);
+          }
 
           _.dateFrom = _from;
           _.dateTo = _to;
@@ -5590,6 +5741,13 @@
           if (dates.length > 0) dates = dates.sort(function (a, b) {
             return a > b ? 1 : a < b ? -1 : 0;
           });
+
+          var _canSet3 = _._canSetValue('multiple', dates);
+
+          if (!_canSet3.canSet) {
+            throw new Error(_canSet3.remarks);
+          }
+
           _.dates = _toConsumableArray(dates);
           _.viewYear = starting.getFullYear();
           _.viewMonth = starting.getMonth();
@@ -5597,8 +5755,7 @@
             'value': dates.map(function (d) {
               return hf.formatDate.call(_, d, _.config.outFormat || _.config.format);
             }).join(',')
-          }); // _.input.value = dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format)).join(',')
-
+          });
           changeData = {
             _dates: _empty ? [] : _.dates,
             dates: _empty ? [] : _.dates.map(function (d) {
@@ -5608,6 +5765,13 @@
         } else {
           var date = typeof value === 'string' ? _empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date : value,
               formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format);
+
+          var _canSet4 = _._canSetValue('default', date);
+
+          if (!_canSet4.canSet) {
+            throw new Error(_canSet4.remarks);
+          }
+
           _.date = date;
           _.viewYear = date.getFullYear();
           _.viewMonth = date.getMonth();
