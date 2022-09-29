@@ -61,6 +61,7 @@
 		<h3>Multi select</h3>
 		<!-- <input type="text" id="multipicker" value="07/01/2021,06/01/2021"> -->
 		<input type="text" id="multipicker">
+		<input type="text" id="datepicker4" value="30-Sep-2022">
 		<div id="logger">
 			<span>Logger:</span>
 			<textarea id="loggerTxt" rows="10" disabled></textarea>
@@ -185,6 +186,15 @@
 			})
 			duDatepicker('#multipicker', 'setValue', tmp_values)
 			// duDatepicker('#multipicker', 'show')
+
+			duDatepicker('#datepicker4', {
+				format:'dd-mmm-yyyy'
+			})
+
+			document.addEventListener('datechanged', function(e){
+				e.preventDefault();
+				log(JSON.stringify(e.data))
+			})
 		})
 	</script>
 </body>

@@ -4081,6 +4081,7 @@
           monthLength = (_format.match(/m/g) || []).length,
           yearLength = (_format.match(/y/g) || []).length,
           isFullMonth = monthLength === 4,
+          isShortMonth = monthLength === 3,
           isMonthNoPadding = monthLength === 1,
           isDayNoPadding = dayLength === 1,
           lastIndex = date.length,
@@ -4107,6 +4108,14 @@
         });
         month = _.config.i18n.months[monthIdx];
         _format = _format.replace('mmmm', month);
+        firstD = _format.indexOf('d');
+        firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length);
+      }else if (isShortMonth) {
+        monthIdx = _.config.i18n.shortMonths.findIndex(function (m) {
+          return date.indexOf(m) >= 0;
+        });
+        month = _.config.i18n.shortMonths[monthIdx];
+        _format = _format.replace('mmm', month);
         firstD = _format.indexOf('d');
         firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length);
       } else if (!isDayNoPadding && !isMonthNoPadding || isDayNoPadding && !isMonthNoPadding && firstM < firstD) {
@@ -4166,21 +4175,25 @@
      * @param {Object} data Event data
      */
     triggerChange: function triggerChange(el, data) {
-      var change = document.createEvent('Event');
-      var onChange = document.createEvent('Event');
-      change.initEvent('change', false, false);
-      onChange.initEvent('onchange', false, false);
-      el.dispatchEvent(change);
-      el.dispatchEvent(onChange);
+      var changeEvt = new Event('change', {
+        bubbles: false,
+        cancelable:false
+      });
+      var onChangeEvt = new Event('onchange', {
+        bubbles: true,
+        cancelable:false
+      });
+      
+      el.dispatchEvent(changeEvt);
+      el.dispatchEvent(onChangeEvt);
 
-      function CustomEvent(data) {
-        var changeEvt = document.createEvent('CustomEvent');
-        changeEvt.initCustomEvent('datechanged', false, false, null);
-        changeEvt.data = data;
-        return changeEvt;
-      }
+      var dateChangeEvt = new Event('datechanged', {
+        bubbles: true,
+        cancelable:false
+      });
 
-      el.dispatchEvent(new CustomEvent(data));
+      dateChangeEvt.data = data;
+      el.dispatchEvent(dateChangeEvt);
     },
 
     /**
