@@ -4110,14 +4110,6 @@
         _format = _format.replace('mmmm', month);
         firstD = _format.indexOf('d');
         firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length);
-      }else if (isShortMonth) {
-        monthIdx = _.config.i18n.shortMonths.findIndex(function (m) {
-          return date.indexOf(m) >= 0;
-        });
-        month = _.config.i18n.shortMonths[monthIdx];
-        _format = _format.replace('mmm', month);
-        firstD = _format.indexOf('d');
-        firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length);
       } else if (!isDayNoPadding && !isMonthNoPadding || isDayNoPadding && !isMonthNoPadding && firstM < firstD) {
         month = date.substr(firstM, monthLength);
       } else {
@@ -4165,7 +4157,9 @@
         m: month,
         d: day,
         y: year,
-        date: new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
+        date: isNaN(parseInt(month))
+        ? new Date(year + "-" + month + "-" + date)
+        : new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
       };
     },
 
