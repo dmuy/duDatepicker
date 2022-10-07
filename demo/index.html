@@ -52,7 +52,7 @@
 		<h2>Date picker</h2>
 		<table id="mycalendar"></table>
 		<input type="text" id="datepicker1" data-maxdate="today" value="11/15/2021-11/18/2021">
-		<input type="text" id="datepicker2">
+		<input type="text" id="datepicker2" value="20-Oct-2022">
 		<h3>Range</h3>
 		<input type="text" id="daterange">
 		<input type="text" id="range-from">
@@ -133,10 +133,23 @@
 				setI18n: new duDatepicker.i18n.Locale(months, null, days, null, null, 1)
 			})
 
-			duDatepicker('#datepicker2, #datepicker3', {
-				format: 'DD mmmm d, yyyy', //range: true,
+			duDatepicker('#datepicker2', {
+				format: 'dd-mmm-yyyy', //range: true,
 				// i18n: 'ru',
 				// firstDay: 2,
+				events: {
+					dateChanged: function (data) {
+						console.log(data)
+						log('Date: ' + data.date)
+					}
+				},
+				root: '#dp-holder'
+			})
+
+			duDatepicker('#datepicker3', {
+				format: 'mmm d, yyyy', //range: true,
+				i18n: 'ru',
+				firstDay: 2,
 				events: {
 					dateChanged: function (data) {
 						console.log(data)

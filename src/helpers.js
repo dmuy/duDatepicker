@@ -230,7 +230,7 @@ export const hf = {
                 case 'mmmm':
                     return i18n.months[m]
                 case 'yy':
-                    return y.toString().substr(2, 2)
+                    return y.toString().substring(2, 4)
                 case 'yyyy':
                     return y
             }
@@ -246,9 +246,9 @@ export const hf = {
             dayLength = (_format.match(/d/g) || []).length,
             monthLength = (_format.match(/m/g) || []).length,
             yearLength = (_format.match(/y/g) || []).length,
-            isFullMonth = monthLength === 4,
-            isMonthNoPadding = monthLength === 1,
-            isDayNoPadding = dayLength === 1,
+            isFullMonth = monthLength == 4,
+            isMonthNoPadding = monthLength == 1,
+            isDayNoPadding = dayLength == 1,
             lastIndex = date.length,
             firstM = _format.indexOf('m'), firstD = _format.indexOf('d'), firstY = _format.indexOf('y'),
             month = '', day = '', year = '',
@@ -264,9 +264,11 @@ export const hf = {
             _format = _format.replace('mmmm', month)
             firstD = _format.indexOf('d')
             firstY = firstY < firstM ? _format.indexOf('y') : _format.indexOf('y', _format.indexOf(month) + month.length)
-        } else if (!isDayNoPadding && !isMonthNoPadding || (isDayNoPadding && !isMonthNoPadding && firstM < firstD)) {
-            month = date.substr(firstM, monthLength)
-        } else {
+        }
+        else if (!isDayNoPadding && !isMonthNoPadding || (isDayNoPadding && !isMonthNoPadding && firstM < firstD)) {
+            month = date.substring(firstM, firstM + monthLength)
+        } 
+        else {
             let lastIndexM = _format.lastIndexOf('m')
 
             before = _format.substring(firstM - 1, firstM)
@@ -283,7 +285,7 @@ export const hf = {
 
         // Get date on given date string using the format (default or specified)
         if (!isDayNoPadding && !isMonthNoPadding || (!isDayNoPadding && isMonthNoPadding && firstD < firstM)) {
-            day = date.substr(firstD, dayLength)
+            day = date.substring(firstD, firstD + dayLength)
         } else {
             let lastIndexD = _format.lastIndexOf('d')
 
@@ -302,17 +304,21 @@ export const hf = {
         // Get year on given date string using the format (default or specified)
         if (!isMonthNoPadding && !isDayNoPadding || (isMonthNoPadding && isDayNoPadding && firstY < firstM && firstY < firstD)
             || (!isMonthNoPadding && isDayNoPadding && firstY < firstD) || (isMonthNoPadding && !isDayNoPadding && firstY < firstM)) {
-            year = date.substr(firstY, yearLength)
+            year = date.substring(firstY, firstY + yearLength)
         } else {
             before = _format.substring(firstY - 1, firstY)
-            year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength)
+            let yearStart = date.indexOf(before, firstY - 1) + 1
+
+            year = date.substring(yearStart, yearStart + yearLength)
         }
 
         return {
             m: month,
             d: day,
             y: year,
-            date: new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
+            date: isNaN(parseInt(month)) ?
+                new Date(`${year}-${month}-${day}`) : 
+                new Date(year, isNaN(parseInt(month)) ? monthIdx : month - 1, day)
         }
     },
     /**
@@ -321,25 +327,15 @@ export const hf = {
      * @param {Object} data Event data
      */
     triggerChange (el, data) {
-        let change = document.createEvent('Event')
-        let onChange = document.createEvent('Event')
-        
-        change.initEvent('change', false, false)
-        onChange.initEvent('onchange', false, false)
+        let change = new Event('change', { bubbles: true, cancelable: false })
+        let onChange = new Event('onchange', { bubbles: true, cancelable: false })
+        let dateChanged = new Event('datechanged', { bubbles: true, cancelable: false })
+
+        dateChanged.data = data
 
         el.dispatchEvent(change)
         el.dispatchEvent(onChange)
-
-        function CustomEvent(data) {
-            let changeEvt = document.createEvent('CustomEvent')
-
-            changeEvt.initCustomEvent('datechanged', false, false, null)
-            changeEvt.data = data
-
-            return changeEvt
-        }
-
-        el.dispatchEvent(new CustomEvent(data))
+        el.dispatchEvent(dateChanged)
     },
     /**
      * Creates HTML for the days of the week
@@ -382,5 +378,172 @@ export const hf = {
      * Determines if object is an HTML element
      * @returns `true` if the object is an instance of an HTML element; `false` otherwise
      */
-    isElement (obj) { return obj instanceof Element }
+    isElement (obj) { return obj instanceof Element },
+    /**
+     * Swipe event handler
+     * @param {Element} elem HTML element
+     * @param {Object} callbacks Swipe event callbacks
+     * @param {Function} callbacks.swipeRight Callback when swiping right
+     * @param {Function} callbacks.swipeLeft Callback when swiping left
+     */
+    swipeEvent(elem, callbacks) {
+        let clientX = 0, clientY = 0,
+            lastX = 0, lastY = 0
+
+        this.addEvent(elem, 'touchstart', e => {
+            clientX = e.touches[0].clientX
+            clientY = e.touches[0].clientY
+        })
+
+        this.addEvent(elem, 'touchend', e => {
+            lastX = e.changedTouches[0].clientX
+            lastY = e.changedTouches[0].clientY
+
+            let deltaX = clientX - lastX,
+                deltaY = clientY - lastY,
+                swipeRight = deltaX > 100 && Math.abs(deltaY) <= 50,
+                swipeLeft = deltaX < -100 && Math.abs(deltaY) <= 50
+
+            if (swipeRight && callbacks?.swipeRight) callbacks.swipeRight()
+            else if (swipeLeft && callbacks?.swipeLeft) callbacks.swipeLeft()
+        })
+    },
+    /**
+     * Click event handler for date elements
+     * @param {Element} dateElem Date element
+     */
+    dateClickEvent(dateElem) {
+        let _ = this
+
+        hf.addEvent(dateElem, 'click', function () {
+            let _this = this, _year = _this.dataset.year, _month = _this.dataset.month, _date = _this.dataset.date,
+                _selected = new Date(_year, _month, _date),
+                isFrom = false
+
+            if (_._dateDisabled(_selected))
+                return
+
+            if (_.config.range) {
+                let rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+                    rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
+
+                if (!_.rangeFrom || (_.rangeFrom && _selected < rangeFrom) ||
+                    (_.rangeFrom && _.rangeTo && hf.dateDiff(rangeFrom, _selected) <= hf.dateDiff(_selected, rangeTo) && hf.dateDiff(rangeFrom, _selected) !== 0) ||
+                    (_.rangeFrom && _.rangeTo && rangeTo.getTime() === _selected.getTime())) {
+                    _.rangeFrom = { year: _year, month: _month, date: _date }
+                    isFrom = true
+                }
+                else if (!_.rangeTo || (_.rangeTo && _selected > rangeTo) ||
+                    (_.rangeFrom && _.rangeTo && hf.dateDiff(_selected, rangeTo) < hf.dateDiff(rangeFrom, _selected) && hf.dateDiff(_selected, rangeTo) !== 0) ||
+                    (_.rangeFrom && _.rangeTo && rangeFrom.getTime() === _selected.getTime())) {
+                    _.rangeTo = { year: _year, month: _month, date: _date }
+                    isFrom = false
+                }
+
+                _.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
+                    let _deYear = delem.dataset.year, _deMonth = delem.dataset.month, _deDate = delem.dataset.date,
+                        _inRange = _._inRange(new Date(_deYear, _deMonth, _deDate))
+
+                    delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove'](isFrom ? 'range-from' : 'range-to')
+                    delem.classList[_inRange ? 'add' : 'remove']('in-range')
+                    delem.classList.remove(...['range-from-preview', 'range-to-preview', 'in-range-preview'])
+                })
+            }
+            else {
+                if (_.config.multiple) {
+                    let isSelected = _this.classList.contains('selected')
+
+                    _.datepicker.calendarHolder.calendarViews.wrapper
+                        .querySelectorAll(`.dudp__date[data-date="${_date}"][data-month="${_month}"][data-year="${_year}"]`)
+                        .forEach(function (delem) {
+                            delem.classList[isSelected ? 'remove' : 'add']('selected')
+                        })
+
+                    if (isSelected) _.selectedDates = _.selectedDates.filter(sd => sd.getTime() !== _selected.getTime())
+                    else _.selectedDates.push(_selected)
+                    _._setSelection()
+                }
+                else {
+                    _.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
+                        let _deYear = delem.dataset.year,
+                            _deMonth = delem.dataset.month,
+                            _deDate = delem.dataset.date
+
+                        delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove']('selected')
+                    })
+
+                    _.selected = { year: _year, month: _month, date: _date }
+                    _._setSelection()
+
+                    if (_.config.auto) {
+                        _.date = _selected
+                        _.setValue(_.date)
+                        _.hide()
+                    }
+                }
+            }
+
+            _.datepicker.calendarHolder.wrapper.querySelectorAll('.dudp__month').forEach(function (melem) {
+                let _meMonth = melem.dataset.month
+
+                melem.classList[_meMonth === _month ? 'add' : 'remove']('selected')
+            })
+        })
+    },
+    /**
+     * Hover event handler for date elements
+     * @param {Element} dateElem Date element
+     */
+    dateHoverEvent(dateElem) {
+        let _ = this,
+            inRange = (selected, isFrom, date) => {
+                let _from = isFrom ? selected : _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+                    _to = !isFrom ? selected : _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
+        
+                return (_from && date > _from) && (_to && date < _to)
+            }
+
+        hf.addEvent(dateElem, 'mouseover', function () {
+            let _this = this, _year = _this.dataset.year, _month = _this.dataset.month, _date = _this.dataset.date,
+                _selected = new Date(_year, _month, _date),
+                isFrom = false
+
+            if (_._dateDisabled(_selected) || _this.classList.contains('range-from') || _this.classList.contains('range-to')) return
+
+            if (_.rangeFrom) {
+                let rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
+                    rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
+
+                if (!_.rangeFrom || (_.rangeFrom && _selected < rangeFrom) ||
+                    (_.rangeFrom && _.rangeTo && hf.dateDiff(rangeFrom, _selected) <= hf.dateDiff(_selected, rangeTo) && hf.dateDiff(rangeFrom, _selected) !== 0) ||
+                    (_.rangeFrom && _.rangeTo && rangeTo.getTime() === _selected.getTime())) {
+                    isFrom = true
+                } else if (!_.rangeTo || (_.rangeTo && _selected > rangeTo) ||
+                    (_.rangeFrom && _.rangeTo && hf.dateDiff(_selected, rangeTo) < hf.dateDiff(rangeFrom, _selected) && hf.dateDiff(_selected, rangeTo) !== 0) ||
+                    (_.rangeFrom && _.rangeTo && rangeFrom.getTime() === _selected.getTime())) {
+                    isFrom = false
+                }
+
+                _.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
+                    let _deYear = delem.dataset.year, _deMonth = delem.dataset.month, _deDate = delem.dataset.date,
+                        _inRange = inRange(_selected, isFrom, new Date(_deYear, _deMonth, _deDate))
+
+                    delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove'](isFrom ? 'range-from-preview' : 'range-to-preview')
+                    delem.classList[_inRange ? 'add' : 'remove']('in-range-preview')
+                })
+            }
+        })
+
+        hf.addEvent(dateElem, 'mouseout', function() {
+            let _this = this, _year = _this.dataset.year, _month = _this.dataset.month, _date = _this.dataset.date,
+                _selected = new Date(_year, _month, _date)
+
+            if (_._dateDisabled(_selected)) return
+
+            _.datepicker.calendarHolder.calendarViews.wrapper
+                .querySelectorAll('.dudp__date.range-from-preview, .dudp__date.range-to-preview, .dudp__date.in-range-preview').forEach(delem => {
+                    delem.classList.remove(...['range-from-preview', 'range-to-preview', 'in-range-preview'])
+                })
+        })
+    }
 }

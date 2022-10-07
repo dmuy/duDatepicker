@@ -392,6 +392,12 @@ class _duDatePicker {
 			_.hide()
 		})
 
+		// calendar swipe event
+		hf.swipeEvent(this.datepicker.calendarHolder.wrapper, {
+			swipeRight() { _._move('next') },
+			swipeLeft() { _._move('prev') }
+		})
+
 		if (_.config.events && _.config.events.ready)
 			_.config.events.ready.call(_, _)
 	}
@@ -601,76 +607,9 @@ class _duDatePicker {
 				let dateElem = datesEl[i]
 
 				// Attach click handler for dates
-				hf.addEvent(dateElem, 'click', function () {
-					let _this = this, _year = _this.dataset.year, _month = _this.dataset.month, _date = _this.dataset.date,
-						_selected = new Date(_year, _month, _date),
-						isFrom = false
+				hf.dateClickEvent.call(_, dateElem)
 
-					if (_._dateDisabled(_selected))
-						return
-
-					if (_.config.range) {
-						let rangeFrom = _.rangeFrom ? hf.jsonToDate(_.rangeFrom) : null,
-							rangeTo = _.rangeTo ? hf.jsonToDate(_.rangeTo) : null
-
-						if (!_.rangeFrom || (_.rangeFrom && _selected < rangeFrom) ||
-							(_.rangeFrom && _.rangeTo && hf.dateDiff(rangeFrom, _selected) <= hf.dateDiff(_selected, rangeTo) && hf.dateDiff(rangeFrom, _selected) !== 0) ||
-							(_.rangeFrom && _.rangeTo && rangeTo.getTime() === _selected.getTime())) {
-							_.rangeFrom = { year: _year, month: _month, date: _date }
-							isFrom = true
-						} else if (!_.rangeTo || (_.rangeTo && _selected > rangeTo) ||
-							(_.rangeFrom && _.rangeTo && hf.dateDiff(_selected, rangeTo) < hf.dateDiff(rangeFrom, _selected) && hf.dateDiff(_selected, rangeTo) !== 0) ||
-							(_.rangeFrom && _.rangeTo && rangeFrom.getTime() === _selected.getTime())) {
-							_.rangeTo = { year: _year, month: _month, date: _date }
-							isFrom = false
-						}
-
-						_.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
-							let _deYear = delem.dataset.year, _deMonth = delem.dataset.month, _deDate = delem.dataset.date,
-								_inRange = _._inRange(new Date(_deYear, _deMonth, _deDate))
-
-							delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove'](isFrom ? 'range-from' : 'range-to')
-							delem.classList[_inRange ? 'add' : 'remove']('in-range')
-						})
-					} else {
-						if (_.config.multiple) {
-							let isSelected = _this.classList.contains('selected')
-
-							_.datepicker.calendarHolder.calendarViews.wrapper
-								.querySelectorAll('.dudp__date[data-date="' + _date + '"][data-month="'+ _month +'"][data-year="'+ _year +'"]')
-								.forEach(function (delem) {
-									delem.classList[isSelected ? 'remove' : 'add']('selected')
-								})
-
-							if (isSelected) _.selectedDates = _.selectedDates.filter(sd => sd.getTime() !== _selected.getTime())
-							else _.selectedDates.push(_selected)
-							_._setSelection()
-						} else {
-							_.datepicker.calendarHolder.calendarViews.wrapper.querySelectorAll('.dudp__date').forEach(function (delem) {
-								let _deYear = delem.dataset.year,
-									_deMonth = delem.dataset.month,
-									_deDate = delem.dataset.date
-
-								delem.classList[(_year === _deYear && _month === _deMonth && _date === _deDate) ? 'add' : 'remove']('selected')
-							})
-
-							_.selected = { year: _year, month: _month, date: _date }
-							_._setSelection()
-
-							if (_.config.auto) {
-								_.date = _selected
-								_.setValue(_.date)
-								_.hide()
-							}
-						}
-					}
-
-					_.datepicker.calendarHolder.wrapper.querySelectorAll('.dudp__month').forEach(function (melem) {
-						let _meMonth = melem.dataset.month
-
-						melem.classList[_meMonth === _month ? 'add' : 'remove']('selected')
-					})
-				})
+				if (_.config.range) hf.dateHoverEvent.call(_, dateElem)
 
 				hf.appendTo(dateElem, weekDOM)
 			}
@@ -954,7 +893,7 @@ class _duDatePicker {
 		_.animating = true
 
 		//Start animation
-		let animateClass = 'dp__animate-' + (_isNext ? 'left' : 'right')
+		let animateClass = `dp__animate-${(_isNext ? 'left' : 'right')}`
 
 		viewsHolder.wrapper.querySelectorAll('.dudp__calendar').forEach(function (cal) {
 			cal.classList.add(animateClass)

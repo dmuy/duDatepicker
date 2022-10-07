@@ -25,10 +25,10 @@ class Locale {
      */
     constructor(months, shortMonths, days, shortDays, shorterDays, firstDay, dict) {
         this.months = months
-        this.shortMonths = shortMonths || this.months.map(x => x.substr(0, 3))
+        this.shortMonths = shortMonths || this.months.map(x => x.substring(0, 3))
         this.days = days
-        this.shortDays = shortDays || this.days.map(x => x.substr(0, 3))
-        this.shorterDays = shorterDays || this.days.map(x => x.substr(0, 2))
+        this.shortDays = shortDays || this.days.map(x => x.substring(0, 3))
+        this.shorterDays = shorterDays || this.days.map(x => x.substring(0, 2))
         this.firstDay = firstDay
         this.dict = hf.extend(DICT_DEFAULTS, dict)
     }

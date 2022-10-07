@@ -1,5 +1,5 @@
 /*!Don't remove this!
- * duDatePicker styles
+ * duDatepicker styles
  * 
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
@@ -246,6 +246,21 @@ $calHdrSize: 48px;        // calendar header height
                     }
 
                     &.range-from.range-to { border-radius: 50%; }
+
+                    &.range-from-preview,
+                    &.range-to-preview,
+                    &.in-range-preview {
+                        background-color: rgba(100, 100, 100, 0.07);
+                        border-radius: 0;
+                    }
+
+                    &.range-from-preview {
+                        border-radius: 50% 0 0 50%;
+                    }
+
+                    &.range-to-preview {
+                        border-radius: 0 50% 50% 0;
+                    }
                 }
             }
         }

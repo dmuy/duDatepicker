@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 
+const pjson = require('./package.json')
 const libName = 'duDatepicker',
     outputJs = `${libName}.js`
 
@@ -20,7 +21,7 @@ export default {
         file: `dist/${outputJs}`,
         format: 'umd',
         name: libName,
-        banner: "/*!Don't remove this!\n * duDatePicker v2.0 plugin (Vanilla JS)\n * https://github.com/dmuy/duDatepicker\n *\n * Author: Dionlee Uy\n * Email: dionleeuy@gmail.com\n */"
+        banner: `/*!Don't remove this!\n * duDatepicker v${pjson.version} plugin (Vanilla JS)\n * ${pjson.homepage}\n *\n * Author: ${pjson.author.name}\n * Email: ${pjson.author.email}\n */`
     },
     plugins: plugins
 }
