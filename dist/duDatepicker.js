@@ -1,5 +1,5 @@
 /*!Don't remove this!
- * duDatepicker v2.0.3 plugin (Vanilla JS)
+ * duDatepicker v2.0.4 plugin (Vanilla JS)
  * https://dmuy.github.io/duDatepicker/
  *
  * Author: Dionlee Uy
