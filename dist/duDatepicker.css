@@ -33,7 +33,6 @@
   overflow: hidden;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   outline: none;
   border-radius: 4px;
@@ -71,7 +70,6 @@
   width: 284px;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   overflow: hidden;
   flex: 0 1 auto;

@@ -1,16 +1,17 @@
 import './dist/duDatepicker.css'
 import duDatepicker from './dist/duDatepicker.js'
+import { h } from 'vue'
 
 export default {
-    install(Vue, options) {
+    install(app, options) {
 
         if (! options) options = {}
         else duDatepicker.defaults(options)
 
         // <du-datepicker /> component
-        Vue.component('duDatepicker', {
-            render(createElement) {
-                return createElement('input', {
+        app.component('duDatepicker', {
+            render() {
+                return h('input', {
                     domProps: {
                         type: 'text'
                     },
@@ -57,13 +58,13 @@ export default {
                 // initialize
                 duDatepicker(this.$el, { ...this.options, ...evtProps })
             },
-            destroyed() {
+            beforeUnmounted() {
                 this.destroy()
             }
         })
 
         // v-du-datepicker directive
-        Vue.directive('du-datepicker', {
+        app.directive('du-datepicker', {
             bind(el, binding) {
                 duDatepicker(el, binding.value)
             },
