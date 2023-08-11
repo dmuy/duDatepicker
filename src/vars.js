@@ -16,11 +16,6 @@ export const DATA_KEY = '_duDatepicker'
 export const DEFAULT_CLASS = '.duDatepicker-input'
 
 /**
- * Header selected date format
- */
-export const SELECTED_FORMAT = 'D, mmm d'
-
-/**
  * Default date picker configurations
  */
 export const DEFAULTS = {
@@ -30,6 +25,8 @@ export const DEFAULTS = {
     format: 'mm/dd/yyyy',
     // Determines the date format of the 'datechanged' callback; 'format' config will be used by default
     outFormat: null,
+    // Default header selected date format
+    selectedFormat: 'D, mmm d',
     // Determines the color theme of the date picker
     theme: 'blue',
     // Determines if clicking the date will automatically select it; OK button will not be displayed if true
