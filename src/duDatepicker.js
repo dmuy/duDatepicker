@@ -93,8 +93,8 @@ class _duDatePicker {
 		this.minDate = _.input.dataset.mindate || _.config.minDate
 		this.maxDate = _.input.dataset.maxdate || _.config.maxDate
 
-		// current selected date, default is today if no value given
-		let _date = new Date()
+		// current selected date, default is dependent on minDate and maxDate if no value given
+		let _date = this._getDefault();
 
 		if (_.config.range) {
 			let value = (_.input.value || _.config.value) || '', _range = value ? value.split(_.config.rangeDelim) : []
@@ -408,6 +408,19 @@ class _duDatePicker {
 		let now = new Date()
 		return new Date(now.getFullYear(), now.getMonth(), now.getDate())
 	}
+
+	/**
+	 * Gets the default date dependent on minDate & maxDate
+	 */
+	_getDefault(){
+		let defaultDate = new Date();
+		if (this._beyondMinMax(defaultDate)) {
+		  let lessDate = this.minDate ? this.minDate : this.maxDate;
+		  defaultDate = new Date(lessDate);
+		}
+		return defaultDate;
+	}
+
 	/**
 	 * Determines if date is in the selected date range
 	 * @param {Date} date Date object
@@ -979,7 +992,7 @@ class _duDatePicker {
 				hf.jsonToDate(_.selected)
 
 		picker.header.selectedYear.innerText = selected.getFullYear()
-		picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, SELECTED_FORMAT)
+		picker.header.selectedDate.innerText = hf.formatDate.call(_, selected, _.config.selectFormat)
 	}
 	/**
 	 * Determines if the value(s) given can be set as the date picker's value (constraint check on minDate, maxDate, minYear, maxYear)
@@ -1115,7 +1128,7 @@ class _duDatePicker {
 				dates: _empty ? [] : _.dates.map(d => hf.formatDate.call(_, d, _.config.outFormat || _.config.format))
 			}
 		} else {
-			let date = typeof value === 'string' ? (_empty ? new Date() : hf.parseDate.call(_, value, _.config.format).date) : value,
+			let date = typeof value === 'string' ? (_empty ? this._getDefault() : hf.parseDate.call(_, value, _.config.format).date) : value,
 				formatted = _empty ? '' : hf.formatDate.call(_, date, _.config.format)
 			
 			let canSet = _._canSetValue('default', date)
